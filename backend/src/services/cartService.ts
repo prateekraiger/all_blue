@@ -1,29 +1,38 @@
-const supabase = require('../config/supabase');
-const { AppError } = require('../middlewares/errorHandler');
+import supabase from '../config/supabase';
+import { AppError } from '../middlewares/errorHandler';
+import type { Cart, CartItem } from '../types';
 
 /**
- * Get user's cart with product details.
+ * Get a user's cart with nested product details.
+ * Filters out cart items referencing inactive or deleted products.
  */
-const getCart = async (userId) => {
+export const getCart = async (userId: string): Promise<Cart> => {
   const { data, error } = await supabase
     .from('cart')
-    .select(`
+    .select(
+      `
       id,
       quantity,
       created_at,
       product:products (
         id, name, price, images, category, stock, is_active
       )
-    `)
+    `
+    )
     .eq('user_id', userId);
 
   if (error) throw new AppError(error.message, 500);
 
-  // Filter out inactive products
-  const items = (data || []).filter((item) => item.product?.is_active);
+  // The join returns product as an object (not array) in Supabase v2
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawItems: any[] = data ?? [];
+
+  // Only keep cart items whose product is still active
+  const items = rawItems.filter((item) => item.product?.is_active) as CartItem[];
 
   const subtotal = items.reduce(
-    (sum, item) => sum + (item.product?.price || 0) * item.quantity,
+    (sum, item) =>
+      sum + ((item.product as unknown as { price: number })?.price ?? 0) * item.quantity,
     0
   );
 
@@ -35,10 +44,15 @@ const getCart = async (userId) => {
 };
 
 /**
- * Add item to cart. If product already exists, increment quantity.
+ * Add a product to the user's cart.
+ * If the product is already in the cart, the quantity is incremented.
  */
-const addToCart = async (userId, productId, quantity = 1) => {
-  // Verify product exists and has stock
+export const addToCart = async (
+  userId: string,
+  productId: string,
+  quantity: number = 1
+): Promise<CartItem> => {
+  // Verify product exists, is active, and has sufficient stock
   const { data: product, error: pError } = await supabase
     .from('products')
     .select('id, stock, is_active')
@@ -49,7 +63,7 @@ const addToCart = async (userId, productId, quantity = 1) => {
   if (!product.is_active) throw new AppError('Product is not available', 400);
   if (product.stock < quantity) throw new AppError('Insufficient stock', 400);
 
-  // Check if already in cart
+  // Check if product is already in the cart
   const { data: existing } = await supabase
     .from('cart')
     .select('id, quantity')
@@ -58,7 +72,7 @@ const addToCart = async (userId, productId, quantity = 1) => {
     .single();
 
   if (existing) {
-    const newQty = existing.quantity + quantity;
+    const newQty: number = existing.quantity + quantity;
     if (product.stock < newQty) throw new AppError('Insufficient stock', 400);
 
     const { data, error } = await supabase
@@ -69,7 +83,7 @@ const addToCart = async (userId, productId, quantity = 1) => {
       .single();
 
     if (error) throw new AppError(error.message, 500);
-    return data;
+    return data as CartItem;
   }
 
   const { data, error } = await supabase
@@ -79,14 +93,19 @@ const addToCart = async (userId, productId, quantity = 1) => {
     .single();
 
   if (error) throw new AppError(error.message, 500);
-  return data;
+  return data as CartItem;
 };
 
 /**
- * Update quantity of a cart item.
+ * Update the quantity of an existing cart item.
+ * Verifies ownership and sufficient stock.
  */
-const updateCartItem = async (userId, cartItemId, quantity) => {
-  // Verify ownership
+export const updateCartItem = async (
+  userId: string,
+  cartItemId: string,
+  quantity: number
+): Promise<CartItem> => {
+  // Verify the cart item belongs to this user
   const { data: item } = await supabase
     .from('cart')
     .select('id, product_id')
@@ -96,7 +115,7 @@ const updateCartItem = async (userId, cartItemId, quantity) => {
 
   if (!item) throw new AppError('Cart item not found', 404);
 
-  // Check stock
+  // Check available stock
   const { data: product } = await supabase
     .from('products')
     .select('stock')
@@ -116,13 +135,17 @@ const updateCartItem = async (userId, cartItemId, quantity) => {
     .single();
 
   if (error) throw new AppError(error.message, 500);
-  return data;
+  return data as CartItem;
 };
 
 /**
- * Remove an item from cart.
+ * Remove a single item from the cart.
+ * Only the owning user may remove their own items.
  */
-const removeFromCart = async (userId, cartItemId) => {
+export const removeFromCart = async (
+  userId: string,
+  cartItemId: string
+): Promise<{ message: string }> => {
   const { error } = await supabase
     .from('cart')
     .delete()
@@ -134,11 +157,10 @@ const removeFromCart = async (userId, cartItemId) => {
 };
 
 /**
- * Clear all items from user's cart (used after successful order).
+ * Clear all items in a user's cart.
+ * Used internally after a successful order is placed.
  */
-const clearCart = async (userId) => {
+export const clearCart = async (userId: string): Promise<void> => {
   const { error } = await supabase.from('cart').delete().eq('user_id', userId);
   if (error) throw new AppError(error.message, 500);
 };
-
-module.exports = { getCart, addToCart, updateCartItem, removeFromCart, clearCart };
