@@ -5,13 +5,16 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { AuthProvider } from "@/context/AuthContext"
+import { CartProvider } from "@/context/CartContext"
+import { Toaster } from "@/components/ui/sonner"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ALL BLUE - Modern E-Commerce Store",
-  description: "Curating beautiful, functional pieces for your space. Quality craftsmanship meets timeless design.",
+  title: "ALL BLUE - Modern Gift Store",
+  description: "Curating beautiful gifts for every occasion. Quality craftsmanship meets timeless design.",
   generator: "v0.app",
   icons: {
     icon: [
@@ -40,14 +43,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <div className="max-w-[1200px] mx-auto">
-          <Navigation />
-        </div>
-        {children}
-        <div className="max-w-[1200px] mx-auto">
-          <Footer />
-        </div>
-        <Analytics />
+        <AuthProvider>
+          <CartProvider>
+            <Navigation />
+            {children}
+            <div className="max-w-[1200px] mx-auto">
+              <Footer />
+            </div>
+            <Toaster position="bottom-right" />
+            <Analytics />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )
