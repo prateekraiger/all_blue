@@ -3,14 +3,14 @@ import Link from "next/link"
 
 const collections = [
   {
-    title: "Living Room",
-    image: "/living_room.png",
-    link: "/shop?category=Living Room",
+    title: "Gifts for Him",
+    image: "/collection_him.png",
+    link: "/shop?category=Gifts for Him",
   },
   {
-    title: "Bedroom",
-    image: "/bedroom.png",
-    link: "/shop?category=Bedroom",
+    title: "Gifts for Her",
+    image: "/collection_her.png",
+    link: "/shop?category=Gifts for Her",
   },
 ]
 

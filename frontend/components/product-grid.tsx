@@ -10,10 +10,10 @@ import { toast } from "sonner"
 
 // Fallback static products (shown when API is unavailable)
 const FALLBACK_PRODUCTS: Product[] = [
-  { id: "1", name: "Modern Lounge Chair", category: "Furniture", price: 29900, tags: [], images: ["/product_chair.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "2", name: "Solid Walnut Dining Table", category: "Furniture", price: 59900, tags: [], images: ["/product_table.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "3", name: "Minimalist Sofa", category: "Furniture", price: 89900, tags: [], images: ["/product_sofa.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "4", name: "Matte Pendant Lamp", category: "Lighting", price: 15900, tags: [], images: ["/product_lamp.png"], stock: 10, is_active: true, created_at: new Date().toISOString() }
+  { id: "1", name: "Classic Men's Watch", category: "Gifts for Him", price: 29900, tags: [], images: ["/gift_watch.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "2", name: "Designer Perfume", category: "Gifts for Her", price: 15900, tags: [], images: ["/gift_perfume.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "3", name: "Artisan Chocolates", category: "Gifts", price: 5900, tags: [], images: ["/gift_chocolates.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "4", name: "Elegant Floral Bouquet", category: "Gifts", price: 8900, tags: [], images: ["/gift_bouquet.png"], stock: 10, is_active: true, created_at: new Date().toISOString() }
 ]
 
 interface ProductGridProps {

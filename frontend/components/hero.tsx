@@ -10,10 +10,10 @@ export function Hero() {
             New Collection
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold leading-none mb-5 md:mb-7 lg:mb-8 xl:mb-9 tracking-tight">
-            All Blue Design
+            All Blue Gifts
           </h1>
           <p className="text-base md:text-lg lg:text-xl xl:text-xl text-neutral-500 mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg xl:max-w-xl leading-relaxed mx-auto md:mx-0">
-            Discover our latest collection of minimalist furniture and home decor.
+            Discover our latest collection of luxury gifts, curated to perfection.
           </p>
           <Link
             href="/shop"
@@ -25,8 +25,8 @@ export function Hero() {
 
         <div className="flex-1 md:flex-[1.1] lg:flex-[1.2] xl:flex-[1.2] relative w-full">
           <Image
-            src="/hero_image.png"
-            alt="Hero furniture"
+            src="/hero_gift.png"
+            alt="Hero gifts"
             width={900}
             height={800}
             className="w-full h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] 2xl:h-[800px] object-cover grayscale hover:grayscale-0 transition-all duration-500"
