@@ -16,7 +16,7 @@ export function Hero() {
             Discover our latest collection of minimalist furniture and home decor.
           </p>
           <Link
-            href="#"
+            href="/shop"
             className="inline-block bg-foreground text-background px-8 md:px-10 lg:px-12 xl:px-14 py-4 md:py-4 lg:py-5 xl:py-6 font-semibold text-sm lg:text-base uppercase tracking-widest hover:bg-neutral-700 hover:-translate-y-0.5 transition-all"
           >
             Shop Now

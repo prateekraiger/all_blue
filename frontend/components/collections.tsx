@@ -5,12 +5,12 @@ const collections = [
   {
     title: "Living Room",
     image: "/modern-minimalist-living-room.jpg",
-    link: "#",
+    link: "/shop?category=Living Room",
   },
   {
     title: "Bedroom",
     image: "/modern-minimalist-bedroom.png",
-    link: "#",
+    link: "/shop?category=Bedroom",
   },
 ]
 

@@ -4,7 +4,7 @@ import { Search, ShoppingBag, User, Menu, X, LogOut, Package, LayoutDashboard, M
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect, useCallback } from "react"
-import { useAuth } from "@/context/AuthContext"
+import { useUser, useStackApp } from "@stackframe/stack"
 import { useCart } from "@/context/CartContext"
 import { searchApi } from "@/lib/api"
 import type { Product } from "@/lib/api"
@@ -20,9 +20,10 @@ export function Navigation() {
   const [isListening, setIsListening] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const debounceTimer = useRef<NodeJS.Timeout>()
+  const debounceTimer = useRef<NodeJS.Timeout>(null!)
   const router = useRouter()
-  const { user, signOut, isAdmin } = useAuth()
+  const user = useUser()
+  const stackApp = useStackApp()
   const { itemCount } = useCart()
 
   // Close menus on outside click
@@ -94,7 +95,7 @@ export function Navigation() {
   }
 
   const handleSignOut = async () => {
-    await signOut()
+    await stackApp.signOut()
     setUserMenuOpen(false)
     router.push("/")
     toast.success("Signed out successfully")
@@ -193,7 +194,7 @@ export function Navigation() {
             <button
               className="cursor-pointer bg-transparent border-none hover:opacity-70 transition-opacity"
               onClick={() => {
-                if (!user) router.push("/auth/login")
+                if (!user) router.push("/sign-in")
                 else setUserMenuOpen(!userMenuOpen)
               }}
             >
@@ -211,7 +212,7 @@ export function Navigation() {
                 <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-neutral-50 transition-colors">
                   <Package className="w-4 h-4" /> My Orders
                 </Link>
-                {isAdmin && (
+                {user?.clientMetadata?.role === "admin" && (
                   <Link href="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-neutral-50 transition-colors">
                     <LayoutDashboard className="w-4 h-4" /> Admin
                   </Link>
@@ -268,7 +269,7 @@ export function Navigation() {
                   <User className="w-5 h-5" />
                 </button>
               ) : (
-                <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)} className="cursor-pointer hover:opacity-70 transition-opacity">
+                <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)} className="cursor-pointer hover:opacity-70 transition-opacity">
                   <User className="w-5 h-5" />
                 </Link>
               )}

@@ -1,4 +1,4 @@
-import type React from "react"
+import React, { Suspense } from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
@@ -8,6 +8,8 @@ import { Footer } from "@/components/footer"
 import { AuthProvider } from "@/context/AuthContext"
 import { CartProvider } from "@/context/CartContext"
 import { Toaster } from "@/components/ui/sonner"
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackServerApp } from "@/stack/server";
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -43,17 +45,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <AuthProvider>
-          <CartProvider>
-            <Navigation />
-            {children}
-            <div className="max-w-[1200px] mx-auto">
-              <Footer />
-            </div>
-            <Toaster position="bottom-right" />
-            <Analytics />
-          </CartProvider>
-        </AuthProvider>
+        <StackProvider app={stackServerApp}>
+          <StackTheme>
+            <Suspense fallback={null}>
+              <AuthProvider>
+                <CartProvider>
+                  <Navigation />
+                  {children}
+                  <div className="max-w-[1200px] mx-auto">
+                    <Footer />
+                  </div>
+                  <Toaster position="bottom-right" />
+                  <Analytics />
+                </CartProvider>
+              </AuthProvider>
+            </Suspense>
+          </StackTheme>
+        </StackProvider>
       </body>
     </html>
   )

@@ -3,17 +3,13 @@
 import {
   createContext,
   useContext,
-  useEffect,
-  useState,
-  useCallback,
   type ReactNode,
 } from "react";
-import type { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { useUser, useStackApp } from "@stackframe/stack";
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   token: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -34,56 +30,40 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const stackUser = useUser();
+  const stackApp = useStackApp();
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+  // Map Stack user to what components expect
+  const user = stackUser ? {
+    id: stackUser.id,
+    email: stackUser.primaryEmail,
+    user_metadata: {
+      full_name: stackUser.displayName || stackUser.primaryEmail,
+      role: stackUser.clientMetadata?.role || 'user'
+    }
+  } : null;
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+  const loading = false; // Stack handles loading internally and useUser returns null while loading or signed out
+  const token = null; // Stack handles tokens internally
+  const isAdmin = stackUser?.clientMetadata?.role === "admin";
 
-    return () => subscription.unsubscribe();
-  }, []);
+  const signIn = async (email: string, password: string) => {
+    // This is handled by Stack's sign-in page, but providing for compatibility
+    console.warn("signIn called on AuthContext, use Stack's SignIn component instead");
+  };
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  }, []);
+  const signUp = async (email: string, password: string, name: string) => {
+    // This is handled by Stack's sign-up page
+    console.warn("signUp called on AuthContext, use Stack's SignUp component instead");
+  };
 
-  const signUp = useCallback(async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name },
-      },
-    });
-    if (error) throw error;
-  }, []);
-
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-  }, []);
-
-  const token = session?.access_token ?? null;
-  const isAdmin = user?.user_metadata?.role === "admin";
+  const signOut = async () => {
+    await stackApp.signOut();
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user, session, token, loading, signIn, signUp, signOut, isAdmin }}
+      value={{ user, session: null, token, loading, signIn, signUp, signOut, isAdmin }}
     >
       {children}
     </AuthContext.Provider>
