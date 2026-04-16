@@ -4,12 +4,12 @@ import Link from "next/link"
 const collections = [
   {
     title: "Living Room",
-    image: "/modern-minimalist-living-room.jpg",
+    image: "/living_room.png",
     link: "/shop?category=Living Room",
   },
   {
     title: "Bedroom",
-    image: "/modern-minimalist-bedroom.png",
+    image: "/bedroom.png",
     link: "/shop?category=Bedroom",
   },
 ]

@@ -25,7 +25,7 @@ export function Hero() {
 
         <div className="flex-1 md:flex-[1.1] lg:flex-[1.2] xl:flex-[1.2] relative w-full">
           <Image
-            src="/modern-minimalist-chair.jpg"
+            src="/hero_image.png"
             alt="Hero furniture"
             width={900}
             height={800}

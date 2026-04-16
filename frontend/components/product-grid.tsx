@@ -10,12 +10,10 @@ import { toast } from "sonner"
 
 // Fallback static products (shown when API is unavailable)
 const FALLBACK_PRODUCTS: Product[] = [
-  { id: "1", name: "Modern Chair", category: "Furniture", price: 29900, tags: [], images: ["/modern-minimalist-chair.jpg"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "2", name: "Ceramic Vase", category: "Decor", price: 8900, tags: [], images: ["/minimalist-ceramic-vase.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "3", name: "Wood Table", category: "Furniture", price: 59900, tags: [], images: ["/minimalist-wood-table.jpg"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "4", name: "Pendant Lamp", category: "Lighting", price: 15900, tags: [], images: ["/minimalist-pendant-lamp.jpg"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "5", name: "Storage Unit", category: "Furniture", price: 44900, tags: [], images: ["/minimalist-storage-cabinet.jpg"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "6", name: "Wall Mirror", category: "Decor", price: 19900, tags: [], images: ["/minimalist-round-mirror.jpg"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "1", name: "Modern Lounge Chair", category: "Furniture", price: 29900, tags: [], images: ["/product_chair.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "2", name: "Solid Walnut Dining Table", category: "Furniture", price: 59900, tags: [], images: ["/product_table.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "3", name: "Minimalist Sofa", category: "Furniture", price: 89900, tags: [], images: ["/product_sofa.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "4", name: "Matte Pendant Lamp", category: "Lighting", price: 15900, tags: [], images: ["/product_lamp.png"], stock: 10, is_active: true, created_at: new Date().toISOString() }
 ]
 
 interface ProductGridProps {
@@ -98,7 +96,7 @@ export function ProductGrid({
 
   useEffect(() => {
     if (propProducts) {
-      setProducts(propProducts)
+      setProducts(propProducts.length > 0 ? propProducts : FALLBACK_PRODUCTS)
       setLoading(propLoading ?? false)
       return
     }
