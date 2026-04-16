@@ -122,6 +122,9 @@ export function Navigation() {
           <Link href="/about" className="text-foreground text-sm lg:text-base font-normal uppercase tracking-widest hover:opacity-50 transition-opacity">
             About
           </Link>
+          <Link href="/corporate-gifting" className="text-foreground text-sm lg:text-base font-normal uppercase tracking-widest hover:opacity-50 transition-opacity">
+            Corporate Gifting
+          </Link>
           <Link href="/contact" className="text-foreground text-sm lg:text-base font-normal uppercase tracking-widest hover:opacity-50 transition-opacity">
             Contact
           </Link>
@@ -204,7 +207,7 @@ export function Navigation() {
               <div className="absolute top-8 right-0 w-52 bg-white border border-neutral-200 shadow-lg z-50">
                 <div className="px-4 py-3 border-b border-neutral-100">
                   <div className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Account</div>
-                  <div className="text-sm font-medium truncate mt-1">{user.email}</div>
+                  <div className="text-sm font-medium truncate mt-1">{user.primaryEmail}</div>
                 </div>
                 <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-neutral-50 transition-colors">
                   <User className="w-4 h-4" /> Profile
@@ -256,6 +259,9 @@ export function Navigation() {
             </Link>
             <Link href="/about" className="text-foreground text-sm font-normal uppercase tracking-widest hover:opacity-50 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
               About
+            </Link>
+            <Link href="/corporate-gifting" className="text-foreground text-sm font-normal uppercase tracking-widest hover:opacity-50 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
+              Corporate Gifting
             </Link>
             <Link href="/contact" className="text-foreground text-sm font-normal uppercase tracking-widest hover:opacity-50 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
               Contact
