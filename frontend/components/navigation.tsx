@@ -4,6 +4,7 @@ import { Search, ShoppingBag, User, Menu, X, LogOut, Package, LayoutDashboard, M
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect, useCallback } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { useUser, useStackApp } from "@stackframe/stack"
 import { useCart } from "@/context/CartContext"
 import { searchApi } from "@/lib/api"
@@ -102,7 +103,7 @@ export function Navigation() {
   }
 
   return (
-    <nav className="flex justify-between items-center py-4 md:py-6 lg:py-7 xl:py-8 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 border-b border-neutral-100 bg-white sticky top-0 z-50 w-full">
+    <nav className="flex justify-between items-center py-4 md:py-5 lg:py-6 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-50 w-full transition-all duration-300">
       <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center">
         {/* Logo */}
         <div className="text-xl md:text-2xl lg:text-3xl xl:text-3xl font-extrabold tracking-tight uppercase">
@@ -144,7 +145,12 @@ export function Navigation() {
               <Search className="w-5 h-5" />
             </button>
             {searchOpen && (
-              <div className="absolute top-8 right-0 w-80 bg-white border border-neutral-200 shadow-lg z-50">
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute top-10 right-0 w-96 bg-white/90 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 rounded-2xl overflow-hidden"
+              >
                 <form onSubmit={handleSearchSubmit} className="flex items-center border-b border-neutral-100 px-3">
                   <Search className="w-4 h-4 text-neutral-400 shrink-0" />
                   <input
@@ -191,7 +197,7 @@ export function Navigation() {
                     </Link>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
           </div>
 

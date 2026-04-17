@@ -4,12 +4,43 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { ShoppingBag, Star, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Box, X } from "lucide-react"
+import { ShoppingBag, Star, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Box, X, Gift, CheckCircle2 } from "lucide-react"
 import { productsApi, reviewsApi, aiApi, type Product, type Review } from "@/lib/api"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { ProductGrid } from "@/components/product-grid"
 import { toast } from "sonner"
+import { motion, AnimatePresence } from "framer-motion"
+
+function MagneticButton({ children, className, onClick, disabled }: { children: React.ReactNode; className?: string; onClick?: () => void; disabled?: boolean }) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouse = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX - (left + width / 2)) * 0.35;
+    const y = (clientY - (top + height / 2)) * 0.35;
+    setPosition({ x, y });
+  };
+
+  const reset = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+
+  return (
+    <motion.button
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+    >
+      {children}
+    </motion.button>
+  );
+}
 
 function StarRating({ rating, onRate, interactive = false }: { rating: number; onRate?: (r: number) => void; interactive?: boolean }) {
   const [hover, setHover] = useState(0)
@@ -48,6 +79,25 @@ export default function ProductDetailPage() {
   const [reviewRating, setReviewRating] = useState(0)
   const [reviewComment, setReviewComment] = useState("")
   const [submittingReview, setSubmittingReview] = useState(false)
+
+  // Premium Features States
+  const [isGiftWrap, setIsGiftWrap] = useState(false)
+  const [giftMessage, setGiftMessage] = useState("")
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [showSticky, setShowSticky] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show sticky CTA after scrolling past the main buy section
+      if (window.scrollY > 800) {
+        setShowSticky(true)
+      } else {
+        setShowSticky(false)
+      }
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -90,8 +140,10 @@ export default function ProductDetailPage() {
     if (!product) return
     try {
       setAdding(true)
-      await addItem(product, quantity)
+      await addItem(product, quantity, isGiftWrap, giftMessage)
+      setIsSuccess(true)
       toast.success(`${product.name} added to cart`)
+      setTimeout(() => setIsSuccess(false), 2000)
     } catch (err: any) {
       toast.error(err.message || "Failed to add to cart")
     } finally {
@@ -285,25 +337,84 @@ export default function ProductDetailPage() {
                   +
                 </button>
               </div>
-              <button
+              <MagneticButton
                 onClick={handleAddToCart}
-                disabled={adding}
-                className="flex-1 bg-foreground text-background py-3 font-semibold text-sm uppercase tracking-widest hover:bg-neutral-700 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                disabled={adding || isSuccess}
+                className={`flex-1 ${isSuccess ? 'bg-green-600' : 'bg-foreground'} text-background py-3 font-semibold text-sm uppercase tracking-widest hover:bg-neutral-700 transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden relative`}
               >
-                <ShoppingBag className="w-4 h-4" />
-                {adding ? "Adding..." : "Add to Cart"}
-              </button>
+                <AnimatePresence mode="wait">
+                  {isSuccess ? (
+                    <motion.div
+                      key="success"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -20, opacity: 0 }}
+                      className="flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Success!
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="normal"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -20, opacity: 0 }}
+                      className="flex items-center gap-2"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      {adding ? "Adding..." : "Add to Cart"}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </MagneticButton>
             </div>
           )}
 
+          {/* Gift Wrap Section */}
+          <div className="mb-8 border border-blue-100 bg-blue-50/30 p-4 rounded-lg">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={isGiftWrap}
+                onChange={(e) => setIsGiftWrap(e.target.checked)}
+                className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+              />
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-semibold text-neutral-800">Make it a Gift (+₹150)</span>
+              </div>
+            </label>
+            <AnimatePresence>
+              {isGiftWrap && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-4">
+                    <textarea
+                      placeholder="Write a personalized gift message..."
+                      value={giftMessage}
+                      onChange={(e) => setGiftMessage(e.target.value)}
+                      rows={3}
+                      className="w-full bg-white border border-blue-100 p-3 text-sm rounded outline-none focus:border-blue-400 transition-colors resize-none"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {/* AR Preview Button */}
-          <button
+          <MagneticButton
             onClick={() => setShowARPreview(true)}
             className="w-full mb-8 bg-neutral-100 text-foreground py-3 font-semibold text-sm uppercase tracking-widest hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 border border-neutral-300"
           >
             <Box className="w-4 h-4" />
             View in your space (WebAR)
-          </button>
+          </MagneticButton>
 
           {/* Shipping info */}
           <div className="border-t border-neutral-100 pt-6 space-y-3">
@@ -428,6 +539,42 @@ export default function ProductDetailPage() {
         </div>
       )}
 
+      {/* Sticky CTA Bar */}
+      <AnimatePresence>
+        {showSticky && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-neutral-200 px-6 py-4 md:px-12 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <div className="relative w-12 h-12 bg-neutral-100 rounded overflow-hidden hidden sm:block">
+                <Image src={product?.images?.[0] || "/placeholder.svg"} alt="" fill className="object-contain p-1" />
+              </div>
+              <div className="hidden min-[400px]:block">
+                <div className="text-sm font-bold truncate max-w-[150px] md:max-w-[300px]">{product?.name}</div>
+                <div className="text-sm font-medium">₹{product?.price?.toLocaleString("en-IN")}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex border border-neutral-200 h-10">
+                <button onClick={() => setQuantity(q => Math.max(1, q-1))} className="px-3 hover:bg-neutral-50">−</button>
+                <div className="px-3 flex items-center text-xs font-bold border-x border-neutral-200">{quantity}</div>
+                <button onClick={() => setQuantity(q => Math.min(product?.stock || 1, q+1))} className="px-3 hover:bg-neutral-50">+</button>
+              </div>
+              <button
+                onClick={handleAddToCart}
+                disabled={adding || isSuccess}
+                className={`px-8 h-10 ${isSuccess ? 'bg-green-600' : 'bg-foreground'} text-background text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center gap-2`}
+              >
+                {isSuccess ? <CheckCircle2 className="w-3 h-3" /> : <ShoppingBag className="w-3 h-3" />}
+                {isSuccess ? "Added" : "Add to Cart"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

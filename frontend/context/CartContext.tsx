@@ -14,9 +14,11 @@ import { useAuth } from "./AuthContext";
 
 // Local cart item (for guests)
 interface LocalCartItem {
-  id: string; // product.id used as key
+  id: string; // product.id + gift options key
   product: Product;
   quantity: number;
+  is_gift?: boolean;
+  gift_message?: string;
 }
 
 interface CartContextType {
@@ -25,7 +27,7 @@ interface CartContextType {
   itemCount: number;
   subtotal: number;
   loading: boolean;
-  addItem: (product: Product, quantity?: number) => Promise<void>;
+  addItem: (product: Product, quantity?: number, isGift?: boolean, message?: string) => Promise<void>;
   updateItem: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -93,11 +95,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user, token, refreshCart]);
 
   const addItem = useCallback(
-    async (product: Product, quantity = 1) => {
+    async (product: Product, quantity = 1, isGift = false, message = "") => {
       if (token) {
         // Authenticated: sync with server
         try {
-          await cartApi.add(product.id, quantity, token);
+          await cartApi.add(product.id, quantity, token); // Backend doesn't support gift info yet
           await refreshCart();
         } catch (err) {
           throw err;
@@ -105,13 +107,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       } else {
         // Guest: use localStorage
         setLocalCart((prev) => {
-          const existing = prev.find((i) => i.id === product.id);
+          // Unique key for gift combinations
+          const itemKey = `${product.id}-${isGift ? 'gift' : 'std'}-${message.length}`;
+          const existing = prev.find((i) => i.id === itemKey);
           if (existing) {
             return prev.map((i) =>
-              i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+              i.id === itemKey ? { ...i, quantity: i.quantity + quantity } : i
             );
           }
-          return [...prev, { id: product.id, product, quantity }];
+          return [...prev, { id: itemKey, product, quantity, is_gift: isGift, gift_message: message }];
         });
       }
     },
@@ -172,7 +176,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const subtotal = token
     ? cart?.subtotal ?? 0
-    : localCart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+    : localCart.reduce((sum, i) => sum + (i.product.price + (i.is_gift ? 150 : 0)) * i.quantity, 0);
 
   return (
     <CartContext.Provider

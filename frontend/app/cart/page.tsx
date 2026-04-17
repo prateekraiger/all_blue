@@ -23,6 +23,8 @@ export default function CartPage() {
         quantity: i.quantity,
         created_at: new Date().toISOString(),
         product: i.product,
+        is_gift: i.is_gift,
+        gift_message: i.gift_message,
       }))
 
   const handleUpdateQuantity = async (itemId: string, newQty: number) => {
@@ -153,7 +155,21 @@ export default function CartPage() {
                     {item.product?.name}
                   </h3>
                 </Link>
-                <p className="text-sm text-neutral-500 mb-3">{item.product?.category}</p>
+                <p className="text-sm text-neutral-500 mb-1">{item.product?.category}</p>
+                
+                {/* Gift Badge */}
+                {'is_gift' in item && (item as any).is_gift && (
+                  <div className="mb-3 space-y-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-wider">
+                      Gift Wrapping (+₹150)
+                    </span>
+                    {(item as any).gift_message && (
+                      <p className="text-[11px] text-neutral-400 italic font-medium leading-tight">
+                        "{(item as any).gift_message}"
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   {/* Quantity Controls */}

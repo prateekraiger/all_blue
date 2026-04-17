@@ -36,33 +36,34 @@ export default function Home() {
   }, [token])
 
   return (
-    <>
-      <div className="max-w-[1200px] mx-auto">
-        <Hero />
+    <div className="flex flex-col gap-32 md:gap-48 overflow-x-hidden">
+      <Hero />
 
-        {/* AI Personalized Feed (for logged-in users) */}
-        {user && (
-          <ProductGrid
-            title="Picked For You"
-            products={aiProducts}
-            loading={aiLoading}
-            showViewAll={false}
-          />
-        )}
-
-        {/* Trending Products */}
+      {/* AI Personalized Feed (for logged-in users) */}
+      {user && (
         <ProductGrid
-          title="Trending Now"
-          products={trendingProducts}
-          loading={trendingLoading}
-          showViewAll={true}
+          title="Picked For You"
+          products={aiProducts}
+          loading={aiLoading}
+          showViewAll={false}
         />
+      )}
 
-        <Collections />
+      {/* Trending Products */}
+      <ProductGrid
+        title="Trending Now"
+        products={trendingProducts}
+        loading={trendingLoading}
+        showViewAll={true}
+      />
+
+      <Collections />
+      
+      <div className="pb-32">
+        <Newsletter />
       </div>
-
-      <Newsletter />
+      
       <ChatBot />
-    </>
+    </div>
   )
 }
