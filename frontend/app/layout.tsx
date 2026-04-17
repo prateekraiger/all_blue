@@ -10,6 +10,7 @@ import { CartProvider } from "@/context/CartContext"
 import { Toaster } from "@/components/ui/sonner"
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "@/stack/server";
+import { AIChatbot } from "@/components/AIChatbot"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -56,6 +57,7 @@ export default function RootLayout({
                     <Footer />
                   </div>
                   <Toaster position="bottom-right" />
+                  <AIChatbot />
                   <Analytics />
                 </CartProvider>
               </AuthProvider>

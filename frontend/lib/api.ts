@@ -256,6 +256,13 @@ export const aiApi = {
       { method: 'POST', body: JSON.stringify({ message }) },
       token
     ),
+
+  generateGiftSuggestions: (preferences: any, token?: string | null) =>
+    apiFetch<{ products: Product[]; message: string }>(
+      '/api/gift-finder',
+      { method: 'POST', body: JSON.stringify({ preferences }) },
+      token
+    ),
 };
 
 // ─── Reviews API ──────────────────────────────────────────────────────────────

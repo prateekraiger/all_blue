@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, ShoppingBag, User, Menu, X, LogOut, Package, LayoutDashboard, Mic } from "lucide-react"
+import { Search, ShoppingBag, User, Menu, X, LogOut, Package, LayoutDashboard, Mic, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect, useCallback } from "react"
@@ -127,6 +127,9 @@ export function Navigation() {
           </Link>
           <Link href="/contact" className="text-foreground text-sm lg:text-base font-normal uppercase tracking-widest hover:opacity-50 transition-opacity">
             Contact
+          </Link>
+          <Link href="/gift-finder" className="text-foreground text-sm lg:text-base font-bold uppercase tracking-widest hover:opacity-50 transition-opacity flex items-center gap-1 text-primary">
+            <Sparkles className="w-4 h-4" /> AI Gift Finder
           </Link>
         </div>
 
@@ -265,6 +268,9 @@ export function Navigation() {
             </Link>
             <Link href="/contact" className="text-foreground text-sm font-normal uppercase tracking-widest hover:opacity-50 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
               Contact
+            </Link>
+            <Link href="/gift-finder" className="text-primary text-sm font-bold uppercase tracking-widest hover:opacity-50 transition-opacity flex items-center gap-1" onClick={() => setMobileMenuOpen(false)}>
+              <Sparkles className="w-4 h-4" /> AI Gift Finder
             </Link>
             <div className="flex gap-6 pt-4 border-t border-neutral-100">
               <Link href="/search" className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
