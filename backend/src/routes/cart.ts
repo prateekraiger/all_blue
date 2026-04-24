@@ -5,7 +5,7 @@ import { validate, schemas } from '../middlewares/validate';
 import * as cartService from '../services/cartService';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // All cart routes require a valid session
 router.use(requireAuth);

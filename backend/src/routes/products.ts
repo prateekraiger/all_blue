@@ -5,7 +5,7 @@ import { validate, schemas } from '../middlewares/validate';
 import * as productService from '../services/productService';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // ─── GET /api/products — List with filters / search / pagination ──────────────
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {

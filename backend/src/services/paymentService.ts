@@ -1,70 +1,110 @@
-import Razorpay from 'razorpay';
-import crypto from 'crypto';
+import Stripe from 'stripe';
 import { AppError } from '../middlewares/errorHandler';
-import type { RazorpayOrderResult } from '../types';
 
 // Lazy-initialised singleton — avoids crashing at startup if env vars are absent
-let razorpayInstance: Razorpay | null = null;
+let stripeInstance: any = null;
 
-const getRazorpay = (): Razorpay => {
-  if (!razorpayInstance) {
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+const getStripe = (): any => {
+  if (!stripeInstance) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
 
-    if (!keyId || !keySecret) {
-      throw new AppError('Razorpay credentials not configured', 500);
+    if (!secretKey) {
+      throw new AppError('Stripe credentials not configured', 500);
     }
 
-    razorpayInstance = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    stripeInstance = new Stripe(secretKey, { 
+      apiVersion: '2026-04-22.dahlia' as any 
+    });
   }
-  return razorpayInstance;
+  return stripeInstance;
 };
 
 /**
- * Create a Razorpay order.
+ * Create a Stripe Checkout Session.
  *
- * @param amount   - Amount in INR (the function converts to paise internally)
- * @param orderId  - Your internal UUID order ID, used as the receipt reference
+ * @param amount   - Amount in INR (converted to paise internally)
+ * @param orderId  - Your internal UUID order ID, used as the metadata reference
+ * @param customerEmail - The customer's email for receipt
  */
-export const createRazorpayOrder = async (
+export const createCheckoutSession = async (
   amount: number,
-  orderId: string
-): Promise<RazorpayOrderResult> => {
-  const razorpay = getRazorpay();
+  orderId: string,
+  customerEmail?: string
+): Promise<{ sessionId: string; url: string }> => {
+  const stripe = getStripe();
 
-  const options = {
-    amount: Math.round(amount * 100), // Convert INR → paise
-    currency: 'INR',
-    receipt: `order_${orderId}`,
-    notes: { order_id: orderId },
-  };
+  const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
 
   try {
-    const razorpayOrder = await razorpay.orders.create(options);
-    return razorpayOrder as unknown as RazorpayOrderResult;
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      customer_email: customerEmail || undefined,
+      line_items: [
+        {
+          price_data: {
+            currency: 'inr',
+            product_data: {
+              name: `ALL BLUE — Order #${orderId.slice(0, 8)}`,
+            },
+            unit_amount: Math.round(amount * 100), // INR → paise
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: { order_id: orderId },
+      success_url: `${frontendUrl}/orders/${orderId}?payment=success`,
+      cancel_url: `${frontendUrl}/checkout?payment=cancelled`,
+    });
+
+    if (!session.url) {
+      throw new AppError('Stripe did not return a checkout URL', 500);
+    }
+
+    return { sessionId: session.id, url: session.url };
   } catch (err: unknown) {
+    if (err instanceof AppError) throw err;
     const message = err instanceof Error ? err.message : String(err);
-    throw new AppError(`Razorpay error: ${message}`, 500);
+    throw new AppError(`Stripe error: ${message}`, 500);
   }
 };
 
 /**
- * Verify the HMAC-SHA256 signature returned by Razorpay after a payment.
- *
- * @returns true if the signature matches, false otherwise
+ * Verify a Stripe webhook event to mark the order as paid.
+ * Used by the /api/payment/webhook endpoint.
  */
-export const verifyPaymentSignature = (
-  razorpayOrderId: string,
-  razorpayPaymentId: string,
-  razorpaySignature: string
-): boolean => {
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keySecret) throw new AppError('Razorpay not configured', 500);
+export const constructWebhookEvent = (
+  payload: Buffer,
+  signature: string
+): any => {
+  const stripe = getStripe();
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  const generatedSignature = crypto
-    .createHmac('sha256', keySecret)
-    .update(`${razorpayOrderId}|${razorpayPaymentId}`)
-    .digest('hex');
+  if (!webhookSecret) {
+    throw new AppError('Stripe webhook secret not configured', 500);
+  }
 
-  return generatedSignature === razorpaySignature;
+  try {
+    return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new AppError(`Webhook signature verification failed: ${message}`, 400);
+  }
+};
+
+/**
+ * Retrieve a Checkout Session by ID.
+ * Used for manual verification when webhook is not available.
+ */
+export const getCheckoutSession = async (
+  sessionId: string
+): Promise<any> => {
+  const stripe = getStripe();
+
+  try {
+    return await stripe.checkout.sessions.retrieve(sessionId);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new AppError(`Stripe error: ${message}`, 500);
+  }
 };

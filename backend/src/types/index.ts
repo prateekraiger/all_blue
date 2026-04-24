@@ -81,7 +81,7 @@ export interface Order {
   total_amount: number;
   status: OrderStatus;
   payment_id?: string;
-  razorpay_order_id?: string;
+  stripe_session_id?: string;
   address: Address;
   created_at: string;
   updated_at: string;
@@ -140,18 +140,34 @@ export interface ChatbotResponse {
   products: Product[];
 }
 
-// ─── Payment ─────────────────────────────────────────────────────────────────
-export interface RazorpayOrderResult {
-  id: string;
-  amount: number;
-  currency: string;
-  receipt?: string;
+// ─── Gift Finder ─────────────────────────────────────────────────────────────
+export type GiftFinderPersona = 'Partner' | 'Colleague' | 'Friend' | 'Parent' | 'Client';
+export type GiftFinderOccasion = 'Birthday' | 'Anniversary' | 'Thank You' | 'Corporate' | 'Just Because';
+
+export interface GiftFinderInput {
+  persona: GiftFinderPersona;
+  occasion: GiftFinderOccasion;
+  budget: number;
+}
+
+export interface GiftFinderProduct extends Product {
+  matchScore: number;
+  reason: string;
+}
+
+export interface GiftFinderResult {
+  products: GiftFinderProduct[];
+  message: string;
+}
+
+// ─── Payment (Stripe) ────────────────────────────────────────────────────────
+export interface StripeCheckoutResult {
+  sessionId: string;
+  url: string;
 }
 
 export interface PaymentVerifyInput {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
+  session_id: string;
   order_id: string;
 }
 

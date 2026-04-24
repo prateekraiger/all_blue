@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS orders (
   status             TEXT DEFAULT 'pending'
                        CHECK (status IN ('pending', 'paid', 'shipped', 'delivered', 'cancelled')),
   payment_id         TEXT,
-  razorpay_order_id  TEXT,
+  stripe_session_id  TEXT,
   address            JSONB,
   created_at         TIMESTAMPTZ DEFAULT NOW(),
   updated_at         TIMESTAMPTZ DEFAULT NOW()

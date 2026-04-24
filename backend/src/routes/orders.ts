@@ -5,7 +5,7 @@ import { validate, schemas } from '../middlewares/validate';
 import * as orderService from '../services/orderService';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // All order routes require authentication
 router.use(requireAuth);

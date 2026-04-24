@@ -130,8 +130,8 @@ export const cancelOrder = async (userId: string, orderId: string): Promise<Orde
  */
 export const markOrderPaid = async (
   orderId: string,
-  razorpayOrderId: string,
-  razorpayPaymentId: string
+  stripeSessionId: string,
+  stripePaymentId: string
 ): Promise<Order> => {
   const { data: order, error: oErr } = await supabase
     .from('orders')
@@ -148,8 +148,8 @@ export const markOrderPaid = async (
     .from('orders')
     .update({
       status: 'paid',
-      razorpay_order_id: razorpayOrderId,
-      payment_id: razorpayPaymentId,
+      stripe_session_id: stripeSessionId,
+      payment_id: stripePaymentId,
     })
     .eq('id', orderId)
     .select()

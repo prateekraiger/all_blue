@@ -9,17 +9,18 @@ import morgan from 'morgan';
 import { errorHandler } from './middlewares/errorHandler';
 
 // ─── Route imports ────────────────────────────────────────────────────────────
-import productRoutes  from './routes/products';
-import cartRoutes     from './routes/cart';
-import orderRoutes    from './routes/orders';
-import paymentRoutes  from './routes/payment';
-import aiRoutes       from './routes/ai';
-import reviewRoutes   from './routes/reviews';
-import searchRoutes   from './routes/search';
-import adminRoutes    from './routes/admin';
+import productRoutes     from './routes/products';
+import cartRoutes        from './routes/cart';
+import orderRoutes       from './routes/orders';
+import paymentRoutes     from './routes/payment';
+import aiRoutes          from './routes/ai';
+import reviewRoutes      from './routes/reviews';
+import searchRoutes      from './routes/search';
+import adminRoutes       from './routes/admin';
+import giftFinderRoutes  from './routes/giftFinder';
 
 // ─── App setup ────────────────────────────────────────────────────────────────
-const app = express();
+const app: express.Application = express();
 const PORT = parseInt(process.env.PORT ?? '5000', 10);
 
 // ─── Security & Logging ───────────────────────────────────────────────────────
@@ -38,6 +39,11 @@ app.use(
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // ─── Body parsing ─────────────────────────────────────────────────────────────
+// Stripe webhook needs the raw body for signature verification — must be BEFORE express.json()
+app.use(
+  '/api/payment/webhook',
+  express.raw({ type: 'application/json' })
+);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -53,14 +59,15 @@ app.get('/health', (_req, res) => {
 });
 
 // ─── API routes ───────────────────────────────────────────────────────────────
-app.use('/api/products', productRoutes);
-app.use('/api/cart',     cartRoutes);
-app.use('/api/orders',   orderRoutes);
-app.use('/api/payment',  paymentRoutes);
-app.use('/api/ai',       aiRoutes);
-app.use('/api/reviews',  reviewRoutes);
-app.use('/api/search',   searchRoutes);
-app.use('/api/admin',    adminRoutes);
+app.use('/api/products',     productRoutes);
+app.use('/api/cart',         cartRoutes);
+app.use('/api/orders',       orderRoutes);
+app.use('/api/payment',      paymentRoutes);
+app.use('/api/ai',           aiRoutes);
+app.use('/api/reviews',      reviewRoutes);
+app.use('/api/search',       searchRoutes);
+app.use('/api/admin',        adminRoutes);
+app.use('/api/gift-finder',  giftFinderRoutes);
 
 // ─── 404 catch-all ────────────────────────────────────────────────────────────
 app.use('*', (req, res) => {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { requireAuth } from '../middlewares/auth';
 import { validate, schemas } from '../middlewares/validate';
 import * as paymentService from '../services/paymentService';
@@ -7,15 +7,15 @@ import * as orderService from '../services/orderService';
 import { AppError } from '../middlewares/errorHandler';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
-// ─── POST /api/payment/create-order ──────────────────────────────────────────
+// ─── POST /api/payment/create-checkout — Create a Stripe Checkout Session ────
 /**
- * Create a Razorpay order for an internal order that is still in 'pending' status.
- * Returns the Razorpay order details + public key so the frontend can open the checkout widget.
+ * Create a Stripe Checkout Session for an internal order that is still 'pending'.
+ * Returns the session ID and redirect URL so the frontend can redirect to Stripe.
  */
 router.post(
-  '/create-order',
+  '/create-checkout',
   requireAuth,
   validate(schemas.paymentCreate),
   async (req: AuthRequest, res: Response) => {
@@ -27,52 +27,53 @@ router.post(
       throw new AppError('Order is not in pending state', 400);
     }
 
-    const razorpayOrder = await paymentService.createRazorpayOrder(amount, order_id);
+    const session = await paymentService.createCheckoutSession(
+      amount,
+      order_id,
+      req.user!.email ?? undefined
+    );
 
     res.json({
       success: true,
       data: {
-        razorpay_order_id: razorpayOrder.id,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
-        key_id: process.env.RAZORPAY_KEY_ID ?? '',
+        session_id: session.sessionId,
+        checkout_url: session.url,
         order_id,
       },
     });
   }
 );
 
-// ─── POST /api/payment/verify ─────────────────────────────────────────────────
+// ─── POST /api/payment/verify — Verify payment after Stripe Checkout ─────────
 /**
- * Verify the HMAC signature from Razorpay and mark the internal order as paid.
+ * Verify a completed Stripe Checkout Session and mark the order as paid.
+ * This is the client-side fallback — a webhook should also be configured for reliability.
  */
 router.post(
   '/verify',
   requireAuth,
   validate(schemas.paymentVerify),
   async (req: AuthRequest, res: Response) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } =
-      req.body as {
-        razorpay_order_id: string;
-        razorpay_payment_id: string;
-        razorpay_signature: string;
-        order_id: string;
-      };
+    const { session_id, order_id } = req.body as {
+      session_id: string;
+      order_id: string;
+    };
 
-    const isValid = paymentService.verifyPaymentSignature(
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature
-    );
+    const session = await paymentService.getCheckoutSession(session_id);
 
-    if (!isValid) {
-      throw new AppError('Invalid payment signature', 400);
+    if (session.payment_status !== 'paid') {
+      throw new AppError('Payment not completed', 400);
+    }
+
+    // Ensure the metadata matches
+    if (session.metadata?.order_id !== order_id) {
+      throw new AppError('Order ID mismatch', 400);
     }
 
     const order = await orderService.markOrderPaid(
       order_id,
-      razorpay_order_id,
-      razorpay_payment_id
+      session.id,
+      session.payment_intent as string
     );
 
     res.json({
@@ -82,14 +83,55 @@ router.post(
   }
 );
 
-// ─── GET /api/payment/razorpay-key ────────────────────────────────────────────
+// ─── POST /api/payment/webhook — Stripe webhook (no auth required) ───────────
 /**
- * Return the Razorpay public key for the frontend to initialise the payment widget.
+ * Handles Stripe webhook events.
+ * NOTE: express.json() must NOT be applied to this route — it needs the raw body.
+ * The raw body middleware is registered in index.ts.
  */
-router.get('/razorpay-key', (_req: AuthRequest, res: Response) => {
+router.post(
+  '/webhook',
+  async (req: Request, res: Response) => {
+    const signature = req.headers['stripe-signature'] as string;
+
+    if (!signature) {
+      throw new AppError('Missing stripe-signature header', 400);
+    }
+
+    const event = paymentService.constructWebhookEvent(
+      req.body as Buffer,
+      signature
+    );
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const orderId = session.metadata?.order_id;
+
+      if (orderId && session.payment_status === 'paid') {
+        try {
+          await orderService.markOrderPaid(
+            orderId,
+            session.id,
+            session.payment_intent as string
+          );
+        } catch {
+          // Order may already be marked as paid via the /verify endpoint
+        }
+      }
+    }
+
+    res.json({ received: true });
+  }
+);
+
+// ─── GET /api/payment/config — Return the Stripe publishable key ─────────────
+/**
+ * Return the Stripe publishable key for the frontend.
+ */
+router.get('/config', (_req: Request, res: Response) => {
   res.json({
     success: true,
-    data: { key_id: process.env.RAZORPAY_KEY_ID ?? '' },
+    data: { publishable_key: process.env.STRIPE_PUBLISHABLE_KEY ?? '' },
   });
 });
 

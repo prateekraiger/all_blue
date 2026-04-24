@@ -1,6 +1,15 @@
 import supabase from '../config/supabase';
 import { AppError } from '../middlewares/errorHandler';
-import type { Product, UserPreferences, ChatbotResponse } from '../types';
+import type {
+  Product,
+  UserPreferences,
+  ChatbotResponse,
+  GiftFinderInput,
+  GiftFinderProduct,
+  GiftFinderResult,
+  GiftFinderPersona,
+  GiftFinderOccasion,
+} from '../types';
 
 // ─── Keyword → tag mapping for the rule-based chatbot ─────────────────────────
 const KEYWORD_TAG_MAP: Record<string, string[]> = {
@@ -293,5 +302,204 @@ export const chatbotResponse = async (
   return {
     reply,
     products: (products ?? []) as Product[],
+  };
+};
+
+// ─── Gift Finder ──────────────────────────────────────────────────────────────
+
+/**
+ * Persona → tag affinity map.
+ * Each persona type has a set of tags that are likely relevant.
+ */
+const PERSONA_TAG_MAP: Record<GiftFinderPersona, string[]> = {
+  Partner: ['romantic', 'love', 'luxury', 'premium', 'personalized', 'anniversary', 'perfume'],
+  Colleague: ['corporate', 'hamper', 'premium', 'mug', 'book'],
+  Friend: ['birthday', 'celebration', 'mug', 'personalized', 'photo', 'candle'],
+  Parent: ['love', 'personalized', 'photo', 'premium', 'candle', 'floral'],
+  Client: ['corporate', 'premium', 'luxury', 'hamper'],
+};
+
+/**
+ * Occasion → tag affinity map.
+ */
+const OCCASION_TAG_MAP: Record<GiftFinderOccasion, string[]> = {
+  Birthday: ['birthday', 'celebration', 'surprise', 'personalized'],
+  Anniversary: ['anniversary', 'romantic', 'love', 'luxury', 'premium'],
+  'Thank You': ['personalized', 'candle', 'floral', 'photo', 'mug'],
+  Corporate: ['corporate', 'premium', 'hamper', 'luxury'],
+  'Just Because': ['personalized', 'celebration', 'candle', 'photo', 'mug'],
+};
+
+/**
+ * Persona × occasion → category affinity map (fallback layer).
+ */
+const PERSONA_CATEGORY_MAP: Record<GiftFinderPersona, string[]> = {
+  Partner: ['Decor', 'Luxury', 'Bedroom'],
+  Colleague: ['Living Room', 'Decor'],
+  Friend: ['Decor', 'Lighting', 'Living Room'],
+  Parent: ['Living Room', 'Decor', 'Bedroom'],
+  Client: ['Living Room', 'Decor'],
+};
+
+/**
+ * Score a product based on how many of its tags overlap with the desired tags.
+ * Returns a 0–100 score.
+ */
+function calculateMatchScore(product: Product, targetTags: string[]): number {
+  if (!product.tags || product.tags.length === 0 || targetTags.length === 0) {
+    return 50; // Neutral score for tagless products
+  }
+
+  const productTagSet = new Set(product.tags.map((t) => t.toLowerCase()));
+  const targetTagSet = new Set(targetTags.map((t) => t.toLowerCase()));
+
+  let overlapCount = 0;
+  for (const tag of targetTagSet) {
+    if (productTagSet.has(tag)) overlapCount++;
+  }
+
+  // Ratio of matched target tags, scaled to 60–99 range
+  const ratio = overlapCount / targetTagSet.size;
+  return Math.round(60 + ratio * 39);
+}
+
+/**
+ * Generate a human-readable reason for why a product was recommended.
+ */
+function generateReason(
+  product: Product,
+  persona: GiftFinderPersona,
+  occasion: GiftFinderOccasion,
+  budget: number
+): string {
+  const budgetFormatted = budget.toLocaleString('en-IN');
+  const priceFormatted = product.price.toLocaleString('en-IN');
+
+  const personaLower = persona.toLowerCase();
+  const occasionLower = occasion.toLowerCase();
+
+  if (product.price <= budget * 0.5) {
+    return `An excellent value pick for your ${personaLower}'s ${occasionLower} gift at ₹${priceFormatted} — well within your ₹${budgetFormatted} budget, leaving room to add more.`;
+  }
+
+  if (product.price <= budget * 0.8) {
+    return `A well-balanced choice for a ${occasionLower} gift for your ${personaLower}. Great quality at ₹${priceFormatted}.`;
+  }
+
+  return `A premium pick perfectly suited for your ${personaLower}'s ${occasionLower}. At ₹${priceFormatted}, it makes the most of your budget.`;
+}
+
+/**
+ * Gift Finder — rule-based recommendation engine.
+ *
+ * 1. Combines persona + occasion tags to build a target tag set.
+ * 2. Queries Supabase for active, in-stock products within budget.
+ * 3. Scores and ranks results by tag overlap.
+ * 4. Falls back to category matching if tag matches are insufficient.
+ * 5. Final fallback: cheapest products within budget.
+ */
+export const giftFinderRecommendations = async (
+  input: GiftFinderInput
+): Promise<GiftFinderResult> => {
+  const { persona, occasion, budget } = input;
+  const RESULT_LIMIT = 6;
+
+  // 1. Build target tag set from persona + occasion
+  const personaTags = PERSONA_TAG_MAP[persona] ?? [];
+  const occasionTags = OCCASION_TAG_MAP[occasion] ?? [];
+  const targetTags = [...new Set([...personaTags, ...occasionTags])];
+
+  let allProducts: Product[] = [];
+
+  // 2. Tag-based query
+  if (targetTags.length > 0) {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .gt('stock', 0)
+      .lte('price', budget)
+      .overlaps('tags', targetTags)
+      .order('price', { ascending: false })
+      .limit(RESULT_LIMIT * 2); // Fetch extra to allow scoring/ranking
+
+    if (error) {
+      console.error('[GiftFinder] Tag query error:', error.message);
+    } else {
+      allProducts = (data ?? []) as Product[];
+    }
+  }
+
+  // 3. Category-based fallback
+  if (allProducts.length < RESULT_LIMIT) {
+    const existingIds = allProducts.map((p) => p.id);
+    const categories = PERSONA_CATEGORY_MAP[persona] ?? [];
+    const needed = (RESULT_LIMIT * 2) - allProducts.length;
+
+    if (categories.length > 0) {
+      let catQuery = supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .gt('stock', 0)
+        .lte('price', budget)
+        .in('category', categories)
+        .order('price', { ascending: false })
+        .limit(needed);
+
+      if (existingIds.length > 0) {
+        catQuery = catQuery.not('id', 'in', `(${existingIds.join(',')})`);
+      }
+
+      const { data } = await catQuery;
+      allProducts = [...allProducts, ...((data ?? []) as Product[])];
+    }
+  }
+
+  // 4. Final fallback — any product within budget
+  if (allProducts.length < 3) {
+    const existingIds = allProducts.map((p) => p.id);
+    const needed = RESULT_LIMIT - allProducts.length;
+
+    let fallbackQuery = supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .gt('stock', 0)
+      .lte('price', budget)
+      .order('price', { ascending: false })
+      .limit(needed);
+
+    if (existingIds.length > 0) {
+      fallbackQuery = fallbackQuery.not('id', 'in', `(${existingIds.join(',')})`);
+    }
+
+    const { data } = await fallbackQuery;
+    allProducts = [...allProducts, ...((data ?? []) as Product[])];
+  }
+
+  // 5. Score, sort, and build response
+  const scored: GiftFinderProduct[] = allProducts.map((product) => ({
+    ...product,
+    matchScore: calculateMatchScore(product, targetTags),
+    reason: generateReason(product, persona, occasion, budget),
+  }));
+
+  // Sort by match score descending, then price descending (prefer higher-value items)
+  scored.sort((a, b) => {
+    if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+    return b.price - a.price;
+  });
+
+  const finalProducts = scored.slice(0, RESULT_LIMIT);
+
+  const message =
+    finalProducts.length > 0
+      ? `Found ${finalProducts.length} perfect gift${finalProducts.length > 1 ? 's' : ''} for your ${persona.toLowerCase()}'s ${occasion.toLowerCase()}!`
+      : `We couldn't find products matching your criteria right now. Try adjusting your budget or browsing our full catalog.`;
+
+  return {
+    products: finalProducts,
+    message,
   };
 };

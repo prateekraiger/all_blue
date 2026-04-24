@@ -1,29 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { ordersApi, paymentApi, type Address, type OrderItem } from "@/lib/api"
 import { toast } from "sonner"
-import { Shield, CreditCard } from "lucide-react"
-
-declare global {
-  interface Window {
-    Razorpay: any
-  }
-}
-
-function loadRazorpay(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (window.Razorpay) return resolve(true)
-    const script = document.createElement("script")
-    script.src = "https://checkout.razorpay.com/v1/checkout.js"
-    script.onload = () => resolve(true)
-    script.onerror = () => resolve(false)
-    document.body.appendChild(script)
-  })
-}
+import { Shield, CreditCard, CheckCircle } from "lucide-react"
 
 const INDIAN_STATES = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -36,6 +19,7 @@ const INDIAN_STATES = [
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, token } = useAuth()
   const { cart, localCart, subtotal, clearCart } = useCart()
   const [loading, setLoading] = useState(false)
@@ -49,6 +33,13 @@ export default function CheckoutPage() {
     pincode: "",
     country: "India",
   })
+
+  // Handle payment=cancelled query param
+  useEffect(() => {
+    if (searchParams.get("payment") === "cancelled") {
+      toast.error("Payment was cancelled. You can try again.")
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (!user) {
@@ -112,64 +103,18 @@ export default function CheckoutPage() {
       // 1. Create internal order
       const order = await ordersApi.create({ items, address, total_amount: Math.round(total) }, token)
 
-      // 2. Load Razorpay
-      const loaded = await loadRazorpay()
-      if (!loaded) {
-        toast.error("Failed to load payment gateway")
-        return
+      // 2. Create Stripe Checkout Session
+      const checkoutData = await paymentApi.createCheckout(order.id, Math.round(total), token)
+
+      // 3. Redirect to Stripe Checkout
+      if (checkoutData.checkout_url) {
+        window.location.href = checkoutData.checkout_url
+      } else {
+        toast.error("Failed to create checkout session")
+        setLoading(false)
       }
-
-      // 3. Create Razorpay order
-      const razorpayData = await paymentApi.createOrder(order.id, Math.round(total), token)
-
-      // 4. Open Razorpay checkout
-      const razorpay = new window.Razorpay({
-        key: razorpayData.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: razorpayData.amount,
-        currency: razorpayData.currency,
-        name: "ALL BLUE",
-        description: `Order #${order.id.slice(0, 8)}`,
-        order_id: razorpayData.razorpay_order_id,
-        prefill: {
-          name: address.name,
-          contact: address.phone,
-          email: user?.email || "",
-        },
-        theme: { color: "#000000" },
-        handler: async (response: {
-          razorpay_order_id: string
-          razorpay_payment_id: string
-          razorpay_signature: string
-        }) => {
-          try {
-            // 5. Verify payment
-            await paymentApi.verify(
-              {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                order_id: order.id,
-              },
-              token
-            )
-            toast.success("Payment successful! 🎉")
-            router.push(`/orders/${order.id}`)
-          } catch (err: any) {
-            toast.error(err.message || "Payment verification failed")
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            toast.error("Payment cancelled")
-            setLoading(false)
-          },
-        },
-      })
-
-      razorpay.open()
     } catch (err: any) {
       toast.error(err.message || "Failed to initiate payment")
-    } finally {
       setLoading(false)
     }
   }
@@ -330,12 +275,12 @@ export default function CheckoutPage() {
               className="w-full bg-foreground text-background py-4 font-semibold text-sm uppercase tracking-widest hover:bg-neutral-700 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <CreditCard className="w-4 h-4" />
-              {loading ? "Processing..." : "Pay Now"}
+              {loading ? "Redirecting to Stripe..." : "Pay Now"}
             </button>
 
             <div className="flex items-center justify-center gap-2 mt-4 text-xs text-neutral-400">
               <Shield className="w-3.5 h-3.5" />
-              Secured by Razorpay
+              Secured by Stripe
             </div>
           </div>
         </div>

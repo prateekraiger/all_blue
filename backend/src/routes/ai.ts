@@ -5,7 +5,7 @@ import { validate, schemas } from '../middlewares/validate';
 import * as aiService from '../services/aiService';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // ─── GET /api/ai/recommendations — Personalised recommendations ───────────────
 router.get('/recommendations', requireAuth, async (req: AuthRequest, res: Response) => {

@@ -4,7 +4,7 @@ import { requireAdmin } from '../middlewares/auth';
 import supabase from '../config/supabase';
 import type { AuthRequest, DashboardStats, Order } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes in this file require admin privileges
 router.use(requireAdmin);

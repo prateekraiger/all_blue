@@ -77,9 +77,7 @@ export const reviewSchema = z.object({
 });
 
 export const paymentVerifySchema = z.object({
-  razorpay_order_id: z.string().min(1),
-  razorpay_payment_id: z.string().min(1),
-  razorpay_signature: z.string().min(1),
+  session_id: z.string().min(1, 'Stripe session ID is required'),
   order_id: z.string().uuid('Invalid order ID'),
 });
 
@@ -102,6 +100,16 @@ export const orderStatusSchema = z.object({
   status: z.enum(['pending', 'paid', 'shipped', 'delivered', 'cancelled']),
 });
 
+export const giftFinderSchema = z.object({
+  persona: z.enum(['Partner', 'Colleague', 'Friend', 'Parent', 'Client']),
+  occasion: z.enum(['Birthday', 'Anniversary', 'Thank You', 'Corporate', 'Just Because']),
+  budget: z
+    .number()
+    .int('Budget must be a whole number')
+    .min(500, 'Budget must be at least ₹500')
+    .max(100000, 'Budget cannot exceed ₹1,00,000'),
+});
+
 // Export all schemas as a named bundle for convenience
 export const schemas = {
   product: productSchema,
@@ -114,4 +122,5 @@ export const schemas = {
   preferences: preferencesSchema,
   chat: chatSchema,
   orderStatus: orderStatusSchema,
+  giftFinder: giftFinderSchema,
 } as const;

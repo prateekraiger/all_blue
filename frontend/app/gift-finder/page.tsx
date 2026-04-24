@@ -4,9 +4,15 @@ import { useState } from "react"
 import { Sparkles, ArrowRight, Gift, Target, User, Heart, Briefcase } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { aiApi, type Product } from "@/lib/api"
 
 type Persona = "Partner" | "Colleague" | "Friend" | "Parent" | "Client"
 type Occasion = "Birthday" | "Anniversary" | "Thank You" | "Corporate" | "Just Because"
+
+interface GiftResult extends Product {
+  matchScore: number
+  reason: string
+}
 
 export default function GiftFinderPage() {
   const [step, setStep] = useState(1)
@@ -14,44 +20,30 @@ export default function GiftFinderPage() {
   const [occasion, setOccasion] = useState<Occasion | null>(null)
   const [budget, setBudget] = useState(5000)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [results, setResults] = useState<any[] | null>(null)
+  const [results, setResults] = useState<GiftResult[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!persona || !occasion) return
+
     setIsGenerating(true)
-    // Simulate AI Generation
-    setTimeout(() => {
-      setResults([
-        {
-          id: 1,
-          name: "Luxury Curator Box",
-          category: "Premium Hampers",
-          price: 4999,
-          image: "/images/product-2.jpg",
-          matchScore: 98,
-          reason: `Perfect for your ${persona}'s ${occasion}. Fits well under your ₹${budget} budget.`
-        },
-        {
-          id: 2,
-          name: "Artisanal Coffee & Chocolate Set",
-          category: "Food & Beverage",
-          price: 2499,
-          image: "/images/product-3.jpg",
-          matchScore: 92,
-          reason: "A universally loved combination, great for a tasteful gesture."
-        },
-        {
-          id: 3,
-          name: "Personalized Leather Journal",
-          category: "Stationery",
-          price: 1899,
-          image: "/images/product-4.jpg",
-          matchScore: 88,
-          reason: "A thoughtful, personalized touch that shows you care."
-        }
-      ])
-      setIsGenerating(false)
+    setError(null)
+
+    try {
+      const response = await aiApi.generateGiftSuggestions({
+        persona,
+        occasion,
+        budget,
+      })
+
+      setResults(response.products as GiftResult[])
       setStep(4)
-    }, 2000)
+    } catch (err: any) {
+      console.error('[GiftFinder] API error:', err)
+      setError(err?.message || 'Something went wrong. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   return (
@@ -188,6 +180,13 @@ export default function GiftFinderPage() {
                   <div className="absolute inset-0 -translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[sweep_1.5s_ease-in-out_infinite]" />
                 </button>
               </div>
+
+              {/* Error display */}
+              {error && (
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
             </div>
           )}
 
@@ -195,38 +194,61 @@ export default function GiftFinderPage() {
             <div className="animate-in fade-in zoom-in-95 duration-500">
               <div className="text-center mb-8 border-b border-neutral-100 pb-8">
                 <Heart className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-                <h2 className="text-3xl font-bold mb-2">We found the perfect gifts!</h2>
-                <p className="text-neutral-500">Based on your preferences for a {persona}'s {occasion}.</p>
+                <h2 className="text-3xl font-bold mb-2">
+                  {results.length > 0 ? "We found the perfect gifts!" : "No matches found"}
+                </h2>
+                <p className="text-neutral-500">
+                  {results.length > 0
+                    ? `Based on your preferences for a ${persona}'s ${occasion}.`
+                    : "Try adjusting your budget or selecting different preferences."}
+                </p>
               </div>
               
               <div className="space-y-6">
-                {results.map((product, index) => (
-                  <div key={product.id} className="flex gap-6 p-4 border border-neutral-200 hover:border-foreground transition-colors group">
-                    <div className="w-32 h-32 bg-neutral-100 shrink-0 relative overflow-hidden">
-                      <Image
-                        src={`https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop`}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        unoptimized
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-center">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 font-bold uppercase tracking-wider">{product.matchScore}% Match</span>
+                {results.map((product) => {
+                  const imgSrc = product.images && product.images.length > 0
+                    ? product.images[0]
+                    : "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop"
+
+                  return (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className="flex gap-6 p-4 border border-neutral-200 hover:border-foreground transition-colors group cursor-pointer"
+                    >
+                      <div className="w-32 h-32 bg-neutral-100 shrink-0 relative overflow-hidden">
+                        <Image
+                          src={imgSrc}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          unoptimized
+                        />
                       </div>
-                      <h3 className="text-lg font-bold">{product.name}</h3>
-                      <p className="text-neutral-500 text-sm mt-1">{product.reason}</p>
-                      <div className="mt-3 font-extrabold">₹{product.price.toLocaleString("en-IN")}</div>
-                    </div>
-                  </div>
-                ))}
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 font-bold uppercase tracking-wider">
+                            {product.matchScore}% Match
+                          </span>
+                          {product.category && (
+                            <span className="text-neutral-400 text-xs uppercase tracking-wider">
+                              {product.category}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-lg font-bold">{product.name}</h3>
+                        <p className="text-neutral-500 text-sm mt-1">{product.reason}</p>
+                        <div className="mt-3 font-extrabold">₹{product.price.toLocaleString("en-IN")}</div>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
 
               <div className="mt-12 text-center">
                 <button
                   onClick={() => {
-                    setStep(1); setPersona(null); setOccasion(null); setResults(null);
+                    setStep(1); setPersona(null); setOccasion(null); setResults(null); setError(null);
                   }}
                   className="text-sm font-semibold uppercase tracking-widest underline underline-offset-4 hover:opacity-50 transition-opacity"
                 >

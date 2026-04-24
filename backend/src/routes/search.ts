@@ -3,7 +3,7 @@ import type { Response } from 'express';
 import * as searchService from '../services/searchService';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // ─── GET /api/search?q=gift&category=birthday&maxPrice=500 ────────────────────
 router.get('/', async (req: AuthRequest, res: Response) => {

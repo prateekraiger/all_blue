@@ -57,7 +57,7 @@ export interface Order {
   total_amount: number;
   status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
   payment_id?: string;
-  razorpay_order_id?: string;
+  stripe_session_id?: string;
   address: Address;
   created_at: string;
 }
@@ -203,27 +203,23 @@ export const ordersApi = {
     apiFetch<Order>(`/api/orders/${id}/cancel`, { method: 'PATCH' }, token),
 };
 
-// ─── Payment API ──────────────────────────────────────────────────────────────
+// ─── Payment API (Stripe) ─────────────────────────────────────────────────────
 
 export const paymentApi = {
-  createOrder: (orderId: string, amount: number, token: string) =>
+  createCheckout: (orderId: string, amount: number, token: string) =>
     apiFetch<{
-      razorpay_order_id: string;
-      amount: number;
-      currency: string;
-      key_id: string;
+      session_id: string;
+      checkout_url: string;
       order_id: string;
     }>(
-      '/api/payment/create-order',
+      '/api/payment/create-checkout',
       { method: 'POST', body: JSON.stringify({ order_id: orderId, amount }) },
       token
     ),
 
   verify: (
     data: {
-      razorpay_order_id: string;
-      razorpay_payment_id: string;
-      razorpay_signature: string;
+      session_id: string;
       order_id: string;
     },
     token: string
@@ -233,6 +229,9 @@ export const paymentApi = {
       { method: 'POST', body: JSON.stringify(data) },
       token
     ),
+
+  getConfig: () =>
+    apiFetch<{ publishable_key: string }>('/api/payment/config'),
 };
 
 // ─── AI API ───────────────────────────────────────────────────────────────────
@@ -257,10 +256,16 @@ export const aiApi = {
       token
     ),
 
-  generateGiftSuggestions: (preferences: any, token?: string | null) =>
-    apiFetch<{ products: Product[]; message: string }>(
+  generateGiftSuggestions: (
+    input: { persona: string; occasion: string; budget: number },
+    token?: string | null
+  ) =>
+    apiFetch<{
+      products: Array<Product & { matchScore: number; reason: string }>;
+      message: string;
+    }>(
       '/api/gift-finder',
-      { method: 'POST', body: JSON.stringify({ preferences }) },
+      { method: 'POST', body: JSON.stringify(input) },
       token
     ),
 };

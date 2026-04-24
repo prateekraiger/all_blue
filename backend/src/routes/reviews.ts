@@ -5,7 +5,7 @@ import { validate, schemas } from '../middlewares/validate';
 import * as reviewService from '../services/reviewService';
 import type { AuthRequest } from '../types';
 
-const router = Router();
+const router: Router = Router();
 
 // ─── GET /api/reviews/:productId — Get all reviews for a product ──────────────
 router.get('/:productId', async (req: AuthRequest, res: Response) => {
