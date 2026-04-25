@@ -120,6 +120,19 @@
   -webkit-text-fill-color: transparent;
 }
 
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-sweep {
+  animation: sweep 1.5s infinite;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

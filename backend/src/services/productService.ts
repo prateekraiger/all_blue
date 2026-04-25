@@ -6,10 +6,6 @@ import type {
   ProductUpdateInput,
   ProductListParams,
 } from '../types';
-import mockProducts from '../data/products.json';
-
-const useLocalDB = process.env.USE_LOCAL_DB === 'true';
-
 
 /**
  * List products with optional filters, full-text search, pagination, and sorting.
@@ -28,49 +24,6 @@ export const listProducts = async ({
   limit: number;
   totalPages: number;
 }> => {
-  if (useLocalDB) {
-    let filtered = [...mockProducts] as Product[];
-
-    if (category) {
-      filtered = filtered.filter((p) => p.category === category);
-    }
-    if (tag) {
-      filtered = filtered.filter((p) => p.tags?.includes(tag));
-    }
-    if (q) {
-      const lowerQ = q.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(lowerQ) ||
-          p.description?.toLowerCase().includes(lowerQ)
-      );
-    }
-
-    // Sorting
-    if (sort === 'price_asc') {
-      filtered.sort((a, b) => a.price - b.price);
-    } else if (sort === 'price_desc') {
-      filtered.sort((a, b) => b.price - a.price);
-    } else {
-      filtered.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    }
-
-    const total = filtered.length;
-    const offset = (page - 1) * limit;
-    const products = filtered.slice(offset, offset + limit);
-
-    return {
-      products,
-      total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-
   const offset = (page - 1) * limit;
 
   let query = supabase
@@ -109,12 +62,6 @@ export const listProducts = async ({
  * Get a single active product by ID.
  */
 export const getProduct = async (id: string): Promise<Product> => {
-  if (useLocalDB) {
-    const product = (mockProducts as Product[]).find((p) => p.id === id && p.is_active);
-    if (!product) throw new AppError('Product not found', 404);
-    return product;
-  }
-
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -178,13 +125,6 @@ export const deleteProduct = async (id: string): Promise<{ message: string }> =>
  * Falls back to newest products if no qualifying orders exist.
  */
 export const getTrendingProducts = async (limit: number = 8): Promise<Product[]> => {
-  if (useLocalDB) {
-    return (mockProducts as Product[])
-      .filter((p) => p.is_active)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, limit);
-  }
-
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
 
@@ -210,10 +150,10 @@ export const getTrendingProducts = async (limit: number = 8): Promise<Product[]>
 
     if (topIds.length > 0) {
       const { data } = await supabase
-        .from('products')
-        .select('*')
-        .in('id', topIds)
-        .eq('is_active', true);
+          .from('products')
+          .select('*')
+          .in('id', topIds)
+          .eq('is_active', true);
       return (data ?? []) as Product[];
     }
   }
@@ -233,10 +173,6 @@ export const getTrendingProducts = async (limit: number = 8): Promise<Product[]>
  * Get all distinct categories from active products.
  */
 export const getCategories = async (): Promise<string[]> => {
-  if (useLocalDB) {
-    return [...new Set(mockProducts.map((p) => p.category).filter(Boolean))] as string[];
-  }
-
   const { data, error } = await supabase
     .from('products')
     .select('category')
