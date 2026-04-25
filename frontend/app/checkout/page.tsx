@@ -43,7 +43,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push("/auth/login")
+      router.push("/sign-in")
       return
     }
     if (address.name === "" && user.user_metadata?.full_name) {

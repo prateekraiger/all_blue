@@ -55,13 +55,13 @@ export function Hero() {
             className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-extrabold leading-[0.9] mb-5 md:mb-7 lg:mb-8 xl:mb-9 tracking-tighter"
           >
             The Art of <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">Perfect</span> Gifting
+            <span className="text-gradient">Perfect</span> Gifting
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base md:text-lg lg:text-xl xl:text-xl text-neutral-500 mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg xl:max-w-xl leading-relaxed mx-auto md:mx-0"
+            className="text-base md:text-lg lg:text-xl xl:text-xl text-muted-foreground mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg xl:max-w-xl leading-relaxed mx-auto md:mx-0"
           >
             Curated elegance for every occasion. Experience the next generation of personalized luxury.
           </motion.p>
@@ -69,13 +69,20 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4"
           >
             <Link
               href="/shop"
-              className="group relative inline-flex items-center justify-center overflow-hidden bg-foreground text-background px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-primary/20 hover:-translate-y-1 block md:inline-block w-full md:w-auto"
+              className="group relative inline-flex items-center justify-center overflow-hidden bg-primary text-primary-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-primary/40 hover:-translate-y-1 rounded-2xl"
             >
               <span className="relative z-10">Explore Collection</span>
-              <div className="absolute inset-0 -z-0 bg-gradient-to-r from-blue-600 to-indigo-600 translate-y-full transition-transform duration-300 group-hover:translate-y-0" />
+              <div className="absolute inset-0 -z-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+            <Link
+              href="/gift-finder"
+              className="group relative inline-flex items-center justify-center overflow-hidden bg-background border-2 border-primary/20 text-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest transition-all duration-300 hover:border-primary hover:-translate-y-1 rounded-2xl"
+            >
+              <span className="relative z-10 text-gradient">AI Gift Finder</span>
             </Link>
           </motion.div>
         </div>

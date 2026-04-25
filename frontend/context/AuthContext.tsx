@@ -3,6 +3,8 @@
 import {
   createContext,
   useContext,
+  useState,
+  useEffect,
   type ReactNode,
 } from "react";
 import { useUser, useStackApp } from "@stackframe/stack";
@@ -32,6 +34,18 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const stackUser = useUser();
   const stackApp = useStackApp();
+  const [token, setToken] = useState<string | null>(null);
+
+  // Fetch the Stack Auth access token whenever the user changes
+  useEffect(() => {
+    if (!stackUser) {
+      setToken(null);
+      return;
+    }
+    stackUser.getAuthJson().then(({ accessToken }) => {
+      setToken(accessToken ?? null);
+    }).catch(() => setToken(null));
+  }, [stackUser]);
 
   // Map Stack user to what components expect
   const user = stackUser ? {
@@ -43,17 +57,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   } : null;
 
-  const loading = false; // Stack handles loading internally and useUser returns null while loading or signed out
-  const token = null; // Stack handles tokens internally
+  const loading = stackUser === undefined; // undefined means still loading
   const isAdmin = stackUser?.clientMetadata?.role === "admin";
 
-  const signIn = async (email: string, password: string) => {
-    // This is handled by Stack's sign-in page, but providing for compatibility
+  const signIn = async (_email: string, _password: string) => {
     console.warn("signIn called on AuthContext, use Stack's SignIn component instead");
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
-    // This is handled by Stack's sign-up page
+  const signUp = async (_email: string, _password: string, _name: string) => {
     console.warn("signUp called on AuthContext, use Stack's SignUp component instead");
   };
 

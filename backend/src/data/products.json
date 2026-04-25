@@ -1,0 +1,93 @@
+[
+  {
+    "id": "1",
+    "name": "Modern Chair",
+    "category": "Living Room",
+    "price": 29900,
+    "tags": ["furniture", "minimalist"],
+    "images": ["/modern-minimalist-chair.jpg"],
+    "stock": 10,
+    "description": "A sleek, modern chair for your living room.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "name": "Ceramic Vase",
+    "category": "Decor",
+    "price": 8900,
+    "tags": ["decor", "minimalist", "ceramic"],
+    "images": ["/minimalist-ceramic-vase.png"],
+    "stock": 10,
+    "description": "Handcrafted ceramic vase with a minimalist touch.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "3",
+    "name": "Wood Table",
+    "category": "Living Room",
+    "price": 59900,
+    "tags": ["furniture", "minimalist", "wood"],
+    "images": ["/minimalist-wood-table.jpg"],
+    "stock": 10,
+    "description": "Solid wood table with a light finish.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "4",
+    "name": "Pendant Lamp",
+    "category": "Lighting",
+    "price": 15900,
+    "tags": ["lighting", "minimalist"],
+    "images": ["/minimalist-pendant-lamp.jpg"],
+    "stock": 10,
+    "description": "Elegant pendant lamp for a soft ambiance.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "5",
+    "name": "Storage Unit",
+    "category": "Bedroom",
+    "price": 44900,
+    "tags": ["furniture", "minimalist"],
+    "images": ["/minimalist-storage-cabinet.jpg"],
+    "stock": 10,
+    "description": "Versatile storage unit for any room.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "6",
+    "name": "Wall Mirror",
+    "category": "Decor",
+    "price": 19900,
+    "tags": ["decor", "minimalist"],
+    "images": ["/minimalist-round-mirror.jpg"],
+    "stock": 10,
+    "description": "Minimalist round mirror for your wall.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "7",
+    "name": "Minimalist Bed",
+    "category": "Bedroom",
+    "price": 89900,
+    "tags": ["furniture", "bedroom"],
+    "images": ["/modern-minimalist-bedroom.png"],
+    "stock": 5,
+    "description": "A comfortable and stylish bed for the modern bedroom.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]

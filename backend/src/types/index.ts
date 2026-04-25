@@ -1,13 +1,18 @@
-// ============================================================
-// GiftShop AI — Shared TypeScript Types
-// ============================================================
-
 import type { Request } from 'express';
-import type { User } from '@supabase/supabase-js';
 
-// ─── Supabase User on Request ────────────────────────────────────────────────
+// ─── Generic Auth User (Stack Auth JWT payload normalized shape) ──────────────
+export interface AuthUser {
+  id: string;
+  email: string | null;
+  user_metadata?: {
+    full_name?: string | null;
+    role?: string;
+  };
+}
+
+// ─── Auth User on Request ────────────────────────────────────────────────────
 export interface AuthRequest extends Request {
-  user?: User;
+  user?: AuthUser;
 }
 
 // ─── Product ─────────────────────────────────────────────────────────────────
