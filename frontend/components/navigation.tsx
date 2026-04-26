@@ -103,7 +103,7 @@ export function Navigation() {
   }
 
   return (
-    <nav className="flex justify-between items-center py-4 md:py-5 lg:py-6 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-50 w-full transition-all duration-300">
+    <nav className="flex justify-between items-center py-4 md:py-5 lg:py-6 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 bg-white border-b border-neutral-100 sticky top-0 z-50 w-full transition-all duration-300 shadow-sm">
       <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center">
         <div className="flex items-center">
           {/* Mobile menu toggle */}
@@ -160,7 +160,7 @@ export function Navigation() {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-12 right-0 w-[90vw] md:w-96 bg-white/95 backdrop-blur-2xl border border-neutral-200 shadow-2xl z-50 rounded-2xl overflow-hidden"
+                  className="absolute top-12 right-0 w-[90vw] md:w-96 bg-white border border-neutral-200 shadow-2xl z-50 rounded-2xl overflow-hidden"
                 >
                   <form onSubmit={handleSearchSubmit} className="flex items-center border-b border-neutral-100 px-4">
                     <Search className="w-4 h-4 text-neutral-400 shrink-0" />
