@@ -143,6 +143,8 @@ export interface PaginatedResult<T> {
 export interface ChatbotResponse {
   reply: string;
   products: Product[];
+  /** Optional quick-reply suggestions to display below the message */
+  quickReplies?: string[];
 }
 
 // ─── Gift Finder ─────────────────────────────────────────────────────────────

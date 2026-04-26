@@ -16,9 +16,42 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ALL BLUE - Modern Gift Store",
-  description: "Curating beautiful gifts for every occasion. Quality craftsmanship meets timeless design.",
-  generator: "v0.app",
+  title: {
+    default: "ALL BLUE — AI-Powered Gift Store",
+    template: "%s | ALL BLUE",
+  },
+  description:
+    "Discover the perfect gift with AI-powered recommendations, AR product preview, voice search, and a smart chatbot. Premium gifts for every occasion.",
+  keywords: [
+    "gift shop",
+    "AI gifts",
+    "personalized gifts",
+    "gift recommendations",
+    "birthday gifts",
+    "anniversary gifts",
+    "corporate gifting",
+    "online gift store India",
+    "AR product preview",
+  ],
+  authors: [{ name: "ALL BLUE" }],
+  creator: "ALL BLUE",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    title: "ALL BLUE — AI-Powered Gift Store",
+    description:
+      "Discover the perfect gift with AI-powered recommendations, AR product preview, voice search, and a smart chatbot.",
+    siteName: "ALL BLUE",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ALL BLUE — AI-Powered Gift Store",
+    description: "Discover the perfect gift with AI-powered recommendations and AR preview.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: [
       {

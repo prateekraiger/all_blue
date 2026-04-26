@@ -5,10 +5,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { ShoppingBag, Star, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Box, X, Gift, CheckCircle2 } from "lucide-react"
-import { productsApi, reviewsApi, aiApi, type Product, type Review } from "@/lib/api"
+import { productsApi, reviewsApi, aiApi, arApi, type Product, type Review, type ARPreviewData } from "@/lib/api"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { ProductGrid } from "@/components/product-grid"
+import { ARPreview } from "@/components/ARPreview"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -74,6 +75,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [adding, setAdding] = useState(false)
   const [showARPreview, setShowARPreview] = useState(false)
+  const [arData, setArData] = useState<ARPreviewData | null>(null)
+  const [arLoading, setArLoading] = useState(false)
 
   // Review form
   const [reviewRating, setReviewRating] = useState(0)
@@ -409,11 +412,40 @@ export default function ProductDetailPage() {
 
           {/* AR Preview Button */}
           <MagneticButton
-            onClick={() => setShowARPreview(true)}
-            className="w-full mb-8 bg-neutral-100 text-foreground py-3 font-semibold text-sm uppercase tracking-widest hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 border border-neutral-300"
+            onClick={async () => {
+              if (arData) {
+                setShowARPreview(true)
+                return
+              }
+              setArLoading(true)
+              try {
+                const data = await arApi.preview(id)
+                setArData(data)
+                setShowARPreview(true)
+              } catch {
+                // Fallback: show with product data
+                if (product) {
+                  setArData({
+                    product_id: product.id,
+                    name: product.name,
+                    category: product.category ?? "",
+                    images: product.images ?? [],
+                    arSupported: false,
+                    modelUrl: null,
+                    instructions: ["Browse product images below to get a detailed view."],
+                    previewMessage: `Explore "${product.name}" with our HD image gallery.`,
+                  })
+                  setShowARPreview(true)
+                }
+              } finally {
+                setArLoading(false)
+              }
+            }}
+            disabled={arLoading}
+            className="w-full mb-8 bg-neutral-100 text-foreground py-3 font-semibold text-sm uppercase tracking-widest hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 border border-neutral-300 disabled:opacity-60"
           >
-            <Box className="w-4 h-4" />
-            View in your space (WebAR)
+            <Box className={`w-4 h-4 ${arLoading ? "animate-spin" : ""}`} />
+            {arLoading ? "Loading Preview..." : "View in AR / 360°"}
           </MagneticButton>
 
           {/* Shipping info */}
@@ -503,40 +535,9 @@ export default function ProductDetailPage() {
         />
       )}
 
-      {/* AR Preview Modal Simulator */}
-      {showARPreview && (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
-          <div className="absolute top-4 right-4 z-50">
-            <button onClick={() => setShowARPreview(false)} className="p-3 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors">
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-          <div className="absolute top-8 text-white z-40 bg-black/50 px-4 py-2 rounded-full backdrop-blur-md text-sm font-medium">
-            Point your camera at a flat surface
-          </div>
-
-          {/* Fake camera feed background */}
-          <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop')] bg-cover bg-center" />
-          
-          {/* Augmented 3D Object Simulator */}
-          <div className="relative z-30 animate-[floating_4s_ease-in-out_infinite] cursor-move">
-            <div className="w-[300px] h-[300px] relative drop-shadow-2xl">
-               <Image src={product?.images?.[0] || "/placeholder.jpg"} alt="AR Product" fill className="object-contain" unoptimized />
-            </div>
-          </div>
-          
-          <div className="absolute bottom-10 flex gap-4 z-40">
-            <button onClick={() => setShowARPreview(false)} className="bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-neutral-200 transition-colors">Done</button>
-          </div>
-
-          <style jsx>{`
-            @keyframes floating {
-              0% { transform: translateY(0px) rotate(0deg); }
-              50% { transform: translateY(-20px) rotate(2deg); }
-              100% { transform: translateY(0px) rotate(0deg); }
-            }
-          `}</style>
-        </div>
+      {/* AR Preview */}
+      {showARPreview && arData && (
+        <ARPreview data={arData} onClose={() => setShowARPreview(false)} />
       )}
 
       {/* Sticky CTA Bar */}
