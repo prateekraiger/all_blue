@@ -39,7 +39,7 @@ function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/shop/${product.id}`} className="text-foreground no-underline group block">
-      <div className="relative bg-neutral-100 p-6 md:p-8 mb-4 overflow-hidden h-[280px] md:h-[320px] lg:h-[360px] flex items-center justify-center">
+      <div className="relative bg-neutral-100 p-4 md:p-8 mb-4 overflow-hidden h-[280px] md:h-[320px] lg:h-[360px] flex items-center justify-center">
         <Image
           src={imageUrl}
           alt={product.name}
@@ -51,7 +51,7 @@ function ProductCard({ product }: { product: Product }) {
         <button
           onClick={handleAddToCart}
           disabled={adding || product.stock === 0}
-          className="absolute bottom-4 left-4 right-4 bg-foreground text-background py-3 text-xs font-semibold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-700 disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="absolute bottom-4 left-4 right-4 bg-foreground text-background py-3 text-xs font-semibold uppercase tracking-widest opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-neutral-700 disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform translate-y-0 md:translate-y-4 group-hover:translate-y-0"
         >
           <ShoppingBag className="w-3.5 h-3.5" />
           {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}

@@ -60,9 +60,9 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             src={imageUrl}
             alt={product.name}
             fill
-            className="object-contain p-12 transition-all duration-700 ease-out group-hover:scale-110 group-hover:drop-shadow-2xl"
+            className="object-contain p-8 sm:p-10 md:p-12 transition-all duration-700 ease-out group-hover:scale-110 group-hover:drop-shadow-2xl"
             onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
           
           {/* Status Badge */}
@@ -73,11 +73,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           )}
           
           {/* Interactive Button Overlay */}
-          <div className="absolute inset-x-6 bottom-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
+          <div className="absolute inset-x-4 sm:inset-x-6 bottom-4 sm:bottom-6 translate-y-0 opacity-100 md:translate-y-4 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
             <button
               onClick={handleAddToCart}
               disabled={adding || product.stock === 0}
-              className="w-full bg-white/90 backdrop-blur-md text-black py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:bg-black hover:text-white transition-all flex items-center justify-center gap-2"
+              className="w-full bg-white/95 backdrop-blur-md text-black py-3 sm:py-4 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl hover:bg-black hover:text-white transition-all flex items-center justify-center gap-2 border border-neutral-100"
             >
               <ShoppingBag className="w-4 h-4" />
               {product.stock === 0 ? "Unavailable" : adding ? "Adding..." : "Quick Add"}

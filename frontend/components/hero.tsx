@@ -52,7 +52,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-extrabold leading-[0.9] mb-5 md:mb-7 lg:mb-8 xl:mb-9 tracking-tighter"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-extrabold leading-[0.9] mb-5 md:mb-7 lg:mb-8 xl:mb-9 tracking-tighter"
           >
             The Art of <br />
             <span className="text-gradient">Perfect</span> Gifting
@@ -61,7 +61,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base md:text-lg lg:text-xl xl:text-xl text-muted-foreground mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg xl:max-w-xl leading-relaxed mx-auto md:mx-0"
+            className="text-base sm:text-lg lg:text-xl xl:text-xl text-muted-foreground mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg xl:max-w-xl leading-relaxed mx-auto md:mx-0"
           >
             Curated elegance for every occasion. Experience the next generation of personalized luxury.
           </motion.p>
@@ -100,7 +100,7 @@ export function Hero() {
               alt="Hero luxury gifts collection"
               width={1200}
               height={1000}
-              className="w-full h-[450px] md:h-[550px] lg:h-[650px] xl:h-[750px] 2xl:h-[850px] object-cover scale-105 group-hover:scale-100 group-hover:grayscale-0 grayscale transition-all duration-[1.5s] ease-out"
+              className="w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] xl:h-[750px] 2xl:h-[850px] object-cover scale-105 group-hover:scale-100 transition-all duration-[1.5s] ease-out shadow-inner"
               priority
             />
             {/* Glossy overlay effect */}

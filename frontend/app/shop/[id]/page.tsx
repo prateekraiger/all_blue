@@ -227,7 +227,7 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 mb-16">
         {/* Images */}
         <div>
-          <div className="relative bg-neutral-100 mb-4 h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center p-8 overflow-hidden group">
+          <div className="relative bg-neutral-100 mb-4 h-[350px] md:h-[500px] lg:h-[600px] flex items-center justify-center p-6 md:p-8 overflow-hidden group">
             <Image
               src={images[selectedImage]}
               alt={product.name}
