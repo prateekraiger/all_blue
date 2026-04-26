@@ -11,10 +11,10 @@ import { toast } from "sonner"
 
 // Fallback static products (shown when API is unavailable)
 const FALLBACK_PRODUCTS: Product[] = [
-  { id: "1", name: "Classic Men's Watch", category: "Gifts for Him", price: 29900, tags: [], images: ["/gift_watch.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "2", name: "Designer Perfume", category: "Gifts for Her", price: 15900, tags: [], images: ["/gift_perfume.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "3", name: "Artisan Chocolates", category: "Gifts", price: 5900, tags: [], images: ["/gift_chocolates.png"], stock: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: "4", name: "Elegant Floral Bouquet", category: "Gifts", price: 8900, tags: [], images: ["/gift_bouquet.png"], stock: 10, is_active: true, created_at: new Date().toISOString() }
+  { id: "1", name: "Classic Men's Watch", category: "Gifts for Him", price: 29900, tags: [], images: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "2", name: "Designer Perfume", category: "Gifts for Her", price: 15900, tags: [], images: ["https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "3", name: "Artisan Chocolates", category: "Gifts", price: 5900, tags: [], images: ["https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&q=80&w=800"], stock: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: "4", name: "Elegant Floral Bouquet", category: "Gifts", price: 8900, tags: [], images: ["https://images.unsplash.com/photo-1587334274328-64186a80aeee?auto=format&fit=crop&q=80&w=800"], stock: 10, is_active: true, created_at: new Date().toISOString() }
 ]
 
 interface ProductGridProps {
@@ -61,7 +61,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             alt={product.name}
             fill
             className="object-contain p-8 sm:p-10 md:p-12 transition-all duration-700 ease-out group-hover:scale-110 group-hover:drop-shadow-2xl"
-            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
+            onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800" }}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
           

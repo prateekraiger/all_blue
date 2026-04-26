@@ -204,7 +204,7 @@ export default function ProductDetailPage() {
     )
   }
 
-  const images = product.images && product.images.length > 0 ? product.images : ["/placeholder.jpg"]
+  const images = product.images && product.images.length > 0 ? product.images : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800"]
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-8 md:py-12">
@@ -234,7 +234,7 @@ export default function ProductDetailPage() {
               width={600}
               height={600}
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800" }}
             />
             {images.length > 1 && (
               <>
