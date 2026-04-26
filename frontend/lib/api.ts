@@ -250,7 +250,7 @@ export const aiApi = {
     apiFetch('/api/ai/preferences', { method: 'POST', body: JSON.stringify(data) }, token),
 
   chat: (message: string, token?: string | null) =>
-    apiFetch<{ reply: string; products: Product[] }>(
+    apiFetch<{ reply: string; products: Product[]; quickReplies?: string[] }>(
       '/api/ai/chat',
       { method: 'POST', body: JSON.stringify({ message }) },
       token
@@ -268,6 +268,27 @@ export const aiApi = {
       { method: 'POST', body: JSON.stringify(input) },
       token
     ),
+};
+
+// ─── AR API ───────────────────────────────────────────────────────────────────
+
+export interface ARPreviewData {
+  product_id: string;
+  name: string;
+  category: string;
+  images: string[];
+  arSupported: boolean;
+  modelUrl: string | null;
+  instructions: string[];
+  previewMessage: string;
+}
+
+export const arApi = {
+  preview: (productId: string) =>
+    apiFetch<ARPreviewData>(`/api/ar/preview/${productId}`),
+
+  supportedCategories: () =>
+    apiFetch<string[]>('/api/ar/supported-categories'),
 };
 
 // ─── Reviews API ──────────────────────────────────────────────────────────────
