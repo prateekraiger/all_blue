@@ -18,7 +18,7 @@ export default function CorporateGiftingPage() {
             Corporate Gifting
           </h1>
           <p className="text-lg md:text-xl text-neutral-200 max-w-2xl mx-auto font-medium">
-            Elevate your corporate relationships with bespoke premium gifting solutions tailored for your elite clients and teams.
+            Elevate your corporate relationships with bespoke curated gifting solutions tailored for your elite clients and teams.
           </p>
         </div>
       </section>
@@ -30,7 +30,7 @@ export default function CorporateGiftingPage() {
             <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
               <Gem className="w-8 h-8 text-neutral-800" />
             </div>
-            <h3 className="text-xl font-bold uppercase tracking-widest">Premium Curation</h3>
+            <h3 className="text-xl font-bold uppercase tracking-widest">Superior Curation</h3>
             <p className="text-neutral-500 leading-relaxed">
               We source only the finest globally recognized luxury items, ensuring your brand is associated with unparalleled quality.
             </p>
@@ -41,7 +41,7 @@ export default function CorporateGiftingPage() {
             </div>
             <h3 className="text-xl font-bold uppercase tracking-widest">Branded Elegance</h3>
             <p className="text-neutral-500 leading-relaxed">
-              Subtle, elegant branding on premium packaging that highlights your company without detracting from the gift.
+              Subtle, elegant branding on bespoke packaging that highlights your company without detracting from the gift.
             </p>
           </div>
           <div className="flex flex-col items-center gap-4">

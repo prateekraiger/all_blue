@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Sparkles, ArrowRight, Gift, Target, User, Heart, Briefcase } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { aiApi, type Product } from "@/lib/api"
 
 type Persona = "Partner" | "Colleague" | "Friend" | "Parent" | "Client"
@@ -70,211 +71,287 @@ export default function GiftFinderPage() {
           </p>
         </div>
 
+        {/* Progress Bar */}
+        <div className="max-w-[700px] mx-auto mb-12 px-4">
+          <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden flex gap-1">
+            {[1, 2, 3, 4].map((i) => (
+              <div 
+                key={i} 
+                className={`h-full flex-1 transition-all duration-1000 ease-out rounded-full ${step >= i ? "bg-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]" : "bg-neutral-200"}`}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between mt-4">
+            {["Recipient", "Occasion", "Budget", "Matches"].map((label, i) => (
+              <span key={label} className={`text-[10px] font-black uppercase tracking-widest ${step === i + 1 ? "text-primary" : "text-neutral-400"}`}>
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+
         {/* Wizard */}
-        <div className="max-w-[700px] mx-auto glass rounded-3xl shadow-2xl p-8 md:p-12 transition-all duration-500 hover:shadow-primary/10">
-          
-          {step === 1 && (
-            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                <User className="w-6 h-6 text-primary" />
-                Who are you shopping for?
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {(["Partner", "Colleague", "Friend", "Parent", "Client"] as Persona[]).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPersona(p)}
-                    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${persona === p ? "border-primary bg-primary/5 shadow-lg shadow-primary/5 scale-[1.02]" : "border-border hover:border-primary/40 hover:bg-primary/5"}`}
-                  >
-                    <span className={`font-semibold relative z-10 ${persona === p ? "text-primary" : "text-foreground"}`}>{p}</span>
-                    {persona === p && <div className="absolute inset-0 bg-primary/5 animate-pulse" />}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-12 flex justify-end">
-                <button
-                  onClick={() => setStep(2)}
-                  disabled={!persona}
-                  className="bg-primary text-primary-foreground px-10 py-4 rounded-xl font-bold uppercase tracking-widest text-sm disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
-                >
-                  Next Step <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-700">
-              <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                <Gift className="w-6 h-6 text-primary" />
-                What's the occasion?
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                {(["Birthday", "Anniversary", "Thank You", "Corporate", "Just Because"] as Occasion[]).map((o) => (
-                  <button
-                    key={o}
-                    onClick={() => setOccasion(o)}
-                    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${occasion === o ? "border-primary bg-primary/5 shadow-lg shadow-primary/5 scale-[1.02]" : "border-border hover:border-primary/40 hover:bg-primary/5"}`}
-                  >
-                    <span className={`font-semibold relative z-10 ${occasion === o ? "text-primary" : "text-foreground"}`}>{o}</span>
-                  </button>
-                ))}
-              </div>
-              <div className="mt-12 flex justify-between">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-6 py-3 font-semibold text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ← Back
-                </button>
-                <button
-                  onClick={() => setStep(3)}
-                  disabled={!occasion}
-                  className="bg-primary text-primary-foreground px-10 py-4 rounded-xl font-bold uppercase tracking-widest text-sm disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
-                >
-                  Next Step <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-700">
-              <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                <Target className="w-6 h-6 text-primary" />
-                Set your budget
-              </h2>
-              <div className="py-8">
-                <div className="text-6xl font-black text-center mb-10 text-gradient tabular-nums">
-                  ₹{budget.toLocaleString("en-IN")}
+        <div className="max-w-[800px] mx-auto relative">
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -20 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="bg-white/80 backdrop-blur-2xl rounded-[3rem] border border-neutral-100 shadow-2xl p-10 md:p-16"
+              >
+                <div className="text-center mb-12">
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3">
+                    <User className="w-8 h-8 text-primary" />
+                  </div>
+                  <h2 className="text-4xl font-black tracking-tight mb-4 uppercase">Who is the Recipient?</h2>
+                  <p className="text-neutral-500 font-medium">Every great gift starts with understanding the person.</p>
                 </div>
-                <div className="px-4">
-                  <input
-                    type="range"
-                    min="500"
-                    max="25000"
-                    step="500"
-                    value={budget}
-                    onChange={(e) => setBudget(Number(e.target.value))}
-                    className="w-full h-3 bg-secondary rounded-full appearance-none cursor-pointer accent-primary"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-6 font-bold uppercase tracking-widest">
-                    <span>₹500</span>
-                    <span>₹12,500</span>
-                    <span>₹25,000+</span>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {(["Partner", "Colleague", "Friend", "Parent", "Client"] as Persona[]).map((p, i) => (
+                    <motion.button
+                      key={p}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      onClick={() => setPersona(p)}
+                      className={`group relative aspect-square rounded-3xl border-2 transition-all duration-500 flex flex-col items-center justify-center gap-4 ${
+                        persona === p 
+                        ? "border-primary bg-primary text-white shadow-2xl shadow-primary/30" 
+                        : "border-neutral-100 bg-neutral-50 hover:border-primary/30 hover:bg-white"
+                      }`}
+                    >
+                      <div className={`p-4 rounded-2xl transition-colors ${persona === p ? "bg-white/20" : "bg-white"}`}>
+                        {p === "Partner" && <Heart className="w-6 h-6" />}
+                        {p === "Colleague" && <Briefcase className="w-6 h-6" />}
+                        {p === "Friend" && <Sparkles className="w-6 h-6" />}
+                        {p === "Parent" && <User className="w-6 h-6" />}
+                        {p === "Client" && <Target className="w-6 h-6" />}
+                      </div>
+                      <span className="font-black text-xs uppercase tracking-widest">{p}</span>
+                    </motion.button>
+                  ))}
+                </div>
+
+                <div className="mt-16 flex justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setStep(2)}
+                    disabled={!persona}
+                    className="bg-neutral-900 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center gap-4 shadow-2xl hover:bg-primary"
+                  >
+                    Set Occasion <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                className="bg-white/80 backdrop-blur-2xl rounded-[3rem] border border-neutral-100 shadow-2xl p-10 md:p-16"
+              >
+                <div className="text-center mb-12">
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 -rotate-3">
+                    <Gift className="w-8 h-8 text-primary" />
+                  </div>
+                  <h2 className="text-4xl font-black tracking-tight mb-4 uppercase">The Occasion?</h2>
+                  <p className="text-neutral-500 font-medium">Timing is everything in the art of gifting.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(["Birthday", "Anniversary", "Thank You", "Corporate", "Just Because"] as Occasion[]).map((o, i) => (
+                    <motion.button
+                      key={o}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => setOccasion(o)}
+                      className={`relative p-8 rounded-2xl border-2 transition-all duration-500 flex items-center justify-between group ${
+                        occasion === o 
+                        ? "border-primary bg-primary text-white shadow-xl shadow-primary/20" 
+                        : "border-neutral-100 bg-neutral-50 hover:border-primary/30"
+                      }`}
+                    >
+                      <span className="font-black text-xs uppercase tracking-widest">{o}</span>
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${occasion === o ? "border-white bg-white/20" : "border-neutral-200"}`}>
+                        {occasion === o && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+
+                <div className="mt-16 flex justify-between items-center">
+                  <button onClick={() => setStep(1)} className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-primary transition-colors">
+                    Back to Recipient
+                  </button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setStep(3)}
+                    disabled={!occasion}
+                    className="bg-neutral-900 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs disabled:opacity-20 transition-all flex items-center gap-4 shadow-2xl hover:bg-primary"
+                  >
+                    Define Budget <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-white/80 backdrop-blur-2xl rounded-[3rem] border border-neutral-100 shadow-2xl p-10 md:p-16"
+              >
+                <div className="text-center mb-12">
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Target className="w-8 h-8 text-primary" />
+                  </div>
+                  <h2 className="text-4xl font-black tracking-tight mb-4 uppercase">Investment Range</h2>
+                  <p className="text-neutral-500 font-medium">Quality has no price, but planning helps.</p>
+                </div>
+
+                <div className="py-12">
+                  <div className="text-7xl font-black text-center mb-12 tracking-tighter tabular-nums text-neutral-900">
+                    ₹{budget.toLocaleString("en-IN")}
+                  </div>
+                  <div className="relative h-12 flex items-center">
+                    <input
+                      type="range"
+                      min="500"
+                      max="25000"
+                      step="500"
+                      value={budget}
+                      onChange={(e) => setBudget(Number(e.target.value))}
+                      className="w-full h-2 bg-neutral-100 rounded-full appearance-none cursor-pointer accent-primary"
+                    />
+                    <div className="absolute top-8 left-0 right-0 flex justify-between text-[8px] font-black uppercase tracking-widest text-neutral-400">
+                      <span>Min: ₹500</span>
+                      <span>Mid: ₹12,500</span>
+                      <span>Max: ₹25,000+</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="mt-12 flex justify-between items-center">
-                <button
-                  onClick={() => setStep(2)}
-                  className="px-6 py-3 font-semibold text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ← Back
-                </button>
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="bg-primary text-primary-foreground px-10 py-4 rounded-xl font-bold uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 relative overflow-hidden group shadow-xl shadow-primary/30"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Sparkles className="w-5 h-5 animate-spin" /> Thinking...
-                    </>
-                  ) : (
-                    <>
-                      Find Perfect Gifts <Sparkles className="w-5 h-5" />
-                    </>
-                  )}
-                  {/* Sweep animation */}
-                  <div className="absolute inset-0 -translate-x-[150%] bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:animate-[sweep_1.5s_ease-in-out_infinite]" />
-                </button>
-              </div>
 
-              {/* Error display */}
-              {error && (
-                <div className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium animate-in fade-in zoom-in-95">
-                  ⚠️ {error}
+                <div className="mt-16 flex justify-between items-center">
+                  <button onClick={() => setStep(2)} className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-primary transition-colors">
+                    Back to Occasion
+                  </button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="bg-primary text-white px-12 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center gap-4 shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)] relative overflow-hidden group"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <motion.div 
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                        >
+                          <Sparkles className="w-5 h-5" />
+                        </motion.div>
+                        Analysing Archive...
+                      </>
+                    ) : (
+                      <>
+                        Find Perfection <Sparkles className="w-5 h-5" />
+                      </>
+                    )}
+                    <div className="absolute inset-0 -translate-x-[150%] bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-[sweep_2s_ease-in-out_infinite]" />
+                  </motion.button>
                 </div>
-              )}
-            </div>
-          )}
+              </motion.div>
+            )}
 
-          {step === 4 && results && (
-            <div className="animate-in fade-in zoom-in-95 duration-700">
-              <div className="text-center mb-10 pb-10 border-b border-border/50">
-                <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-rose-500 animate-bounce" />
+            {step === 4 && results && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full"
+              >
+                <div className="text-center mb-16">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-4 block">Selection Curated</span>
+                  <h2 className="text-6xl font-black tracking-tight uppercase mb-4">Masterpiece Matches</h2>
+                  <p className="text-neutral-500 font-medium">Selected for a {persona} celebrating a {occasion}.</p>
                 </div>
-                <h2 className="text-3xl font-black mb-3">
-                  {results.length > 0 ? "Handpicked for You" : "No matches found"}
-                </h2>
-                <p className="text-muted-foreground text-lg">
-                  {results.length > 0
-                    ? `Curated gifts for your ${persona}'s ${occasion}.`
-                    : "Try adjusting your budget or selecting different preferences."}
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                {results.map((product) => {
-                  const imgSrc = product.images && product.images.length > 0
-                    ? product.images[0]
-                    : "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop"
-
-                  return (
-                    <Link
+                
+                <div className="grid grid-cols-1 gap-8">
+                  {results.map((product, i) => (
+                    <motion.div
                       key={product.id}
-                      href={`/products/${product.id}`}
-                      className="flex gap-6 p-5 rounded-2xl border border-border bg-card/50 hover:border-primary/50 hover:bg-primary/[0.02] hover:translate-x-1 transition-all duration-300 group cursor-pointer"
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.15 }}
                     >
-                      <div className="w-28 h-28 bg-muted rounded-xl shrink-0 relative overflow-hidden shadow-inner">
-                        <Image
-                          src={imgSrc}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          unoptimized
-                        />
-                      </div>
-                      <div className="flex-1 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">
-                            {product.matchScore}% Match
-                          </span>
-                          {product.category && (
-                            <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-                              {product.category}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{product.name}</h3>
-                        <p className="text-muted-foreground text-sm mt-1 line-clamp-2 leading-relaxed">{product.reason}</p>
-                        <div className="mt-4 flex items-center justify-between">
-                          <div className="text-2xl font-black text-foreground">₹{product.price.toLocaleString("en-IN")}</div>
-                          <div className="text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-bold uppercase tracking-tighter">
-                            View Details <ArrowRight className="w-3 h-3" />
+                      <Link
+                        href={`/shop/${product.id}`}
+                        className="group flex flex-col md:flex-row gap-10 p-8 rounded-[3rem] bg-white border border-neutral-100 shadow-xl hover:shadow-2xl transition-all duration-700"
+                      >
+                        <div className="w-full md:w-64 aspect-square bg-neutral-50 rounded-[2rem] relative overflow-hidden shrink-0 shadow-inner">
+                          <Image
+                            src={product.images?.[0] || "/placeholder.jpg"}
+                            alt={product.name}
+                            fill
+                            className="object-contain p-8 group-hover:scale-110 transition-transform duration-1000 ease-out"
+                          />
+                          <div className="absolute top-6 right-6 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-white/50">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">{product.matchScore}% Match</span>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
 
-              <div className="mt-12 text-center">
-                <button
-                  onClick={() => {
-                    setStep(1); setPersona(null); setOccasion(null); setResults(null); setError(null);
-                  }}
-                  className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 mx-auto"
+                        <div className="flex-1 flex flex-col justify-center">
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">{product.category}</span>
+                            {product.tags?.slice(0, 2).map(tag => (
+                              <span key={tag} className="text-[8px] font-black uppercase tracking-widest text-primary/60 bg-primary/5 px-3 py-1 rounded-full border border-primary/10">{tag}</span>
+                            ))}
+                          </div>
+                          <h3 className="text-4xl font-black tracking-tight mb-4 group-hover:text-primary transition-colors">{product.name}</h3>
+                          <div className="bg-neutral-50 rounded-2xl p-6 border border-neutral-100 mb-8">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-primary mb-2 block">AI Analysis</span>
+                            <p className="text-neutral-600 text-sm font-medium leading-relaxed italic">"{product.reason}"</p>
+                          </div>
+                          <div className="flex items-center justify-between pt-4 border-t border-neutral-50">
+                            <div className="text-3xl font-black">₹{product.price.toLocaleString("en-IN")}</div>
+                            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                              View Masterpiece <ArrowRight className="w-5 h-5 text-primary" />
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="mt-16 text-center"
                 >
-                  <Sparkles className="w-3 h-3" /> Start New Search
-                </button>
-              </div>
-            </div>
-          )}
-          
+                  <button
+                    onClick={() => { setStep(1); setPersona(null); setOccasion(null); setResults(null); setError(null); }}
+                    className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 hover:text-primary transition-all hover:tracking-[0.5em]"
+                  >
+                    Start New Curation
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

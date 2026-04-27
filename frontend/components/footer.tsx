@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Facebook, Instagram, Twitter, Youtube, ArrowUp } from "lucide-react"
 
 export function Footer() {
@@ -21,9 +22,11 @@ export function Footer() {
             </p>
             <div className="flex gap-6">
               {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-                <Link key={i} href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                  <Icon className="w-5 h-5" />
-                </Link>
+                <motion.div key={i} whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.9 }}>
+                  <Link href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
+                    <Icon className="w-5 h-5" />
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -62,12 +65,14 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-2 flex flex-col items-start lg:items-end">
-             <button 
+             <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={scrollToTop}
-                className="w-16 h-16 rounded-full bg-primary flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-2xl"
+                className="w-16 h-16 rounded-full bg-primary flex items-center justify-center hover:shadow-primary/40 transition-all shadow-2xl cursor-pointer"
              >
                 <ArrowUp className="w-6 h-6 text-white" />
-             </button>
+             </motion.button>
              <span className="text-[10px] uppercase font-black tracking-widest mt-4 text-neutral-500 text-center">Back to Top</span>
           </div>
         </div>

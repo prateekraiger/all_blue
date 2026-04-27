@@ -2,11 +2,24 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
+import { Magnetic } from "@/components/Magnetic"
+import { useRef } from "react"
 
 export function Hero() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, 200])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1])
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 5])
+
   return (
-    <section className="w-full relative overflow-hidden bg-background pt-10 pb-20 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32">
+    <section ref={containerRef} className="w-full relative overflow-hidden bg-background pt-10 pb-20 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <motion.div
@@ -69,60 +82,104 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
           >
-            <Link
-              href="/shop"
-              className="group relative inline-flex items-center justify-center overflow-hidden bg-primary text-primary-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-primary/40 hover:-translate-y-1 rounded-2xl"
-            >
-              <span className="relative z-10">Explore Collection</span>
-              <div className="absolute inset-0 -z-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
-            <Link
-              href="/gift-finder"
-              className="group relative inline-flex items-center justify-center overflow-hidden bg-background border-2 border-primary/20 text-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest transition-all duration-300 hover:border-primary hover:-translate-y-1 rounded-2xl"
-            >
-              <span className="relative z-10 text-gradient">AI Gift Finder</span>
-            </Link>
+            <Magnetic>
+              <Link
+                href="/shop"
+                className="group relative inline-flex items-center justify-center overflow-hidden bg-primary text-primary-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-primary/40 rounded-2xl w-full sm:w-auto"
+              >
+                <span className="relative z-10">Explore Collection</span>
+                <div className="absolute inset-0 -z-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <Link
+                href="/gift-finder"
+                className="group relative inline-flex items-center justify-center overflow-hidden bg-background border-2 border-primary/20 text-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest transition-all duration-300 hover:border-primary rounded-2xl w-full sm:w-auto"
+              >
+                <span className="relative z-10 text-gradient">AI Gift Finder</span>
+              </Link>
+            </Magnetic>
           </motion.div>
         </div>
 
         <motion.div 
-          initial={{ opacity: 0, x: 50, scale: 0.95 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.3 }}
+          style={{ y, opacity, scale, rotate }}
           className="flex-1 md:flex-[1.1] lg:flex-[1.2] xl:flex-[1.5] relative w-full"
         >
-          <div className="relative group overflow-hidden rounded-[2rem] shadow-2xl">
-            <div className="absolute inset-0 bg-blue-600/10 mix-blend-overlay z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-            <Image
-              src="/hero_gift.png"
-              alt="Hero luxury gifts collection"
-              width={1200}
-              height={1000}
-              className="w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] xl:h-[750px] 2xl:h-[850px] object-cover scale-105 group-hover:scale-100 transition-all duration-[1.5s] ease-out shadow-inner"
-              priority
-            />
-            {/* Glossy overlay effect */}
-            <div className="absolute inset-0 bg-linear-to-tr from-white/10 via-transparent to-transparent opacity-50 pointer-events-none" />
-          </div>
-          
-          {/* Floating detail badge */}
-          <motion.div 
-            animate={{ y: [0, -15, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-6 -left-6 md:-left-12 bg-white/80 backdrop-blur-xl p-4 md:p-6 shadow-xl border border-white/50 rounded-2xl z-20 hidden sm:block"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
+          <div className="relative aspect-square w-full max-w-[800px] mx-auto">
+            {/* Floating Glass Cards */}
+            <motion.div
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 5, 0]
+              }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-10 -right-10 z-20 hidden lg:block"
+            >
+              <div className="glass p-6 rounded-3xl shadow-2xl backdrop-blur-2xl border border-white/20">
+                <p className="text-primary font-bold text-lg">Next-Gen Gifting</p>
+                <p className="text-muted-foreground text-sm">Powered by All Blue AI</p>
               </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-neutral-400">Active Now</p>
-                <p className="text-sm font-extrabold">2.4k Shopping</p>
+            </motion.div>
+
+            <motion.div
+              animate={{
+                y: [0, 20, 0],
+                rotate: [0, -3, 0]
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -bottom-10 -left-10 z-20 hidden lg:block"
+            >
+              <div className="glass p-6 rounded-3xl shadow-2xl backdrop-blur-2xl border border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-primary text-xl">✨</span>
+                  </div>
+                  <div>
+                    <p className="text-foreground font-bold">Superior Quality</p>
+                    <p className="text-muted-foreground text-xs">Curated Selection</p>
+                  </div>
+                </div>
               </div>
+            </motion.div>
+
+            <div className="relative w-full h-full rounded-[4rem] overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all duration-700 hover:shadow-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent z-10" />
+              <Image
+                src="/hero_gift.png"
+                alt="Hero luxury gifts collection"
+                width={1200}
+                height={1000}
+                priority
+                className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110"
+              />
+              {/* Glossy overlay effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-transparent opacity-50 pointer-events-none" />
             </div>
-          </motion.div>
+            
+            {/* Animated Decorative Rings */}
+            <div className="absolute -inset-10 border border-primary/10 rounded-full -z-10 animate-[spin_20s_linear_infinite]" />
+            <div className="absolute -inset-20 border border-blue-500/5 rounded-full -z-10 animate-[spin_30s_linear_infinite_reverse]" />
+
+            {/* Floating detail badge */}
+            <motion.div 
+              animate={{ y: [0, -15, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-10 right-10 bg-white/80 backdrop-blur-xl p-4 md:p-6 shadow-xl border border-white/50 rounded-2xl z-20 hidden sm:block"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-neutral-400">Active Now</p>
+                  <p className="text-sm font-extrabold">2.4k Shopping</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

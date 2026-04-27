@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "@/stack/server";
 import { AIChatbot } from "@/components/AIChatbot"
+import { PageTransition } from "@/components/PageTransition"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | ALL BLUE",
   },
   description:
-    "Discover the perfect gift with AI-powered recommendations, AR product preview, voice search, and a smart chatbot. Premium gifts for every occasion.",
+    "Discover the perfect gift with AI-powered recommendations, AR product preview, voice search, and a smart chatbot. Curated gifts for every occasion.",
   keywords: [
     "gift shop",
     "AI gifts",
@@ -85,8 +86,10 @@ export default function RootLayout({
               <AuthProvider>
                 <CartProvider>
                   <Navigation />
-                  {children}
-                  <div className="max-w-[1200px] mx-auto">
+                  <PageTransition>
+                    {children}
+                  </PageTransition>
+                  <div className="max-w-[1920px] mx-auto">
                     <Footer />
                   </div>
                   <Toaster position="bottom-right" />

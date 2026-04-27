@@ -55,12 +55,13 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       transition={{ duration: 0.5, delay: index * 0.05 }}
     >
       <Link href={`/shop/${product.id}`} className="text-foreground no-underline group block mb-8">
-        <div className="relative aspect-[3/4] bg-[#F7F7F7] mb-6 overflow-hidden rounded-[2rem] flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+        <div className="relative aspect-[3/4] bg-[#F7F7F7] mb-6 overflow-hidden rounded-[2.5rem] flex items-center justify-center transition-all duration-700 group-hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] group-hover:shadow-primary/5">
+          <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.02] transition-colors duration-700" />
           <Image
             src={imageUrl}
             alt={product.name}
             fill
-            className="object-contain p-8 sm:p-10 md:p-12 transition-all duration-700 ease-out group-hover:scale-110 group-hover:drop-shadow-2xl"
+            className="object-contain p-8 sm:p-10 md:p-12 transition-all duration-[1s] cubic-bezier(0.16, 1, 0.3, 1) group-hover:scale-110 group-hover:drop-shadow-[0_20px_30px_rgba(0,0,0,0.08)]"
             onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800" }}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
