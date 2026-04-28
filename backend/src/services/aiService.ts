@@ -389,7 +389,7 @@ export const chatbotResponse = async (
         const matchesMaxPrice = maxPrice ? p.price <= maxPrice : true;
         const matchesMinPrice = minPrice ? p.price >= minPrice : true;
         const matchesTags = matchedTags.length > 0 
-          ? p.tags.some(t => matchedTags.includes(t)) 
+          ? p.tags?.some(t => matchedTags.includes(t)) ?? false 
           : true;
         return matchesMaxPrice && matchesMinPrice && matchesTags;
       }).slice(0, 6);
@@ -632,7 +632,8 @@ const MOCK_PRODUCTS: Product[] = [
     images: ["/gift_watch.png"],
     stock: 10,
     is_active: true,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: '2',
@@ -643,7 +644,8 @@ const MOCK_PRODUCTS: Product[] = [
     images: ["/gift_perfume.png"],
     stock: 10,
     is_active: true,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: '3',
@@ -654,7 +656,8 @@ const MOCK_PRODUCTS: Product[] = [
     images: ["/gift_chocolates.png"],
     stock: 10,
     is_active: true,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: '4',
@@ -665,6 +668,7 @@ const MOCK_PRODUCTS: Product[] = [
     images: ["/gift_bouquet.png"],
     stock: 10,
     is_active: true,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];

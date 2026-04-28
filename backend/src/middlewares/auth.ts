@@ -111,7 +111,8 @@ export const requireAdmin = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  await requireAuth(req, res, async () => {
+  await requireAuth(req, res, async (err?: any) => {
+    if (err) return next(err);
     const userRole = (req.user as any)?.user_metadata?.role as string | undefined;
     if (userRole !== 'admin') {
       return next(new AppError('Admin access required', 403));

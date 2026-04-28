@@ -1,0 +1,5 @@
+﻿src/services/aiService.ts(392,13): error TS18048: 'p.tags' is possibly 'undefined'.
+src/services/aiService.ts(626,3): error TS2741: Property 'updated_at' is missing in type '{ id: string; name: string; category: string; price: number; tags: string[]; images: string[]; stock: number; is_active: true; created_at: string; }' but required in type 'Product'.
+src/services/aiService.ts(637,3): error TS2741: Property 'updated_at' is missing in type '{ id: string; name: string; category: string; price: number; tags: string[]; images: string[]; stock: number; is_active: true; created_at: string; }' but required in type 'Product'.
+src/services/aiService.ts(648,3): error TS2741: Property 'updated_at' is missing in type '{ id: string; name: string; category: string; price: number; tags: string[]; images: string[]; stock: number; is_active: true; created_at: string; }' but required in type 'Product'.
+src/services/aiService.ts(659,3): error TS2741: Property 'updated_at' is missing in type '{ id: string; name: string; category: string; price: number; tags: string[]; images: string[]; stock: number; is_active: true; created_at: string; }' but required in type 'Product'.

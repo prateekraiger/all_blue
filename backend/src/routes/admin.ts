@@ -81,11 +81,11 @@ router.get('/dashboard', async (_req: AuthRequest, res: Response) => {
   if (topProductIds.length > 0) {
     const { data } = await supabase
       .from('products')
-      .select('id, name, price, stock')
+      .select('*')
       .in('id', topProductIds);
 
     popularProducts = (data ?? []).map((p) => ({
-      ...p,
+      ...(p as any),
       orders: productCount[p.id] ?? 0,
     })) as DashboardStats['popularProducts'];
   }

@@ -95,7 +95,7 @@ function SearchContent() {
 
   const handleInputChange = (value: string) => {
     setQuery(value)
-    clearTimeout(debounceTimer.current)
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
       const params = new URLSearchParams()
       if (value.trim()) params.set("q", value.trim())
