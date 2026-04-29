@@ -4,12 +4,12 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { ShoppingBag, Star, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Box, X, Gift, CheckCircle2, ArrowLeft, ArrowRight, ShieldCheck, Home } from "lucide-react"
-import { productsApi, reviewsApi, aiApi, type Product, type Review, type ARPreviewData } from "@/lib/api"
+import { ShoppingBag, Star, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, X, Gift, CheckCircle2, ArrowLeft, ArrowRight, ShieldCheck, Home } from "lucide-react"
+import { productsApi, reviewsApi, aiApi, type Product, type Review } from "@/lib/api"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { ProductGrid } from "@/components/product-grid"
-import { ARPreview } from "@/components/ARPreview"
+
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -74,8 +74,7 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [adding, setAdding] = useState(false)
-  const [showARPreview, setShowARPreview] = useState(false)
-  const [arData, setArData] = useState<ARPreviewData | null>(null)
+
 
 
   // Review form
@@ -506,52 +505,7 @@ export default function ProductDetailPage() {
             </AnimatePresence>
           </motion.div>
 
-          {/* AR Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="group relative overflow-hidden rounded-3xl bg-neutral-900 p-8 flex items-center justify-between shadow-2xl mb-8"
-          >
-            <div className="absolute inset-0 bg-linear-to-tr from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            <div className="relative z-10">
-              <h3 className="text-white text-xl font-black uppercase tracking-widest mb-2">Visualise in AR</h3>
-              <p className="text-neutral-400 text-xs font-bold uppercase tracking-widest">See it in your space before you buy</p>
-            </div>
-            <motion.button 
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              onClick={() => {
-                if (arData) {
-                  setShowARPreview(true)
-                  return
-                }
-                if (product) {
-                  setArData({
-                    product_id: product.id,
-                    name: product.name,
-                    category: product.category ?? "",
-                    images: product.images ?? [],
-                    arSupported: true,
-                    modelUrl: null,
-                    instructions: [
-                      "Grant camera access when prompted.",
-                      "Point your camera at a flat surface (table, desk, floor).",
-                      "The product will appear overlaid on your camera feed.",
-                      "Pinch to resize or drag to reposition."
-                    ],
-                    previewMessage: `Viewing "${product.name}" in your space`,
-                  })
-                  setShowARPreview(true)
-                }
-              }}
-              disabled={false}
-              className="relative z-10 bg-white text-black p-4 rounded-2xl shadow-xl font-black flex items-center gap-2 group/btn disabled:opacity-50"
-            >
-              <Box className="w-5 h-5" />
-              <span className="text-xs uppercase tracking-widest">Launch AR</span>
-            </motion.button>
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
-          </motion.div>
+
 
           {/* Features Grid */}
           <div className="grid grid-cols-3 gap-4">
@@ -733,10 +687,7 @@ export default function ProductDetailPage() {
       )}
     </div>
 
-      {/* AR Preview */}
-      {showARPreview && arData && (
-        <ARPreview data={arData} onClose={() => setShowARPreview(false)} />
-      )}
+
 
       {/* Sticky CTA Bar */}
       <AnimatePresence>
