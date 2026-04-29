@@ -53,7 +53,7 @@ export const createCheckoutSession = async (
         },
       ],
       metadata: { order_id: orderId },
-      success_url: `${frontendUrl}/orders/${orderId}?payment=success`,
+      success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: `${frontendUrl}/checkout?payment=cancelled`,
     });
 

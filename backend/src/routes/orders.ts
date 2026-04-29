@@ -36,6 +36,22 @@ router.patch(
 // All other user order routes require standard authentication
 router.use(requireAuth);
 
+// ─── POST /api/orders — Create a new order ────────────────────────────────────
+router.post('/', validate(schemas.order), async (req: AuthRequest, res: Response) => {
+  const order = await orderService.createOrder(req.user!.id, req.body);
+  res.status(201).json({ success: true, data: order });
+});
+
+// ─── GET /api/orders — List user orders (paginated) ───────────────────────────
+router.get('/', async (req: AuthRequest, res: Response) => {
+  const { page, limit } = req.query as Record<string, string>;
+  const result = await orderService.getUserOrders(req.user!.id, {
+    page: page ? parseInt(page, 10) : 1,
+    limit: limit ? parseInt(limit, 10) : 10,
+  });
+  res.json({ success: true, data: result });
+});
+
 // ─── GET /api/orders/:id — Get single order (own orders only) ─────────────────
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   const order = await orderService.getOrder(req.user!.id, req.params.id);
@@ -49,3 +65,4 @@ router.patch('/:id/cancel', async (req: AuthRequest, res: Response) => {
 });
 
 export default router;
+

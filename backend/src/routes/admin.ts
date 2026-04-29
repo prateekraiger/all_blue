@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Response } from 'express';
 import { requireAdmin, LOCAL_ADMIN_TOKEN } from '../middlewares/auth';
 import supabase from '../config/supabase';
-import type { AuthRequest, DashboardStats, Order } from '../types';
+import type { AuthRequest, DashboardStats, Order, OrderStatus } from '../types';
 
 const router: Router = Router();
 
