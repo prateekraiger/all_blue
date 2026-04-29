@@ -767,33 +767,33 @@ export default function ProductDetailPage() {
       <AnimatePresence>
         {showSticky && (
           <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-2xl border border-neutral-200/50 p-3 rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] flex items-center gap-4 min-w-[320px] md:min-w-[500px]"
+            initial={{ y: 100, x: "-50%" }}
+            animate={{ y: 0, x: "-50%" }}
+            exit={{ y: 100, x: "-50%" }}
+            className="fixed bottom-6 left-1/2 z-50 bg-white/80 backdrop-blur-2xl border border-neutral-200/50 p-3 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] flex items-center gap-3 w-[92vw] max-w-[500px]"
           >
-            <div className="flex items-center gap-4 pl-4">
+            <div className="flex items-center gap-3 pl-3">
               <div className="relative w-12 h-12 bg-neutral-100 rounded-2xl overflow-hidden hidden sm:block border border-neutral-200/20">
                 <Image src={product?.images?.[0] || "/placeholder.svg"} alt="" fill className="object-contain p-1" />
               </div>
-              <div className="hidden min-[400px]:block">
-                <div className="text-xs font-black uppercase tracking-widest truncate max-w-[120px] md:max-w-[200px] text-neutral-900">{product?.name}</div>
+              <div className="hidden min-[380px]:block">
+                <div className="text-[10px] font-black uppercase tracking-widest truncate max-w-[120px] md:max-w-[200px] text-neutral-900">{product?.name}</div>
                 <div className="text-xs font-bold text-primary mt-0.5">₹{product?.price?.toLocaleString("en-IN")}</div>
               </div>
             </div>
             <div className="flex items-center gap-2 ml-auto">
-              <div className="flex bg-neutral-100 rounded-xl overflow-hidden h-12">
-                <button onClick={() => setQuantity(q => Math.max(1, q-1))} className="w-10 hover:bg-neutral-200 font-bold text-lg transition-colors">−</button>
-                <div className="w-10 flex items-center justify-center text-xs font-black">{quantity}</div>
-                <button onClick={() => setQuantity(q => Math.min(product?.stock || 1, q+1))} className="w-10 hover:bg-neutral-200 font-bold text-lg transition-colors">+</button>
+              <div className="flex bg-neutral-50 rounded-2xl overflow-hidden h-12 border border-neutral-100">
+                <button onClick={() => setQuantity(q => Math.max(1, q-1))} className="w-10 hover:bg-neutral-100 font-bold text-lg transition-colors text-neutral-400">−</button>
+                <div className="w-8 flex items-center justify-center text-xs font-black text-neutral-900">{quantity}</div>
+                <button onClick={() => setQuantity(q => Math.min(product?.stock || 1, q+1))} className="w-10 hover:bg-neutral-100 font-bold text-lg transition-colors text-neutral-400">+</button>
               </div>
               <button
                 onClick={handleAddToCart}
                 disabled={adding || isSuccess}
-                className={`h-12 px-8 rounded-xl ${isSuccess ? 'bg-green-600' : 'bg-neutral-900'} text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-lg flex items-center gap-3 active:scale-95`}
+                className={`h-12 px-6 md:px-8 rounded-2xl ${isSuccess ? 'bg-green-600' : 'bg-neutral-900'} text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-lg flex items-center gap-3 active:scale-95`}
               >
                 {isSuccess ? <CheckCircle2 className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-                <span className="hidden sm:inline">{isSuccess ? "Success" : "Add to Cart"}</span>
+                <span className="hidden min-[450px]:inline">{isSuccess ? "Success" : "Add to Cart"}</span>
               </button>
             </div>
           </motion.div>

@@ -168,12 +168,31 @@ export function Navigation() {
       >
       <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center py-4 md:py-5 px-4 md:px-8 lg:px-12">
         <div className="flex items-center gap-8">
-          {/* Mobile menu toggle */}
           <button
-            className="md:hidden cursor-pointer bg-transparent border-none text-foreground p-2 hover:bg-neutral-100 rounded-xl transition-colors"
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-all border border-neutral-100"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <Menu className="w-5 h-5" />
+            <AnimatePresence mode="wait">
+              {mobileMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                >
+                  <X className="w-5 h-5 text-neutral-600" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                >
+                  <Menu className="w-5 h-5 text-neutral-600" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
           
           {/* Logo */}
@@ -236,7 +255,7 @@ export function Navigation() {
                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
                    animate={{ opacity: 1, y: 0, scale: 1 }}
                    exit={{ opacity: 0, y: 15, scale: 0.98 }}
-                   className="absolute top-14 left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 w-[90vw] md:w-[600px] lg:w-[800px] bg-white border border-neutral-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] z-50 rounded-[2rem] overflow-hidden p-2"
+                   className="absolute top-14 left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 w-[95vw] md:w-[600px] lg:w-[800px] bg-white border border-neutral-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] z-50 rounded-[2.5rem] overflow-hidden p-2"
                 >
                   <form onSubmit={handleSearchSubmit} className="flex items-center bg-neutral-50 rounded-2xl px-5 border border-neutral-100 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10 transition-all">
                     <Search className="w-4 h-4 text-neutral-400 shrink-0" />
@@ -398,100 +417,130 @@ export function Navigation() {
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white z-[70] md:hidden shadow-2xl flex flex-col"
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed top-0 left-0 bottom-0 w-full max-w-[400px] bg-white z-[70] md:hidden shadow-2xl flex flex-col"
             >
-              <div className="flex justify-between items-center p-6 border-b border-neutral-100">
-                <div className="text-xl font-black tracking-tight uppercase">
-                  ALL BLUE
-                </div>
+              <div className="flex justify-between items-center px-6 py-8">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="relative group">
+                  <span className="text-xl font-black tracking-tighter uppercase text-foreground flex items-center gap-2">
+                    ALL BLUE
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                  </span>
+                </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+                  className="w-10 h-10 flex items-center justify-center bg-neutral-50 rounded-full hover:bg-neutral-100 transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5 text-neutral-600" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto py-8 px-6 space-y-8">
-                {/* Navigation Links */}
-                <div className="space-y-6">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">Navigation</p>
-                  <div className="flex flex-col gap-4">
-                    {[
-                      { name: "Shop", href: "/shop" },
-                      { name: "Collections", href: "/collections" },
-                      { name: "About", href: "/about" },
-                      { name: "Corporate Gifting", href: "/corporate-gifting" },
-                      { name: "Contact", href: "/contact" },
-                    ].map((link) => (
-                      <Link 
-                        key={link.name}
-                        href={link.href} 
-                        className="text-2xl font-extrabold uppercase tracking-tight hover:text-primary transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {link.name}
-                      </Link>
-                    ))}
+              <div className="flex-1 overflow-y-auto px-6 pb-12">
+                <div className="space-y-12">
+                  {/* Navigation Links */}
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400 mb-6">Explore Store</p>
+                    <div className="flex flex-col">
+                      {navLinks.map((link, idx) => (
+                        <motion.div
+                          key={link.name}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + idx * 0.05 }}
+                        >
+                          <Link 
+                            href={link.href} 
+                            className="group flex items-center justify-between py-4 border-b border-neutral-100 text-3xl font-black uppercase tracking-tight hover:text-primary transition-all"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <span>{link.name}</span>
+                            <ArrowRight className="w-6 h-6 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary" />
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Feature Action */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
                     <Link 
                       href="/gift-finder" 
-                      className="text-2xl font-extrabold uppercase tracking-tight text-primary flex items-center gap-2"
                       onClick={() => setMobileMenuOpen(false)}
+                      className="flex flex-col gap-4 p-6 bg-neutral-900 rounded-[2.5rem] text-white relative overflow-hidden group shadow-xl shadow-neutral-200"
                     >
-                      <Sparkles className="w-6 h-6" /> AI Gift Finder
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px] -mr-16 -mt-16 group-hover:bg-primary/40 transition-colors" />
+                      <div className="relative z-10">
+                        <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-4">
+                          <Sparkles className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-black uppercase tracking-tight mb-1">AI Gift Finder</h3>
+                        <p className="text-white/60 text-xs font-medium leading-relaxed">Let our AI curator find the perfect blue essential for your space.</p>
+                      </div>
+                      <div className="relative z-10 flex items-center justify-between mt-4">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Start Discovery</span>
+                        <ArrowRight className="w-4 h-4 text-primary group-hover:translate-x-2 transition-transform" />
+                      </div>
                     </Link>
-                  </div>
-                </div>
+                  </motion.div>
 
-                {/* Account Section */}
-                <div className="pt-8 border-t border-neutral-100 space-y-6">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">Account</p>
-                  {user ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-2xl">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
-                          {user.primaryEmail?.[0].toUpperCase()}
+                  {/* Account Section */}
+                  <div className="space-y-6">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400">Account Access</p>
+                    {user ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4 p-5 bg-neutral-50 rounded-3xl border border-neutral-100">
+                          <div className="w-12 h-12 bg-neutral-900 rounded-2xl flex items-center justify-center text-white font-black text-lg">
+                            {user.primaryEmail?.[0].toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-black truncate">{user.primaryEmail}</p>
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-0.5">Verified Client</p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold truncate">{user.primaryEmail}</p>
-                          <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest">Store Member</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 gap-2">
-                        <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-2 py-2 text-sm font-bold hover:text-primary transition-colors">
-                          <User className="w-5 h-5" /> My Profile
-                        </Link>
-                        <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-2 py-2 text-sm font-bold hover:text-primary transition-colors">
-                          <Package className="w-5 h-5" /> My Orders
-                        </Link>
-                        {user?.clientMetadata?.role === "admin" && (
-                          <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-2 py-2 text-sm font-bold text-primary transition-colors">
-                            <LayoutDashboard className="w-5 h-5" /> Admin Dashboard
+                        <div className="grid grid-cols-1 gap-1">
+                          <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between p-4 text-xs font-black uppercase tracking-widest hover:bg-neutral-50 rounded-2xl transition-all">
+                            <span className="flex items-center gap-3"><User className="w-4 h-4 text-neutral-400" /> Settings</span>
+                            <ArrowRight className="w-3 h-3 text-neutral-300" />
                           </Link>
-                        )}
-                        <button onClick={handleSignOut} className="flex items-center gap-3 px-2 py-2 text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
-                          <LogOut className="w-5 h-5" /> Sign Out
-                        </button>
+                          <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between p-4 text-xs font-black uppercase tracking-widest hover:bg-neutral-50 rounded-2xl transition-all">
+                            <span className="flex items-center gap-3"><Package className="w-4 h-4 text-neutral-400" /> Orders</span>
+                            <ArrowRight className="w-3 h-3 text-neutral-300" />
+                          </Link>
+                          {user?.clientMetadata?.role === "admin" && (
+                            <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between p-4 text-xs font-black uppercase tracking-widest bg-primary/5 text-primary rounded-2xl transition-all">
+                              <span className="flex items-center gap-3"><LayoutDashboard className="w-4 h-4" /> Dashboard</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </Link>
+                          )}
+                          <button onClick={handleSignOut} className="flex items-center gap-3 p-4 text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-2xl transition-all mt-2">
+                            <LogOut className="w-4 h-4" /> Terminate Session
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <Link 
-                      href="/sign-in" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center w-full py-4 bg-black text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary transition-colors"
-                    >
-                      Sign In
-                    </Link>
-                  )}
+                    ) : (
+                      <Link 
+                        href="/sign-in" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-center w-full py-5 bg-neutral-900 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-primary transition-all shadow-xl shadow-neutral-200"
+                      >
+                        Sign In / Register
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="p-6 border-t border-neutral-100">
-                <div className="flex justify-between items-center text-neutral-400">
-                  <Link href="/privacy" className="text-[10px] font-bold uppercase tracking-widest hover:text-foreground">Privacy</Link>
-                  <Link href="/terms" className="text-[10px] font-bold uppercase tracking-widest hover:text-foreground">Terms</Link>
-                  <div className="text-[10px] font-bold uppercase tracking-widest">© 2026</div>
+              <div className="p-8 bg-neutral-50 border-t border-neutral-100 mt-auto">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-4">
+                    <Link href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-neutral-400 hover:text-primary">Privacy</Link>
+                    <Link href="/terms" className="text-[9px] font-black uppercase tracking-widest text-neutral-400 hover:text-primary">Terms</Link>
+                  </div>
+                  <div className="text-[9px] font-black uppercase tracking-widest text-neutral-300">© 2026 AB CORP</div>
                 </div>
               </div>
             </motion.div>
