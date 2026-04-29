@@ -176,7 +176,7 @@ export function Navbar() {
                 href="/gift-finder" 
                 className="hidden xl:flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
               >
-                <Sparkles className="w-4 h-4" />
+                <img src="/logo.png" alt="" className="w-4 h-4 brightness-0 invert" />
                 AI Finder
               </Link>
 
@@ -519,7 +519,7 @@ export function Navbar() {
                   className="block w-full px-4 py-3 bg-primary text-white text-center font-medium rounded-lg hover:bg-primary/90 transition-colors mb-6"
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <Sparkles className="w-4 h-4" />
+                    <img src="/logo.png" alt="" className="w-4 h-4 brightness-0 invert" />
                     AI Gift Finder
                   </div>
                 </Link>

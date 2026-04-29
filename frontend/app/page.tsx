@@ -11,17 +11,8 @@ import { useAuth } from "@/context/AuthContext"
 
 export default function Home() {
   const { token, user } = useAuth()
-  const [trendingProducts, setTrendingProducts] = useState<Product[]>([])
   const [aiProducts, setAiProducts] = useState<Product[]>([])
-  const [trendingLoading, setTrendingLoading] = useState(true)
   const [aiLoading, setAiLoading] = useState(false)
-
-  // Fetch trending products
-  useEffect(() => {
-    productsApi.trending(8).then((products) => {
-      setTrendingProducts(products)
-    }).catch(() => {}).finally(() => setTrendingLoading(false))
-  }, [])
 
   // Fetch personalized AI recommendations when user is logged in
   useEffect(() => {
@@ -49,14 +40,7 @@ export default function Home() {
         />
       )}
 
-      {/* Trending Products */}
-      <ProductGrid
-        title="Trending Now"
-        products={trendingProducts}
-        loading={trendingLoading}
-        showViewAll={true}
-      />
-
+      
       <Collections />
       
       <div className="pb-32">
