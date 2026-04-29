@@ -1,7 +1,11 @@
 import type { Response, NextFunction } from 'express';
 import * as jose from 'jose';
 import { AppError } from './errorHandler';
-import type { AuthRequest } from '../types';
+import {
+  AuthRequest,
+  AuthUser,
+  StackPayload,
+} from '../types';
 
 const STACK_PROJECT_ID = process.env.STACK_PROJECT_ID ?? '';
 const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY ?? '';
@@ -21,10 +25,10 @@ function getJWKS() {
  * Verify a Stack Auth access token from the x-stack-access-token header.
  * Returns the JWT payload on success, or null if invalid/missing.
  */
-async function verifyStackToken(token: string): Promise<jose.JWTPayload | null> {
+async function verifyStackToken(token: string): Promise<StackPayload | null> {
   try {
     const { payload } = await jose.jwtVerify(token, getJWKS());
-    return payload;
+    return payload as unknown as StackPayload;
   } catch {
     return null;
   }
@@ -55,12 +59,12 @@ export const requireAuth = async (
     // Normalize to a shape compatible with the rest of the codebase
     req.user = {
       id: payload.sub,
-      email: (payload as any)['email'] ?? null,
+      email: payload.email ?? null,
       user_metadata: {
-        full_name: (payload as any)['displayName'] ?? null,
-        role: (payload as any)['role'] ?? 'user',
+        full_name: payload.displayName ?? null,
+        role: payload.role ?? 'user',
       },
-    } as any;
+    };
 
     next();
   } catch {
@@ -89,12 +93,12 @@ export const optionalAuth = async (
     if (payload?.sub) {
       req.user = {
         id: payload.sub,
-        email: (payload as any)['email'] ?? null,
+        email: payload.email ?? null,
         user_metadata: {
-          full_name: (payload as any)['displayName'] ?? null,
-          role: (payload as any)['role'] ?? 'user',
+          full_name: payload.displayName ?? null,
+          role: payload.role ?? 'user',
         },
-      } as any;
+      };
     }
     next();
   } catch {
@@ -111,9 +115,9 @@ export const requireAdmin = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  await requireAuth(req, res, async (err?: any) => {
+  await requireAuth(req, res, (err?: any) => {
     if (err) return next(err);
-    const userRole = (req.user as any)?.user_metadata?.role as string | undefined;
+    const userRole = req.user?.user_metadata?.role;
     if (userRole !== 'admin') {
       return next(new AppError('Admin access required', 403));
     }

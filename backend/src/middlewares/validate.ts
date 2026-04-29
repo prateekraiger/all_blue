@@ -18,8 +18,7 @@ export const validate =
       return next(result.error); // ZodError is caught by errorHandler
     }
     // Replace input with the parsed (and potentially transformed) data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (req as any)[target] = result.data;
+    req[target] = result.data;
     next();
   };
 

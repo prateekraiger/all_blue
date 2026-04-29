@@ -10,6 +10,15 @@ export interface AuthUser {
   };
 }
 
+// ─── Stack Auth JWT Payload ──────────────────────────────────────────────────
+export interface StackPayload {
+  sub: string;
+  email?: string;
+  displayName?: string;
+  role?: string;
+  [key: string]: any;
+}
+
 // ─── Auth User on Request ────────────────────────────────────────────────────
 export interface AuthRequest extends Request {
   user?: AuthUser;
