@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sparkles, ArrowRight, ArrowLeft, Gift, Target, User, Heart, Briefcase, Zap, RotateCcw } from "lucide-react"
+import { ArrowRight, ArrowLeft, Gift, Target, User, Heart, Briefcase, Zap, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -18,7 +18,7 @@ interface GiftResult extends Product {
 const PERSONA_ICONS: Record<Persona, React.ReactNode> = {
   Partner: <Heart className="w-5 h-5" />,
   Colleague: <Briefcase className="w-5 h-5" />,
-  Friend: <Sparkles className="w-5 h-5" />,
+  Friend: <Gift className="w-5 h-5" />,
   Parent: <User className="w-5 h-5" />,
   Client: <Target className="w-5 h-5" />,
 }
@@ -397,13 +397,13 @@ export default function GiftFinderPage() {
                           animate={{ rotate: 360 }}
                           transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                         >
-                          <Sparkles className="w-4 h-4" />
+                          <Gift className="w-4 h-4" />
                         </motion.div>
                         AI is Analysing...
                       </>
                     ) : (
                       <>
-                        Find Perfection <Sparkles className="w-4 h-4" />
+                        Find Perfection <Gift className="w-4 h-4" />
                       </>
                     )}
                   </motion.button>
@@ -426,7 +426,7 @@ export default function GiftFinderPage() {
                     transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
                     className="inline-flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20 mb-4"
                   >
-                    <Sparkles className="w-4 h-4 text-green-500" />
+                    <Gift className="w-4 h-4 text-green-500" />
                     <span className="text-xs font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
                       Curated by Gemini AI
                     </span>

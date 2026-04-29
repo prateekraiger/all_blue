@@ -2,7 +2,7 @@
 
 import { type FormEvent, useState } from "react"
 import { motion } from "framer-motion"
-import { Mail, Send, Sparkles, ArrowRight } from "lucide-react"
+import { Mail, Send, Gift, ArrowRight } from "lucide-react"
 
 export function Newsletter() {
   const [email, setEmail] = useState("")
@@ -41,7 +41,7 @@ export function Newsletter() {
             transition={{ delay: 0.2 }}
             className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl px-5 py-2.5 rounded-full mb-8 border border-white/10"
           >
-            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+            <Gift className="w-4 h-4 text-primary animate-pulse" />
             <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-blue-400">The Global Elite List</span>
           </motion.div>
           
@@ -74,7 +74,7 @@ export function Newsletter() {
               >
                 <span className="relative z-10 flex items-center gap-2">
                   {subscribed ? (
-                    <>Subscribed <Sparkles className="w-4 h-4" /></>
+                    <>Subscribed <Gift className="w-4 h-4" /></>
                   ) : (
                     <>Join Matrix <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" /></>
                   )}

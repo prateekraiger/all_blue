@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { Bot, X, Send, Sparkles, Loader2, Mic, Gift, ArrowDown, Trash2, Zap } from "lucide-react"
+import { Bot, X, Send, Gift, Loader2, Mic, ArrowDown, Trash2, Zap } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/context/AuthContext"
 import { aiApi, Product } from "@/lib/api"
@@ -220,7 +220,7 @@ export function AIChatbot() {
               <div className="absolute inset-0 rounded-full bg-primary/30 blur-xl group-hover:bg-primary/50 transition-all duration-500 scale-150" />
               {/* Button */}
               <div className="relative w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform duration-300">
-                <Sparkles className="w-6 h-6 text-white" />
+                <Gift className="w-6 h-6 text-white" />
               </div>
               {/* Badge */}
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-[7px] font-black flex items-center justify-center rounded-full border-2 border-background shadow-lg">

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ShoppingBag, User, Menu, X, LogOut, Package, LayoutDashboard, Sparkles } from "lucide-react"
+import { Search, ShoppingBag, User, Menu, X, LogOut, Package, LayoutDashboard, Gift } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -110,7 +110,7 @@ export function NavbarSimple() {
               href="/gift-finder" 
               className="hidden lg:flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
             >
-              <Sparkles className="w-4 h-4" />
+              <Gift className="w-4 h-4" />
               AI Finder
             </Link>
 
@@ -194,7 +194,7 @@ export function NavbarSimple() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Gift className="w-4 h-4" />
                   AI Gift Finder
                 </Link>
                 
