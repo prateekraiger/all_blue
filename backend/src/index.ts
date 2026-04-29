@@ -20,7 +20,7 @@ import reviewRoutes      from './routes/reviews';
 import searchRoutes      from './routes/search';
 import adminRoutes       from './routes/admin';
 import giftFinderRoutes  from './routes/giftFinder';
-import arRoutes          from './routes/ar';
+
 
 // ─── App setup ────────────────────────────────────────────────────────────────
 const app: express.Application = express();
@@ -90,7 +90,7 @@ app.get('/health', (_req, res) => {
     features: [
       'AI Gift Recommendations',
       'Voice Search',
-      'AR Product Preview',
+
       'Personalized Feed',
       'AI Shopping Chatbot',
       'Razorpay / Stripe Payments',
@@ -110,7 +110,7 @@ app.use('/api/reviews',      reviewRoutes);
 app.use('/api/search',       searchRoutes);
 app.use('/api/admin',        adminRoutes);
 app.use('/api/gift-finder',  giftFinderRoutes);
-app.use('/api/ar',           arRoutes);
+
 
 // ─── 404 catch-all ────────────────────────────────────────────────────────────
 app.use('*', (req, res) => {
@@ -129,7 +129,7 @@ app.listen(PORT, () => {
   console.log(`📦 Environment : ${process.env.NODE_ENV ?? 'development'}`);
   console.log(`🌐 CORS allowed: ${process.env.FRONTEND_URL ?? 'http://localhost:3000'}`);
   console.log(`✅ Health check: http://localhost:${PORT}/health`);
-  console.log(`🤖 AI features : recommendations, chatbot, gift finder, AR preview`);
+  console.log(`🤖 AI features : recommendations, chatbot, gift finder`);
   console.log(`🔒 Rate limiting: enabled`);
 });
 

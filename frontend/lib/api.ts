@@ -270,26 +270,7 @@ export const aiApi = {
     ),
 };
 
-// ─── AR API ───────────────────────────────────────────────────────────────────
 
-export interface ARPreviewData {
-  product_id: string;
-  name: string;
-  category: string;
-  images: string[];
-  arSupported: boolean;
-  modelUrl: string | null;
-  instructions: string[];
-  previewMessage: string;
-}
-
-export const arApi = {
-  preview: (productId: string) =>
-    apiFetch<ARPreviewData>(`/api/ar/preview/${productId}`),
-
-  supportedCategories: () =>
-    apiFetch<string[]>('/api/ar/supported-categories'),
-};
 
 // ─── Reviews API ──────────────────────────────────────────────────────────────
 
