@@ -1,0 +1,302 @@
+[
+  {
+    "name": "3D Moon Lamp – Rechargeable Night Light",
+    "description": "Glowing 3D‑printed moon lamp with multicolor LED touch control, perfect for bedroom decor or romantic gifting.",
+    "price": 899,
+    "category": "Home Decor",
+    "tags": ["moon lamp", "night light", "3D lamp", "bedroom decor"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2023/03/3d-moon-lamp-3.png"
+    ],
+    "stock": 20,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Photo Mug",
+    "description": "Ceramic mug customized with your photo or name, ideal for birthdays, anniversaries, and office gifting.",
+    "price": 349,
+    "category": "Personalized Gifts",
+    "tags": ["photo mug", "personalized gift", "coffee mug", "custom mug"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2022/08/photo-mug-1.png"
+    ],
+    "stock": 25,
+    "is_active": true
+  },
+  {
+    "name": "Wooden Photo Frame with Name",
+    "description": "Natural wooden frame where you can add your photo plus a custom name or short message for loved ones.",
+    "price": 799,
+    "category": "Home Decor",
+    "tags": ["photo frame", "wooden frame", "personalized frame", "gift for parents"],
+    "images": [
+      "https://www.fnp.com/images/1200x1200/wooden-photo-frame.jpg"
+    ],
+    "stock": 18,
+    "is_active": true
+  },
+  {
+    "name": "LED Message Board Lamp",
+    "description": "Acrylic LED lamp with a writable surface where you can write notes or romantic messages.",
+    "price": 1299,
+    "category": "Home Decor",
+    "tags": ["LED lamp", "message board", "desk lamp", "creative gift"],
+    "images": [
+      "https://www.ekshoppingmart.in/products/led-acrylic-message-board-night-lamp/led-acrylic-message-board-night-lamp-1.jpg"
+    ],
+    "stock": 15,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Photo Cushion Cover",
+    "description": "Soft cushion cover printed with your chosen photo, great for sofa, bed, or couple‑gift sets.",
+    "price": 649,
+    "category": "Home Decor",
+    "tags": ["cushion", "photo cushion", "personalized cushion", "home decor"],
+    "images": [
+      "https://www.yourprint.in/wp-content/uploads/2024/03/custom-photo-cushion-1.png"
+    ],
+    "stock": 22,
+    "is_active": true
+  },
+  {
+    "name": "Engraved Wooden Keychain",
+    "description": "Minimal wooden keychain with one‑line engraving, perfect as a pocket‑friendly gift for friends or partners.",
+    "price": 399,
+    "category": "Accessories",
+    "tags": ["keychain", "personalized keychain", "engraved gift", "wooden gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2022/10/wooden-keychain-1.png"
+    ],
+    "stock": 30,
+    "is_active": true
+  },
+  {
+    "name": "Rotating Rose Teddy Box",
+    "description": "Elegant box with a rotating artificial rose, LED light, and a cute teddy bear for romantic occasions.",
+    "price": 1899,
+    "category": "Romantic Gifts",
+    "tags": ["teddy bear", "rose teddy box", "lover gift", "anniversary gift"],
+    "images": [
+      "https://www.giftify.in/wp-content/uploads/2024/11/rotating-rose-teddy-box.jpg"
+    ],
+    "stock": 12,
+    "is_active": true
+  },
+  {
+    "name": "3D Photo Crystal Cube",
+    "description": "Glass‑like cube with laser‑engraved 3D photo, ideal as a desk or anniversary gift.",
+    "price": 1199,
+    "category": "Personalized Gifts",
+    "tags": ["crystal cube", "3D photo", "engraved gift", "desk gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2023/02/3d-crystal-cube-1.png"
+    ],
+    "stock": 18,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Diary / Notebook",
+    "description": "A5‑size notebook with custom cover text or name, great for students, professionals, and travel lovers.",
+    "price": 449,
+    "category": "Stationery",
+    "tags": ["notebook", "personalized diary", "custom cover", "college gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2022/11/personalized-notebook-1.png"
+    ],
+    "stock": 25,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Canvas Print",
+    "description": "High‑quality photo printed on canvas, framed or unframed, for family portraits or couple art.",
+    "price": 1699,
+    "category": "Wall Art",
+    "tags": ["canvas print", "photo print", "wall art", "personalized gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2023/01/canvas-print-1.png"
+    ],
+    "stock": 16,
+    "is_active": true
+  },
+  {
+    "name": "Desk Organizer with Pen Holder",
+    "description": "Wooden desk tray to organize pens, notebooks, and small office items, ideal for corporate gifting.",
+    "price": 599,
+    "category": "Office & Desk",
+    "tags": ["desk organizer", "pen holder", "office gift", "wooden desk"],
+    "images": [
+      "https://www.woodenstreet.com/images/products/desk-organizer-1.jpg"
+    ],
+    "stock": 20,
+    "is_active": true
+  },
+  {
+    "name": "Aromatherapy Candle Gift Set",
+    "description": "Soy‑wax scented candles in lavender, vanilla, or sandalwood, delivered in a premium gift box.",
+    "price": 999,
+    "category": "Self‑Care",
+    "tags": ["candle gift set", "aromatherapy candles", "self‑care gift", "relaxation gift"],
+    "images": [
+      "https://www.confettigifts.in/images/candle-gift-set-1.jpg"
+    ],
+    "stock": 15,
+    "is_active": true
+  },
+  {
+    "name": "Mini Succulent Plant Set",
+    "description": "Set of 3–5 small indoor succulents in cute pots, perfect for office desks or new‑home gifts.",
+    "price": 699,
+    "category": "Plants",
+    "tags": ["succulent plant", "indoor plant", "office gift", "home decor"],
+    "images": [
+      "https://www.fnp.com/images/mini-succulent-plant-set-1.jpg"
+    ],
+    "stock": 24,
+    "is_active": true
+  },
+  {
+    "name": "Personalized T‑Shirt",
+    "description": "Cotton t‑shirt with custom text or photo print, great for couples, friends, and family groups.",
+    "price": 799,
+    "category": "Apparel",
+    "tags": ["personalized tshirt", "custom tee", "couple gift", "friends gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2022/09/custom-tshirt-1.png"
+    ],
+    "stock": 28,
+    "is_active": true
+  },
+  {
+    "name": "LED Phone Stand with Light",
+    "description": "Adjustable phone stand with built‑in LED light, perfect for studying, watching videos, or night‑time use.",
+    "price": 499,
+    "category": "Tech Accessories",
+    "tags": ["phone stand", "LED stand", "phone holder", "study essentials"],
+    "images": [
+      "https://www.igp.com/images/led-phone-stand-1.jpg"
+    ],
+    "stock": 22,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Love Puzzle Box",
+    "description": "100–200‑piece photo puzzle made from a couple or family collage, designed as a fun keepsake.",
+    "price": 849,
+    "category": "Personalized Gifts",
+    "tags": ["photo puzzle", "love puzzle", "personalized gift", "couple gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2022/12/photo-puzzle-1.png"
+    ],
+    "stock": 18,
+    "is_active": true
+  },
+  {
+    "name": "LED Digital Photo Frame",
+    "description": "Small digital frame that auto‑flips between photos, perfect for parents or grandparents.",
+    "price": 1999,
+    "category": "Home Decor",
+    "tags": ["digital photo frame", "LED frame", "memory gift", "parents gift"],
+    "images": [
+      "https://www.igp.com/images/digital-photo-frame-1.jpg"
+    ],
+    "stock": 12,
+    "is_active": true
+  },
+  {
+    "name": "Van Gogh Wall Art Print",
+    "description": "Framed or poster‑style art print of Van Gogh paintings, ideal for room or office decor.",
+    "price": 899,
+    "category": "Wall Art",
+    "tags": ["wall art", "Van Gogh print", "framed poster", "room decor"],
+    "images": [
+      "https://www.bigsmall.in/images/van-gogh-print-1.jpg"
+    ],
+    "stock": 16,
+    "is_active": true
+  },
+  {
+    "name": "Chocolate Snack Gift Hamper",
+    "description": "Curated gift box with chocolates, cookies, and dry fruits, great for birthdays and festivals.",
+    "price": 1499,
+    "category": "Hampers",
+    "tags": ["gift hamper", "chocolate hamper", "snack box", "festive gift"],
+    "images": [
+      "https://www.boxupgifting.com/images/chocolate-hamper-1.jpg"
+    ],
+    "stock": 14,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Office Tumbler",
+    "description": "Insulated stainless‑steel tumbler with name or logo, suitable for office, gym, or travel.",
+    "price": 749,
+    "category": "Drinkware",
+    "tags": ["tumbler", "personalized tumbler", "office gift", "drinkware"],
+    "images": [
+      "https://www.pebel.in/images/insulated-tumbler-1.jpg"
+    ],
+    "stock": 21,
+    "is_active": true
+  },
+  {
+    "name": "Couple Keychain Set",
+    "description": "Matching pair of engraved metal keychains for couples, best friends, or siblings.",
+    "price": 599,
+    "category": "Accessories",
+    "tags": ["keychain set", "couple gift", "best friend gift", "engraved gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2022/10/couple-keychain-1.png"
+    ],
+    "stock": 26,
+    "is_active": true
+  },
+  {
+    "name": "Caricature Illustration Digital Print",
+    "description": "Hand‑drawn cartoon portrait delivered as a digital print or PDF, perfect for birthdays and anniversaries.",
+    "price": 699,
+    "category": "Personalized Gifts",
+    "tags": ["caricature", "illustration print", "digital art", "birthday gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2023/03/caricature-print-1.png"
+    ],
+    "stock": 20,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Welcome Door Sign",
+    "description": "Wooden or acrylic welcome board with custom family name or quote, ideal for main door or balcony.",
+    "price": 999,
+    "category": "Home Decor",
+    "tags": ["welcome board", "personalized sign", "home decor", "family gift"],
+    "images": [
+      "https://www.woodenstreet.com/images/welcome-board-1.jpg"
+    ],
+    "stock": 16,
+    "is_active": true
+  },
+  {
+    "name": "Gaming Mousepad & Coaster Set",
+    "description": "RGB‑style gaming mousepad with matching coasters, perfect for gamers and students.",
+    "price": 699,
+    "category": "Gaming",
+    "tags": ["gaming mousepad", "mouse pad", "coaster set", "gamer gift"],
+    "images": [
+      "https://www.igp.com/images/gaming-mousepad-1.jpg"
+    ],
+    "stock": 18,
+    "is_active": true
+  },
+  {
+    "name": "Personalized Spotify Art Frame",
+    "description": "Wooden frame displaying a Spotify song plus QR code, great for couples and music lovers.",
+    "price": 1499,
+    "category": "Personalized Gifts",
+    "tags": ["Spotify frame", "music gift", "personalized art", "couple gift"],
+    "images": [
+      "https://www.photojaanic.com/wp-content/uploads/2023/04/spotify-art-frame-1.png"
+    ],
+    "stock": 14,
+    "is_active": true
+  }
+]
