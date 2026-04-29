@@ -140,6 +140,12 @@ export const markOrderPaid = async (
     .single();
 
   if (oErr || !order) throw new AppError('Order not found', 404);
+
+  // If already marked as paid for this session (e.g., via webhook), just return it
+  if (order.status === 'paid' && order.stripe_session_id === stripeSessionId) {
+    return order as Order;
+  }
+
   if (order.status !== 'pending') {
     throw new AppError('Order already processed', 400);
   }
