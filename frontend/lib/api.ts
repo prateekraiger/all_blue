@@ -13,7 +13,7 @@ export interface Product {
   description?: string;
   price: number;
   category?: string;
-  tags?: string[];
+tags?: string[];
   images?: string[];
   stock: number;
   is_active: boolean;

@@ -27,7 +27,7 @@ export const validate =
 export const productSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   description: z.string().optional(),
-  price: z.number().positive('Price must be positive'),
+  price: z.number().nonnegative('Price must be zero or positive'),
   category: z.string().optional(),
   tags: z.array(z.string()).optional().default([]),
   images: z.array(z.string()).optional().default([]),
