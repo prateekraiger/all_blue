@@ -19,7 +19,7 @@ export function Hero() {
   const rotate = useTransform(scrollYProgress, [0, 1], [0, 5])
 
   return (
-    <section ref={containerRef} className="w-full relative overflow-hidden bg-background pt-10 pb-20 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32">
+    <section ref={containerRef} className="w-full relative overflow-hidden bg-background pt-10 pb-20 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32 overflow-x-hidden">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <motion.div
@@ -51,7 +51,7 @@ export function Hero() {
         />
       </div>
 
-      <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-16 xl:gap-20 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10">
+      <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-16 xl:gap-20 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10 overflow-x-hidden">
         <div className="flex-1 text-center md:text-left">
           <motion.span 
             initial={{ opacity: 0, y: 20 }}
@@ -65,7 +65,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-extrabold leading-[0.9] mb-5 md:mb-7 lg:mb-8 xl:mb-9 tracking-tighter"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-[0.9] mb-5 md:mb-7 lg:mb-8 xl:mb-9 tracking-tighter break-words"
           >
             The Art of <br />
             <span className="text-gradient">Perfect</span> Gifting
@@ -74,7 +74,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base sm:text-lg lg:text-xl xl:text-xl text-muted-foreground mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg xl:max-w-xl leading-relaxed mx-auto md:mx-0"
+            className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-8 md:mb-10 lg:mb-12 max-w-md lg:max-w-lg leading-relaxed mx-auto md:mx-0"
           >
             Curated elegance for every occasion. Experience the next generation of personalized luxury.
           </motion.p>
@@ -87,7 +87,7 @@ export function Hero() {
             <Magnetic>
               <Link
                 href="/shop"
-                className="group relative inline-flex items-center justify-center overflow-hidden bg-primary text-primary-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-primary/40 rounded-2xl w-full sm:w-auto"
+                className="group relative inline-flex items-center justify-center overflow-hidden bg-primary text-primary-foreground px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-5 lg:py-6 font-bold text-sm lg:text-base uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-primary/40 rounded-2xl w-full sm:w-auto min-w-0"
               >
                 <span className="relative z-10">Explore Collection</span>
                 <div className="absolute inset-0 -z-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -96,7 +96,7 @@ export function Hero() {
             <Magnetic>
               <Link
                 href="/gift-finder"
-                className="group relative inline-flex items-center justify-center overflow-hidden bg-background border-2 border-primary/20 text-foreground px-10 md:px-12 py-5 md:py-6 font-bold text-sm lg:text-base uppercase tracking-widest transition-all duration-300 hover:border-primary rounded-2xl w-full sm:w-auto"
+                className="group relative inline-flex items-center justify-center overflow-hidden bg-background border-2 border-primary/20 text-foreground px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-5 lg:py-6 font-bold text-sm lg:text-base uppercase tracking-widest transition-all duration-300 hover:border-primary rounded-2xl w-full sm:w-auto min-w-0"
               >
                 <span className="relative z-10 text-gradient">AI Gift Finder</span>
               </Link>

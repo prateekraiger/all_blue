@@ -36,7 +36,7 @@ export default function Home() {
   }, [token])
 
   return (
-    <div className="flex flex-col gap-32 md:gap-48 overflow-x-hidden">
+    <div className="flex flex-col gap-32 md:gap-48 overflow-x-hidden min-h-screen">
       <Hero />
 
       {/* AI Personalized Feed (for logged-in users) */}

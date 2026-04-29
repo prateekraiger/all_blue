@@ -14,7 +14,7 @@ import { toast } from "sonner"
 function AnnouncementBar() {
   return (
     <div className="bg-neutral-900 text-white py-1.5 overflow-hidden relative border-b border-white/5">
-      <div className="flex whitespace-nowrap">
+      <div className="flex whitespace-nowrap overflow-x-hidden">
         <motion.div 
           animate={{ x: [0, "-50%"] }}
           transition={{ 
@@ -22,19 +22,22 @@ function AnnouncementBar() {
             repeat: Infinity, 
             ease: "linear" 
           }}
-          className="flex gap-12 items-center px-4"
+          className="flex gap-8 sm:gap-12 items-center px-2 sm:px-4"
         >
           {/* Content duplicated for seamless loop */}
           {[1, 2].map((group) => (
-            <div key={group} className="flex gap-12 items-center">
-              <span className="text-[9px] font-bold uppercase tracking-[0.25em] flex items-center gap-2 opacity-80">
-                <Sparkles className="w-2.5 h-2.5 text-primary" /> Free shipping on orders above ₹999
+            <div key={group} className="flex gap-8 sm:gap-12 items-center">
+              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1 sm:gap-2 opacity-80 whitespace-nowrap">
+                <Sparkles className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary flex-shrink-0" /> 
+                <span className="truncate">Free shipping above ₹999</span>
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.25em] flex items-center gap-2 opacity-80">
-                <Sparkles className="w-2.5 h-2.5 text-primary" /> New Collection: Summer Blue is out now!
+              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1 sm:gap-2 opacity-80 whitespace-nowrap">
+                <Sparkles className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary flex-shrink-0" /> 
+                <span className="truncate">New: Summer Blue</span>
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.25em] flex items-center gap-2 opacity-80">
-                <Sparkles className="w-2.5 h-2.5 text-primary" /> Use code BLUE10 for 10% off
+              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1 sm:gap-2 opacity-80 whitespace-nowrap">
+                <Sparkles className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary flex-shrink-0" /> 
+                <span className="truncate">Code: BLUE10</span>
               </span>
             </div>
           ))}
@@ -70,7 +73,7 @@ export function Navigation() {
   const borderOpacity = useTransform(scrollY, [0, 50], [0, 1])
   const yOffset = useTransform(scrollY, [0, 50], [0, -4])
 
-  // Close menus on outside click
+  // Close menus on outside click & body scroll lock
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -84,6 +87,24 @@ export function Navigation() {
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
   }, [])
+
+  // Body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+  }, [mobileMenuOpen])
 
   // Debounced search
   const handleSearchInput = useCallback((value: string) => {
@@ -155,7 +176,7 @@ export function Navigation() {
 
   return (
     <motion.header 
-      className="sticky top-0 z-50 w-full"
+      className="sticky top-0 z-[70] w-full"
     >
       <AnnouncementBar />
       <motion.nav 
@@ -164,12 +185,12 @@ export function Navigation() {
           backdropFilter: "blur(20px)",
           borderBottom: `1px solid rgba(0, 0, 0, ${borderOpacity.get() * 0.05})`
         }}
-        className="w-full transition-all duration-300 shadow-sm overflow-hidden"
+        className="w-full transition-all duration-300 shadow-sm overflow-x-hidden"
       >
-      <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center py-2 md:py-4 px-2 md:px-6 lg:px-12">
-        <div className="flex items-center gap-2 md:gap-6">
+      <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center py-2 md:py-4 px-2 md:px-6 lg:px-12 overflow-x-hidden">
+        <div className="flex items-center gap-2 md:gap-6 min-w-0 flex-shrink-0">
           <button
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-all border border-neutral-100"
+            className="md:hidden flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-all border border-neutral-100 flex-shrink-0"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <AnimatePresence mode="wait">
@@ -235,7 +256,7 @@ export function Navigation() {
           </div>
         </div>
 
-        <div className="flex gap-1 md:gap-3 items-center">
+        <div className="flex gap-1 md:gap-3 items-center flex-shrink-0">
           <Link href="/gift-finder" className="hidden lg:flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-primary transition-all hover:shadow-lg hover:shadow-primary/20">
             <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
             AI Finder
@@ -246,7 +267,7 @@ export function Navigation() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-colors border border-neutral-100"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-colors border border-neutral-100 flex-shrink-0"
               onClick={() => setSearchOpen(!searchOpen)}
             >
               <Search className="w-4 h-4 text-neutral-500" />
@@ -343,7 +364,7 @@ export function Navigation() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-colors border border-neutral-100 text-foreground"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-colors border border-neutral-100 text-foreground flex-shrink-0"
               onClick={() => {
                 if (!user) {
                   router.push("/sign-in")
@@ -438,10 +459,10 @@ export function Navigation() {
           </div>
 
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link href="/cart" className="relative flex items-center justify-center w-10 h-10 rounded-full bg-neutral-900 hover:bg-primary transition-all text-white shadow-lg shadow-black/10">
-              <ShoppingBag className="w-4 h-4" />
+            <Link href="/cart" className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-neutral-900 hover:bg-primary transition-all text-white shadow-lg shadow-black/10 flex-shrink-0">
+              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-[9px] font-black min-w-[16px] h-[16px] flex items-center justify-center rounded-full border-2 border-white">
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-[8px] sm:text-[9px] font-black min-w-[14px] sm:min-w-[16px] h-[14px] sm:h-[16px] flex items-center justify-center rounded-full border-2 border-white">
                   {itemCount}
                 </span>
               )}
@@ -460,7 +481,7 @@ export function Navigation() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] md:hidden"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[40] md:hidden"
             />
             
             {/* Drawer */}
@@ -469,7 +490,7 @@ export function Navigation() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 left-0 bottom-0 w-full max-w-[400px] bg-white z-[70] md:hidden shadow-2xl flex flex-col"
+              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-[320px] bg-white z-[50] md:hidden shadow-2xl flex flex-col overflow-hidden"
             >
               <div className="flex justify-between items-center px-6 py-8">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="relative group">
