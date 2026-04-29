@@ -8,7 +8,7 @@ export default function CorporateGiftingPage() {
       {/* Hero Section */}
       <section className="relative h-[400px] md:h-[500px] lg:h-[600px] w-full flex items-center justify-center">
         <Image
-          src="/corporate_gifting.png"
+          src="https://images.unsplash.com/photo-1558459654-c430be5b0a44?q=80&w=2000&auto=format&fit=crop"
           alt="Corporate Gifting Displays"
           fill
           className="object-cover brightness-[0.6] grayscale hover:grayscale-0 transition-all duration-700"

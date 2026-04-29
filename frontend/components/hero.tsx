@@ -148,7 +148,7 @@ export function Hero() {
             <div className="relative w-full h-full rounded-[4rem] overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all duration-700 hover:shadow-primary/10">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent z-10" />
               <Image
-                src="/hero_gift.png"
+                src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1200&auto=format&fit=crop"
                 alt="Hero luxury gifts collection"
                 width={1200}
                 height={1000}

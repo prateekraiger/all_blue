@@ -56,7 +56,7 @@ export default function ContactPage() {
         {/* Right Side: Image */}
         <div className="relative h-[500px] md:h-[600px] lg:h-[800px] w-full hidden md:block">
           <Image
-            src="/contact_image.png"
+            src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop"
             alt="Customer Concierge Desk"
             fill
             className="object-cover"
