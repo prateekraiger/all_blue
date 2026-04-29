@@ -37,7 +37,7 @@ async function verifyStackToken(token: string): Promise<StackPayload | null> {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error(`[AUTH] Token verification failed: ${msg}`);
-    
+
     // Debug info for logs
     try {
       const decoded = jose.decodeJwt(token);
@@ -52,7 +52,7 @@ async function verifyStackToken(token: string): Promise<StackPayload | null> {
     } catch (decodeError) {
       console.error('[AUTH] Could not decode failed token');
     }
-    
+
     return null;
   }
 }
@@ -68,7 +68,7 @@ export const requireAuth = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     // ── Local admin panel bypass ────────────────────────────────────────────────
     if (authHeader && authHeader.trim() === `Bearer ${LOCAL_ADMIN_TOKEN}`) {
       req.user = {
@@ -117,7 +117,7 @@ export const optionalAuth = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     // ── Local admin panel bypass ────────────────────────────────────────────────
     if (authHeader === `Bearer ${LOCAL_ADMIN_TOKEN}`) {
       req.user = {
@@ -168,6 +168,6 @@ export const requireAdmin = async (
     if (userRole !== 'admin') {
       return next(new AppError('Admin access required', 403));
     }
-    next();
+    next(); 
   });
 };
