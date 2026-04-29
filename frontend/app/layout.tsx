@@ -1,7 +1,7 @@
 import React, { Suspense } from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
+
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
@@ -94,7 +94,7 @@ export default function RootLayout({
                   </div>
                   <Toaster position="bottom-right" />
                   <AIChatbot />
-                  <Analytics />
+
                 </CartProvider>
               </AuthProvider>
             </Suspense>
