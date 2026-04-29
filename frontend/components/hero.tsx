@@ -19,7 +19,7 @@ export function Hero() {
   const rotate = useTransform(scrollYProgress, [0, 1], [0, 5])
 
   return (
-    <section ref={containerRef} className="w-full relative overflow-hidden bg-background pt-10 pb-20 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32 overflow-x-hidden">
+    <section ref={containerRef} className="w-full relative overflow-hidden bg-background pt-24 pb-20 md:pt-28 md:pb-24 lg:pt-32 lg:pb-32 overflow-x-hidden min-h-screen">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <motion.div
