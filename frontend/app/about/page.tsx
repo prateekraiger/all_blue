@@ -68,7 +68,7 @@ export default function AboutPage() {
 
             <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 transition-all hover:shadow-lg hover:-translate-y-1">
               <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                <Sparkles className="w-7 h-7" />
+                <img src="/logo.png" alt="" className="w-7 h-7 object-contain opacity-70 mix-blend-multiply" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">AI-Powered Magic</h3>
               <p className="text-slate-600 leading-relaxed">

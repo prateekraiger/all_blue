@@ -134,12 +134,18 @@ export function Hero() {
             >
               <div className="glass p-6 rounded-3xl shadow-2xl backdrop-blur-2xl border border-white/20">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-primary text-xl">✨</span>
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
+                    <Image 
+                      src="/logo.png" 
+                      alt="All Blue Logo" 
+                      width={32} 
+                      height={32} 
+                      className="object-contain"
+                    />
                   </div>
                   <div>
-                    <p className="text-foreground font-bold">Superior Quality</p>
-                    <p className="text-muted-foreground text-xs">Curated Selection</p>
+                    <p className="text-foreground font-bold text-lg">Superior Quality</p>
+                    <p className="text-muted-foreground text-xs uppercase tracking-widest">Curated Selection</p>
                   </div>
                 </div>
               </div>
