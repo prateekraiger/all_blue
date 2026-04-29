@@ -120,4 +120,19 @@ router.get('/dashboard', async (_req: AuthRequest, res: Response) => {
   res.json({ success: true, data: dashboard });
 });
 
+// ─── GET /api/admin/products — All products including inactive ─────────────────
+router.get('/products', async (_req: AuthRequest, res: Response) => {
+  const { data, error, count } = await supabase
+    .from('products')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    res.status(500).json({ success: false, error: error.message });
+    return;
+  }
+
+  res.json({ success: true, data: { products: data ?? [], total: count ?? 0 } });
+});
+
 export default router;

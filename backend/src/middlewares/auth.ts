@@ -107,14 +107,32 @@ export const optionalAuth = async (
 };
 
 /**
+ * LOCAL_ADMIN_TOKEN — Hardcoded static token for the local admin panel.
+ * This bypasses Stack Auth entirely and grants full admin access.
+ */
+const LOCAL_ADMIN_TOKEN = 'local-admin-secret-token-allblue-2024';
+
+/**
  * requireAdmin — Checks that the authenticated user has role === 'admin'.
- * Must be chained after requireAuth.
+ * Also accepts the hardcoded local admin token for the /admin panel.
  */
 export const requireAdmin = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  // ── Local admin panel bypass ────────────────────────────────────────────────
+  const authHeader = req.headers.authorization;
+  if (authHeader === `Bearer ${LOCAL_ADMIN_TOKEN}`) {
+    req.user = {
+      id: 'local-admin',
+      email: 'admin@gmail.com',
+      user_metadata: { full_name: 'Admin', role: 'admin' },
+    };
+    return next();
+  }
+
+  // ── Standard Stack Auth flow ────────────────────────────────────────────────
   await requireAuth(req, res, (err?: any) => {
     if (err) return next(err);
     const userRole = req.user?.user_metadata?.role;
