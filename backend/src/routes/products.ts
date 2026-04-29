@@ -56,7 +56,17 @@ router.post(
   }
 );
 
-// ─── PUT /api/products/:id — Update (admin) ───────────────────────────────────
+// ─── PUT/PATCH /api/products/:id — Update (admin) ───────────────────────────
+router.patch(
+  '/:id',
+  requireAdmin,
+  validate(schemas.product.partial()),
+  async (req: AuthRequest, res: Response) => {
+    const product = await productService.updateProduct(req.params.id, req.body);
+    res.json({ success: true, data: product });
+  }
+);
+
 router.put(
   '/:id',
   requireAdmin,

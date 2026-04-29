@@ -7,28 +7,8 @@ import type { AuthRequest } from '../types';
 
 const router: Router = Router();
 
-// All order routes require authentication
-router.use(requireAuth);
-
-// ─── POST /api/orders — Place a new order ─────────────────────────────────────
-router.post('/', validate(schemas.order), async (req: AuthRequest, res: Response) => {
-  const order = await orderService.createOrder(req.user!.id, req.body);
-  res.status(201).json({ success: true, data: order });
-});
-
-// ─── GET /api/orders — List current user's orders ────────────────────────────
-router.get('/', async (req: AuthRequest, res: Response) => {
-  const { page, limit } = req.query as Record<string, string>;
-
-  const result = await orderService.getUserOrders(req.user!.id, {
-    page: page ? parseInt(page, 10) : 1,
-    limit: limit ? parseInt(limit, 10) : 10,
-  });
-
-  res.json({ success: true, data: result });
-});
-
-// ─── GET /api/orders/admin — Admin: all orders (must be before /:id route) ────
+// ─── Admin routes (MUST be before generic routes and requireAuth) ───────────
+// GET /api/orders/admin — Admin: all orders
 router.get('/admin', requireAdmin, async (req: AuthRequest, res: Response) => {
   const { page, limit, status } = req.query as Record<string, string>;
 
@@ -41,7 +21,7 @@ router.get('/admin', requireAdmin, async (req: AuthRequest, res: Response) => {
   res.json({ success: true, data: result });
 });
 
-// ─── PATCH /api/orders/admin/:id/status — Admin: update order status ──────────
+// PATCH /api/orders/admin/:id/status — Admin: update order status
 router.patch(
   '/admin/:id/status',
   requireAdmin,
@@ -52,6 +32,9 @@ router.patch(
     res.json({ success: true, data: order });
   }
 );
+
+// All other user order routes require standard authentication
+router.use(requireAuth);
 
 // ─── GET /api/orders/:id — Get single order (own orders only) ─────────────────
 router.get('/:id', async (req: AuthRequest, res: Response) => {

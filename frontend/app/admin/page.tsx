@@ -11,9 +11,6 @@ import {
 import { toast } from "sonner"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const ADMIN_EMAIL = "admin@gmail.com"
-const ADMIN_PASSWORD = "admin123"
-const ADMIN_TOKEN = "local-admin-secret-token-allblue-2024"
 const STORAGE_KEY = "allblue_admin_session"
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
@@ -27,14 +24,25 @@ const STATUS_COLORS: Record<string, string> = {
 
 // ─── API helper ───────────────────────────────────────────────────────────────
 async function adminFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+  
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ADMIN_TOKEN}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers as Record<string, string>),
     },
   })
+
+  // Handle unauthorized by clearing session
+  if (res.status === 401 && path !== '/api/admin/login') {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    }
+  }
+
   const json = await res.json()
   if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`)
   return json.data as T
@@ -93,41 +101,67 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
     e.preventDefault()
     setError("")
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 600)) // slight delay for UX
-    if (email.trim().toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, "1")
-      onLogin()
-    } else {
-      setError("Invalid email or password.")
+    
+    try {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        localStorage.setItem(STORAGE_KEY, result.data.token)
+        onLogin()
+        toast.success("Welcome back, Admin!")
+      } else {
+        setError(result.error || "Invalid admin credentials")
+        toast.error("Login failed")
+      }
+    } catch (err: any) {
+      setError("Unable to connect to the administration server.")
+      toast.error("Network error")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden flex items-center justify-center px-4">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-100/50 rounded-full blur-[120px]" />
+        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-indigo-100/50 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
         {/* Logo / brand */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl mb-4">
-            <ShieldCheck className="w-8 h-8 text-white" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600/10 rounded-2xl mb-4 border border-blue-600/20 shadow-sm">
+            <ShieldCheck className="w-8 h-8 text-blue-600" />
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">ALL BLUE</h1>
-          <p className="text-neutral-400 mt-1 text-sm tracking-widest uppercase">Admin Panel</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">ALL BLUE</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium tracking-[0.2em] uppercase">Admin Center</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-xl font-bold text-neutral-900 mb-1">Sign in</h2>
-          <p className="text-neutral-500 text-sm mb-6">Enter your admin credentials to continue.</p>
+        <div className="bg-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.08)] border border-slate-100 p-8 md:p-10">
+          <div className="mb-8 text-center">
+            <h2 className="text-2xl font-bold text-slate-900">Welcome Back</h2>
+            <p className="text-slate-500 text-sm mt-2">Manage your store with confidence.</p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">
-                Email
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">
+                Admin Email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                </div>
                 <input
                   type="email"
                   value={email}
@@ -135,18 +169,20 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                   placeholder="admin@gmail.com"
                   required
                   autoComplete="email"
-                  className="w-full pl-10 pr-4 py-3 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition"
+                  className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                </div>
                 <input
                   type={showPw ? "text" : "password"}
                   value={password}
@@ -154,12 +190,12 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
-                  className="w-full pl-10 pr-10 py-3 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition"
+                  className="w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all placeholder:text-slate-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-blue-600 transition-colors rounded-lg"
                 >
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -168,9 +204,9 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 
             {/* Error */}
             {error && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+              <div className="flex items-center gap-3 bg-red-50 border border-red-100 text-red-600 rounded-2xl px-4 py-3 text-sm animate-in fade-in slide-in-from-top-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
-                {error}
+                <span className="font-medium">{error}</span>
               </div>
             )}
 
@@ -178,15 +214,21 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-neutral-900 hover:bg-neutral-700 text-white font-bold py-3 rounded-xl transition-all text-sm tracking-wide disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all text-sm tracking-wide disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-[0.98]"
             >
               {loading ? (
-                <><RefreshCw className="w-4 h-4 animate-spin" /> Signing in…</>
+                <><RefreshCw className="w-4 h-4 animate-spin" /> Verifying Credentials…</>
               ) : (
-                "Sign In"
+                "Access Dashboard"
               )}
             </button>
           </form>
+
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-400 font-medium">
+              Secured by ALL BLUE Internal Systems
+            </p>
+          </div>
         </div>
       </div>
     </div>

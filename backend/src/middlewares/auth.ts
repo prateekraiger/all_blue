@@ -1,35 +1,51 @@
-import type { Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import * as jose from 'jose';
 import { AppError } from './errorHandler';
-import {
-  AuthRequest,
-  AuthUser,
-  StackPayload,
-} from '../types';
+import { AuthRequest, StackPayload } from '../types';
 
-const STACK_PROJECT_ID = process.env.STACK_PROJECT_ID ?? '';
-const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY ?? '';
+const STACK_PROJECT_ID = (process.env.STACK_PROJECT_ID || '').trim();
 
-const JWKS_URL = `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}/.well-known/jwks.json`;
+// ── JWKS for Stack Auth token verification ───────────────────────────────────
+const JWKS = jose.createRemoteJWKSet(
+  new URL(`https://api.stackauth.com/api/v1/projects/${STACK_PROJECT_ID}/.well-known/jwks.json`)
+);
 
-// Cache the JWKS remote set (refreshes automatically via jose)
-let _jwks: ReturnType<typeof jose.createRemoteJWKSet> | null = null;
-function getJWKS() {
-  if (!_jwks) {
-    _jwks = jose.createRemoteJWKSet(new URL(JWKS_URL));
-  }
-  return _jwks;
-}
+export const LOCAL_ADMIN_TOKEN = 'local-admin-secret-token-allblue-2026';
 
 /**
- * Verify a Stack Auth access token from the x-stack-access-token header.
- * Returns the JWT payload on success, or null if invalid/missing.
+ * verifyStackToken — Helper to verify JWT from Stack Auth using jose.
+ * Handles different issuer formats and clock skew.
  */
 async function verifyStackToken(token: string): Promise<StackPayload | null> {
   try {
-    const { payload } = await jose.jwtVerify(token, getJWKS());
+    const { payload } = await jose.jwtVerify(token, JWKS, {
+      issuer: [
+        `https://api.stackauth.com/api/v1/projects/${STACK_PROJECT_ID}`,
+        `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}`,
+        `https://api.stackauth.com/projects/${STACK_PROJECT_ID}`,
+        `https://api.stack-auth.com/projects/${STACK_PROJECT_ID}`,
+      ],
+      clockTolerance: 60, // Allow 60s clock skew
+    });
     return payload as unknown as StackPayload;
-  } catch {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(`[AUTH] Token verification failed: ${msg}`);
+    
+    // Debug info for the user/logs
+    try {
+      const decoded = jose.decodeJwt(token);
+      console.log('[AUTH] Token Debug:', {
+        issuer: decoded.iss,
+        subject: decoded.sub,
+        expires: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'N/A',
+        now: new Date().toISOString(),
+        expectedProjectId: STACK_PROJECT_ID
+      });
+    } catch (decodeError) {
+      console.error('[AUTH] Could not decode failed token');
+    }
+    
     return null;
   }
 }
@@ -45,6 +61,17 @@ export const requireAuth = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    
+    // ── Local admin panel bypass ────────────────────────────────────────────────
+    if (authHeader && authHeader.trim() === `Bearer ${LOCAL_ADMIN_TOKEN}`) {
+      req.user = {
+        id: 'local-admin',
+        email: 'admin@gmail.com',
+        user_metadata: { full_name: 'Admin', role: 'admin' },
+      };
+      return next();
+    }
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next(new AppError('No token provided', 401));
     }
@@ -67,8 +94,8 @@ export const requireAuth = async (
     };
 
     next();
-  } catch {
-    next(new AppError('Authentication failed', 401));
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -83,6 +110,17 @@ export const optionalAuth = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    
+    // ── Local admin panel bypass ────────────────────────────────────────────────
+    if (authHeader === `Bearer ${LOCAL_ADMIN_TOKEN}`) {
+      req.user = {
+        id: 'local-admin',
+        email: 'admin@gmail.com',
+        user_metadata: { full_name: 'Admin', role: 'admin' },
+      };
+      return next();
+    }
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next();
     }
@@ -107,12 +145,6 @@ export const optionalAuth = async (
 };
 
 /**
- * LOCAL_ADMIN_TOKEN — Hardcoded static token for the local admin panel.
- * This bypasses Stack Auth entirely and grants full admin access.
- */
-const LOCAL_ADMIN_TOKEN = 'local-admin-secret-token-allblue-2024';
-
-/**
  * requireAdmin — Checks that the authenticated user has role === 'admin'.
  * Also accepts the hardcoded local admin token for the /admin panel.
  */
@@ -123,13 +155,25 @@ export const requireAdmin = async (
 ): Promise<void> => {
   // ── Local admin panel bypass ────────────────────────────────────────────────
   const authHeader = req.headers.authorization;
-  if (authHeader === `Bearer ${LOCAL_ADMIN_TOKEN}`) {
+  const expectedHeader = `Bearer ${LOCAL_ADMIN_TOKEN}`;
+  
+  if (authHeader && authHeader.trim() === expectedHeader) {
+    console.log('[Auth] Admin bypass successful');
     req.user = {
       id: 'local-admin',
       email: 'admin@gmail.com',
       user_metadata: { full_name: 'Admin', role: 'admin' },
     };
     return next();
+  }
+  
+  console.log(`[Auth] Admin check failed. Header: ${authHeader ? 'present' : 'missing'}`);
+  if (authHeader && authHeader !== expectedHeader) {
+    console.log(`[Auth] Header mismatch. Received: "${authHeader.substring(0, 20)}...", Expected: "${expectedHeader.substring(0, 20)}..."`);
+  }
+  
+  if (authHeader) {
+    console.log(`[Auth] Attempting standard auth. Header starts with: ${authHeader.substring(0, 15)}...`);
   }
 
   // ── Standard Stack Auth flow ────────────────────────────────────────────────

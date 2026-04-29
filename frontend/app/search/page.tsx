@@ -67,7 +67,7 @@ function SearchContent() {
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
   const [isListening, setIsListening] = useState(false)
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleSearch = useCallback(async (q: string) => {
     if (!q.trim()) {
