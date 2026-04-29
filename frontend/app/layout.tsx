@@ -12,6 +12,7 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "@/stack/server";
 import { AIChatbot } from "@/components/AIChatbot"
 import { PageTransition } from "@/components/PageTransition"
+import { SilenceWarnings } from "@/components/SilenceWarnings"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -80,6 +81,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className={`font-sans antialiased`}>
+        <SilenceWarnings />
         <StackProvider app={stackServerApp}>
           <StackTheme>
             <Suspense fallback={null}>

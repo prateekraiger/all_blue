@@ -9,7 +9,7 @@ const collections = [
   {
     title: "The Signature Collection",
     subtitle: "Timeless luxury for every occasion",
-    image: "/collection_him.png",
+    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=2000&auto=format&fit=crop",
     link: "/shop",
     className: "md:col-span-2 md:row-span-2 h-[500px] md:h-auto",
     titleSize: "text-4xl md:text-6xl lg:text-7xl",
@@ -17,7 +17,7 @@ const collections = [
   {
     title: "Gifts for Her",
     subtitle: "Elegant & Refined",
-    image: "/collection_her.png",
+    image: "https://images.unsplash.com/photo-1512496015851-a1fbcf69b6b6?q=80&w=1000&auto=format&fit=crop",
     link: "/shop?category=Gifts for Her",
     className: "md:col-span-1 md:row-span-1 h-[350px] md:h-[450px]",
     titleSize: "text-2xl md:text-4xl",
@@ -25,7 +25,7 @@ const collections = [
   {
     title: "Corporate Gifting",
     subtitle: "Impression that lasts",
-    image: "/collection_corporate.png",
+    image: "https://images.unsplash.com/photo-1558459654-c430be5b0a44?q=80&w=1000&auto=format&fit=crop",
     link: "/corporate-gifting",
     className: "md:col-span-1 md:row-span-1 h-[350px] md:h-[450px]",
     titleSize: "text-2xl md:text-4xl",
