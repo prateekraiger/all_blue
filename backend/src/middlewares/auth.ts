@@ -7,7 +7,7 @@ const STACK_PROJECT_ID = (process.env.STACK_PROJECT_ID || '').trim();
 
 // ── JWKS for Stack Auth token verification ───────────────────────────────────
 const JWKS = jose.createRemoteJWKSet(
-  new URL(`https://api.stackauth.com/api/v1/projects/${STACK_PROJECT_ID}/.well-known/jwks.json`)
+  new URL(`https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}/.well-known/jwks.json`)
 );
 
 export const LOCAL_ADMIN_TOKEN = 'local-admin-secret-token-allblue-2026';
