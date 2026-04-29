@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { ShoppingBag, Star, ChevronLeft, ChevronRight, Truck, Shield, RefreshCw, Box, X, Gift, CheckCircle2, ArrowLeft, ArrowRight, ShieldCheck, Home } from "lucide-react"
-import { productsApi, reviewsApi, aiApi, arApi, type Product, type Review, type ARPreviewData } from "@/lib/api"
+import { productsApi, reviewsApi, aiApi, type Product, type Review, type ARPreviewData } from "@/lib/api"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { ProductGrid } from "@/components/product-grid"
@@ -76,7 +76,7 @@ export default function ProductDetailPage() {
   const [adding, setAdding] = useState(false)
   const [showARPreview, setShowARPreview] = useState(false)
   const [arData, setArData] = useState<ARPreviewData | null>(null)
-  const [arLoading, setArLoading] = useState(false)
+
 
   // Review form
   const [reviewRating, setReviewRating] = useState(0)
@@ -358,28 +358,7 @@ export default function ProductDetailPage() {
             {product.name}
           </motion.h1>
 
-          {/* Rating & Social Proof */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-wrap items-center gap-6 mb-12"
-          >
-            <div className="flex items-center gap-4 bg-neutral-50 px-6 py-3 rounded-full border border-neutral-100">
-              <StarRating rating={Math.round(avgRating || 5)} />
-              <span className="text-xs md:text-sm font-black uppercase tracking-widest text-neutral-600">
-                {avgRating || "5.0"} <span className="opacity-30 mx-2">|</span> {ratingCount || "12"} reviews
-              </span>
-            </div>
-            <div className="flex -space-x-3">
-              {[1,2,3,4].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-neutral-100 relative">
-                   <Image src={`https://i.pravatar.cc/100?u=${i}`} alt="" fill />
-                </div>
-              ))}
-              <div className="w-10 h-10 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-[10px] font-black">+42</div>
-            </div>
-          </motion.div>
+
 
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -541,39 +520,35 @@ export default function ProductDetailPage() {
             </div>
             <motion.button 
               whileHover={{ scale: 1.1, rotate: 5 }}
-              onClick={async () => {
+              onClick={() => {
                 if (arData) {
                   setShowARPreview(true)
                   return
                 }
-                setArLoading(true)
-                try {
-                  const data = await arApi.preview(id)
-                  setArData(data)
+                if (product) {
+                  setArData({
+                    product_id: product.id,
+                    name: product.name,
+                    category: product.category ?? "",
+                    images: product.images ?? [],
+                    arSupported: true,
+                    modelUrl: null,
+                    instructions: [
+                      "Grant camera access when prompted.",
+                      "Point your camera at a flat surface (table, desk, floor).",
+                      "The product will appear overlaid on your camera feed.",
+                      "Pinch to resize or drag to reposition."
+                    ],
+                    previewMessage: `Viewing "${product.name}" in your space`,
+                  })
                   setShowARPreview(true)
-                } catch {
-                  if (product) {
-                    setArData({
-                      product_id: product.id,
-                      name: product.name,
-                      category: product.category ?? "",
-                      images: product.images ?? [],
-                      arSupported: false,
-                      modelUrl: null,
-                      instructions: ["Browse product images below to get a detailed view."],
-                      previewMessage: `Explore "${product.name}" with our HD image gallery.`,
-                    })
-                    setShowARPreview(true)
-                  }
-                } finally {
-                  setArLoading(false)
                 }
               }}
-              disabled={arLoading}
+              disabled={false}
               className="relative z-10 bg-white text-black p-4 rounded-2xl shadow-xl font-black flex items-center gap-2 group/btn disabled:opacity-50"
             >
-              <Box className={`w-5 h-5 ${arLoading ? "animate-spin text-primary" : ""}`} />
-              <span className="text-xs uppercase tracking-widest">{arLoading ? "..." : "Launch AR"}</span>
+              <Box className="w-5 h-5" />
+              <span className="text-xs uppercase tracking-widest">Launch AR</span>
             </motion.button>
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
           </motion.div>
