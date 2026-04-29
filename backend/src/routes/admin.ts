@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
     });
   }
 
-  res.status(401).json({ success: false, error: "Invalid admin credentials" });
+  return res.status(401).json({ success: false, error: "Invalid admin credentials" });
 });
 
 // All subsequent routes in this file require admin privileges
@@ -119,7 +119,7 @@ router.get('/dashboard', async (_req: AuthRequest, res: Response) => {
     popularProducts,
   };
 
-  res.json({ success: true, data: dashboard });
+  return res.json({ success: true, data: dashboard });
 });
 
 // ─── GET /api/admin/products — All products including inactive ─────────────────
@@ -130,11 +130,10 @@ router.get('/products', async (_req: AuthRequest, res: Response) => {
     .order('created_at', { ascending: false });
 
   if (error) {
-    res.status(500).json({ success: false, error: error.message });
-    return;
+    return res.status(500).json({ success: false, error: error.message });
   }
 
-  res.json({ success: true, data: { products: data ?? [], total: count ?? 0 } });
+  return res.json({ success: true, data: { products: data ?? [], total: count ?? 0 } });
 });
 
 export default router;

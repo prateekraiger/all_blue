@@ -13,6 +13,7 @@ import { toast } from "sonner"
 function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
+  const [imgSrc, setImgSrc] = useState(product.images?.[0] || "/placeholder.jpg")
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -32,12 +33,13 @@ function ProductCard({ product }: { product: Product }) {
     <Link href={`/shop/${product.id}`} className="text-foreground no-underline group block">
       <div className="relative bg-neutral-100 p-4 mb-3 h-[200px] sm:h-[240px] flex items-center justify-center overflow-hidden">
         <Image
-          src={product.images?.[0] || "/placeholder.jpg"}
+          src={imgSrc}
           alt={product.name}
           width={300}
           height={300}
           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
+          onError={() => setImgSrc("/placeholder.jpg")}
+          unoptimized={imgSrc.startsWith('http')}
         />
         <button
           onClick={handleAddToCart}
@@ -62,35 +64,52 @@ function ProductCard({ product }: { product: Product }) {
 function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [query, setQuery] = useState(searchParams.get("q") || "")
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(false)
-  const [total, setTotal] = useState(0)
-  const [isListening, setIsListening] = useState(false)
-  const debounceTimer = useRef<any>(undefined)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const LIMIT = 10
 
-  const handleSearch = useCallback(async (q: string) => {
+  const handleSearch = useCallback(async (q: string, p = 1) => {
     if (!q.trim()) {
       setProducts([])
       setTotal(0)
+      setHasMore(false)
       return
     }
     try {
-      setLoading(true)
-      const result = await searchApi.search({ q, limit: 20 })
-      setProducts(result.products)
+      if (p === 1) setLoading(true)
+      else setLoadingMore(true)
+      
+      const result = await searchApi.search({ q, limit: LIMIT, offset: (p - 1) * LIMIT })
+      
+      if (p === 1) {
+        setProducts(result.products)
+      } else {
+        setProducts(prev => [...prev, ...result.products])
+      }
+      
       setTotal(result.total)
-    } catch {
-      setProducts([])
+      setHasMore(result.products.length === LIMIT && (p * LIMIT) < result.total)
+      setPage(p)
+    } catch (err) {
+      if (p === 1) setProducts([])
+      console.error("Search error:", err)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }, [])
 
   useEffect(() => {
     const q = searchParams.get("q") || ""
     setQuery(q)
-    if (q) handleSearch(q)
+    if (q) {
+      handleSearch(q, 1)
+    } else {
+      setProducts([])
+      setTotal(0)
+      setHasMore(false)
+    }
   }, [searchParams, handleSearch])
 
   const handleInputChange = (value: string) => {
@@ -197,9 +216,29 @@ function SearchContent() {
       )}
 
       {!loading && products.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            {products.map((product) => <ProductCard key={`${product.id}-${product.name}`} product={product} />)}
+          </div>
+          
+          {hasMore && (
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={() => handleSearch(query, page + 1)}
+                disabled={loadingMore}
+                className="group relative px-10 py-4 bg-foreground text-background font-bold text-xs uppercase tracking-[0.2em] overflow-hidden transition-all hover:bg-neutral-800 disabled:opacity-50"
+              >
+                <div className="relative z-10 flex items-center gap-3">
+                  {loadingMore ? (
+                    <div className="w-4 h-4 border-2 border-background/20 border-t-background rounded-full animate-spin" />
+                  ) : (
+                    <span>Load More</span>
+                  )}
+                </div>
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

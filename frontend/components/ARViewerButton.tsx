@@ -122,6 +122,7 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
   const streamRef = useRef<MediaStream | null>(null)
 
   useEffect(() => {
+    let isMounted = true
     const video = videoRef.current
     if (!video) return
 
@@ -132,33 +133,51 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
           audio: false,
         })
         
+        if (!isMounted) {
+          stream.getTracks().forEach(track => track.stop())
+          return
+        }
+
         streamRef.current = stream
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream
           
-          // Use oncanplay to ensure the video is ready before calling play()
-          videoRef.current.oncanplay = async () => {
+          const playVideo = async () => {
+            if (!videoRef.current || !isMounted) return
             try {
-              await videoRef.current?.play()
+              await videoRef.current.play()
               setCameraReady(true)
             } catch (error: any) {
-              // Ignore AbortError - it happens if the request is interrupted by a new load
-              if (error.name !== "AbortError") {
+              // Ignore AbortError - it happens if the request is interrupted by a new load or unmount
+              if (error.name !== "AbortError" && isMounted) {
                 console.error("Video play error:", error)
               }
             }
           }
+
+          videoRef.current.oncanplay = playVideo
+          // Also try playing immediately if already ready
+          if (videoRef.current.readyState >= 2) {
+            playVideo()
+          }
         }
       } catch (err) {
-        console.error("Camera access error:", err)
-        setCameraError(true)
+        if (isMounted) {
+          console.error("Camera access error:", err)
+          setCameraError(true)
+        }
       }
     }
 
     startCamera()
 
     return () => {
+      isMounted = false
+      if (video) {
+        video.oncanplay = null
+        video.srcObject = null
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop())
         streamRef.current = null
@@ -323,6 +342,7 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
       <video
         id="ar-video-feed"
         ref={videoRef}
+        autoPlay
         playsInline
         muted
         className="absolute inset-0 w-full h-full object-cover"

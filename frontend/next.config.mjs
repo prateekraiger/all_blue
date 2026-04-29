@@ -24,6 +24,62 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.photojaanic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'm.media-amazon.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.allblue.gift',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.fnp.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.ekshoppingmart.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.yourprint.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.giftify.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.woodenstreet.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.confettigifts.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.igp.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bigsmall.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.boxupgifting.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.pebel.in',
+      },
     ],
   },
   async redirects() {

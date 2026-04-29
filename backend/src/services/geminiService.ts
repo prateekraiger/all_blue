@@ -3,8 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-// Use gemini-2.5-flash for state-of-the-art fast responses
-const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }) : null;
+// Use gemini-1.5-flash for state-of-the-art fast responses
+const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }) : null;
 
 export const isGeminiAvailable = (): boolean => {
   return !!genAI && !!model;

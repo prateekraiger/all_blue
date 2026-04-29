@@ -23,6 +23,7 @@ function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [imgSrc, setImgSrc] = useState(product.images?.[0] || "/placeholder.jpg")
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -37,8 +38,6 @@ function ProductCard({ product }: { product: Product }) {
       setAdding(false)
     }
   }
-
-  const imageUrl = product.images?.[0] || "/placeholder.jpg"
 
   return (
     <motion.div
@@ -55,11 +54,12 @@ function ProductCard({ product }: { product: Product }) {
         <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem] bg-neutral-50 mb-6 border border-neutral-100 shadow-sm transition-all duration-700 group-hover:shadow-2xl group-hover:border-primary/10">
           {/* Main Image */}
           <Image
-            src={imageUrl}
+            src={imgSrc}
             alt={product.name}
             fill
             className={`object-contain p-8 transition-all duration-1000 ease-out ${isHovered ? "scale-110 -rotate-2 blur-[2px] opacity-40" : "scale-100 rotate-0"}`}
-            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
+            onError={() => setImgSrc("/placeholder.jpg")}
+            unoptimized={imgSrc.startsWith('http')}
           />
 
           {/* Secondary Image or Details on Hover */}
