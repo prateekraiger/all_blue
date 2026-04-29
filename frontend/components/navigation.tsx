@@ -166,8 +166,8 @@ export function Navigation() {
         }}
         className="w-full transition-all duration-300 shadow-sm overflow-hidden"
       >
-      <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center py-4 md:py-5 px-4 md:px-8 lg:px-12">
-        <div className="flex items-center gap-8">
+      <div className="max-w-[1920px] w-full mx-auto flex justify-between items-center py-2 md:py-4 px-2 md:px-6 lg:px-12">
+        <div className="flex items-center gap-2 md:gap-6">
           <button
             className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-all border border-neutral-100"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -197,14 +197,16 @@ export function Navigation() {
           
           {/* Logo */}
           <Link href="/" className="relative group">
-            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-foreground flex items-center gap-2">
-              ALL BLUE
-              <motion.div 
-                className="w-1.5 h-1.5 bg-primary rounded-full"
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
+            <div className="flex items-center gap-2">
+              <img 
+                src="/logo.png" 
+                alt="ALL BLUE" 
+                className="h-5 sm:h-6 md:h-7 lg:h-9 w-auto object-contain"
               />
-            </span>
+              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black tracking-tighter uppercase text-foreground">
+                ALL BLUE
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Nav Links */}
@@ -233,7 +235,7 @@ export function Navigation() {
           </div>
         </div>
 
-        <div className="flex gap-3 md:gap-4 items-center">
+        <div className="flex gap-1 md:gap-3 items-center">
           <Link href="/gift-finder" className="hidden lg:flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-primary transition-all hover:shadow-lg hover:shadow-primary/20">
             <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
             AI Finder
@@ -471,10 +473,16 @@ export function Navigation() {
             >
               <div className="flex justify-between items-center px-6 py-8">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="relative group">
-                  <span className="text-xl font-black tracking-tighter uppercase text-foreground flex items-center gap-2">
-                    ALL BLUE
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src="/logo.png" 
+                      alt="ALL BLUE" 
+                      className="h-6 w-auto object-contain"
+                    />
+                    <span className="text-lg font-black tracking-tighter uppercase text-foreground">
+                      ALL BLUE
+                    </span>
+                  </div>
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}

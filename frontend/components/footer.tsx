@@ -14,8 +14,17 @@ export function Footer() {
       <div className="max-w-[1920px] mx-auto px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-24">
           <div className="lg:col-span-4">
-            <Link href="/" className="text-3xl md:text-4xl font-black mb-8 block tracking-tighter uppercase whitespace-nowrap">
-              ALL <span className="text-primary">BLUE</span>
+            <Link href="/" className="mb-8 block">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/logo.png" 
+                  alt="ALL BLUE" 
+                  className="h-12 md:h-14 w-auto object-contain"
+                />
+                <span className="text-3xl md:text-4xl font-black tracking-tighter uppercase text-white">
+                  ALL BLUE
+                </span>
+              </div>
             </Link>
             <p className="text-neutral-400 text-lg leading-relaxed max-w-sm mb-10">
               Curating high-end gifting experiences that transcend the ordinary. Craftsmanship, elegance, and pure emotion in every piece.
