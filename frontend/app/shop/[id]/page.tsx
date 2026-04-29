@@ -640,7 +640,7 @@ export default function ProductDetailPage() {
             <h3 className="text-base font-black uppercase tracking-widest mb-6">Write a Review</h3>
             {!user ? (
               <p className="text-sm md:text-base text-neutral-500 bg-neutral-50 p-6 rounded-2xl border border-dashed border-neutral-200">
-                <Link href="/auth/login" className="text-primary underline font-black uppercase tracking-widest text-xs">Sign in</Link> to share your experience with this piece.
+                <Link href="/sign-in" className="text-primary underline font-black uppercase tracking-widest text-xs">Sign in</Link> to share your experience with this piece.
               </p>
             ) : (
               <form onSubmit={handleSubmitReview} className="space-y-6">
