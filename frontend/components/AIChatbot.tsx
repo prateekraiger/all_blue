@@ -38,7 +38,7 @@ const INITIAL_MESSAGE: Message = {
  * Simple inline markdown renderer: **bold**, *italic*, and line breaks.
  */
 function renderMarkdown(text: string) {
-  const parts: (string | JSX.Element)[] = []
+  const parts: (string | React.ReactNode)[] = []
   // Split by newlines first
   const lines = text.split("\n")
 
