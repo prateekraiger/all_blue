@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Smartphone, X, Camera, Move, RotateCcw, ZoomIn, ArrowLeft, Maximize2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import type { Product } from "@/lib/api"
@@ -118,25 +118,53 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
 
   const baseSize = getBaseSize()
 
-  // Initialize camera
-  const videoRefCallback = (el: HTMLVideoElement | null) => {
-    if (!el || el.srcObject) return
-    
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-      audio: false,
-    })
-    .then((stream) => {
-      el.srcObject = stream
-      el.play()
-      setCameraReady(true)
-    })
-    .catch(() => {
-      setCameraError(true)
-    })
-  }
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
-  // Stop camera on unmount handled by closing the modal
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false,
+        })
+        
+        streamRef.current = stream
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          
+          // Use oncanplay to ensure the video is ready before calling play()
+          videoRef.current.oncanplay = async () => {
+            try {
+              await videoRef.current?.play()
+              setCameraReady(true)
+            } catch (error: any) {
+              // Ignore AbortError - it happens if the request is interrupted by a new load
+              if (error.name !== "AbortError") {
+                console.error("Video play error:", error)
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Camera access error:", err)
+        setCameraError(true)
+      }
+    }
+
+    startCamera()
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop())
+        streamRef.current = null
+      }
+    }
+  }, [])
 
   const handlePlace = (clientX: number, clientY: number) => {
     if (isPlaced) return
@@ -294,8 +322,7 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
       {/* Camera Feed */}
       <video
         id="ar-video-feed"
-        ref={videoRefCallback}
-        autoPlay
+        ref={videoRef}
         playsInline
         muted
         className="absolute inset-0 w-full h-full object-cover"
