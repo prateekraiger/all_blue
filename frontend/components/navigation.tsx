@@ -332,14 +332,23 @@ export function Navigation() {
           </div>
 
           {/* User menu */}
-          <div ref={userMenuRef} className="relative">
+          <div 
+            ref={userMenuRef} 
+            className="relative"
+            onMouseEnter={() => user && setUserMenuOpen(true)}
+            onMouseLeave={() => setUserMenuOpen(false)}
+          >
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-neutral-50 hover:bg-neutral-100 transition-colors border border-neutral-100 text-foreground"
               onClick={() => {
-                if (!user) router.push("/sign-in")
-                else setUserMenuOpen(!userMenuOpen)
+                if (!user) {
+                  router.push("/sign-in")
+                } else {
+                  router.push("/profile")
+                  setUserMenuOpen(false)
+                }
               }}
             >
               <User className="w-4 h-4 text-neutral-500" />
@@ -347,40 +356,80 @@ export function Navigation() {
             <AnimatePresence>
               {userMenuOpen && user && (
                 <motion.div 
-                  initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 15, scale: 0.98 }}
-                  className="absolute top-14 right-0 w-72 bg-white border border-neutral-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] z-50 rounded-[2rem] overflow-hidden p-2"
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-14 right-0 w-80 bg-white/95 backdrop-blur-xl border border-neutral-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] z-50 rounded-[2.5rem] overflow-hidden p-3"
                 >
-                  <div className="px-5 py-5 bg-neutral-900 rounded-[1.5rem] mb-2 text-white">
-                    <div className="text-[9px] font-black uppercase tracking-[0.3em] text-primary/80 mb-1">Store Member</div>
-                    <div className="text-sm font-bold truncate">{user.primaryEmail}</div>
+                  <div className="px-6 py-6 bg-neutral-900 rounded-[2rem] mb-3 text-white relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl -mr-16 -mt-16 group-hover:bg-primary/30 transition-colors" />
+                    <div className="relative z-10 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-primary font-black text-xl border border-white/10">
+                        {user.primaryEmail?.[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[9px] font-black uppercase tracking-[0.3em] text-primary mb-0.5">Exclusive Member</div>
+                        <div className="text-sm font-bold truncate opacity-90">{user.primaryEmail}</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-1">
-                    <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-4 px-4 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-neutral-50 rounded-xl transition-all group/link">
-                      <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center group-hover/link:bg-white transition-colors">
-                        <User className="w-3.5 h-3.5 text-neutral-400 group-hover/link:text-primary" />
-                      </div>
-                      Profile Settings
-                    </Link>
-                    <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-4 px-4 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-neutral-50 rounded-xl transition-all group/link">
-                      <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center group-hover/link:bg-white transition-colors">
-                        <Package className="w-3.5 h-3.5 text-neutral-400 group-hover/link:text-primary" />
-                      </div>
-                      Order History
-                    </Link>
-                    {user?.clientMetadata?.role === "admin" && (
-                      <Link href="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-4 px-4 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-primary/5 rounded-xl transition-all group/link text-primary">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover/link:bg-primary/20 transition-colors">
-                          <LayoutDashboard className="w-3.5 h-3.5" />
+                  
+                  <div className="space-y-1">
+                    <Link 
+                      href="/profile" 
+                      onClick={() => setUserMenuOpen(false)} 
+                      className="flex items-center justify-between px-5 py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-neutral-50 rounded-2xl transition-all group/link"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center group-hover/link:bg-white border border-transparent group-hover/link:border-neutral-100 transition-all">
+                          <User className="w-4 h-4 text-neutral-400 group-hover/link:text-primary" />
                         </div>
-                        Admin Dashboard
+                        <span>Personal Profile</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-neutral-200 group-hover/link:text-primary group-hover/link:translate-x-1 transition-all" />
+                    </Link>
+
+                    <Link 
+                      href="/orders" 
+                      onClick={() => setUserMenuOpen(false)} 
+                      className="flex items-center justify-between px-5 py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-neutral-50 rounded-2xl transition-all group/link"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center group-hover/link:bg-white border border-transparent group-hover/link:border-neutral-100 transition-all">
+                          <Package className="w-4 h-4 text-neutral-400 group-hover/link:text-primary" />
+                        </div>
+                        <span>Order Collections</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-neutral-200 group-hover/link:text-primary group-hover/link:translate-x-1 transition-all" />
+                    </Link>
+
+                    {user?.clientMetadata?.role === "admin" && (
+                      <Link 
+                        href="/admin" 
+                        onClick={() => setUserMenuOpen(false)} 
+                        className="flex items-center justify-between px-5 py-4 text-[11px] font-black uppercase tracking-[0.15em] bg-primary/5 hover:bg-primary/10 text-primary rounded-2xl transition-all group/link"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover/link:bg-white transition-all">
+                            <LayoutDashboard className="w-4 h-4" />
+                          </div>
+                          <span>Management Console</span>
+                        </div>
+                        <ArrowRight className="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-all" />
                       </Link>
                     )}
                   </div>
-                  <button onClick={handleSignOut} className="w-full flex items-center gap-4 px-5 py-4 mt-1 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-[1.5rem] transition-all">
-                    <LogOut className="w-3.5 h-3.5" /> Sign Out
-                  </button>
+
+                  <div className="mt-3 pt-3 border-t border-neutral-100">
+                    <button 
+                      onClick={handleSignOut} 
+                      className="w-full flex items-center gap-4 px-6 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-red-500 hover:bg-red-50 rounded-[1.5rem] transition-all group/logout"
+                    >
+                      <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
+                      Secure Sign Out
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

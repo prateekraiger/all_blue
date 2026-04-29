@@ -30,7 +30,7 @@ export const productSchema = z.object({
   price: z.number().positive('Price must be positive'),
   category: z.string().optional(),
   tags: z.array(z.string()).optional().default([]),
-  images: z.array(z.string().url()).optional().default([]),
+  images: z.array(z.string()).optional().default([]),
   stock: z.number().int().min(0).optional().default(0),
   is_active: z.boolean().optional().default(true),
 });

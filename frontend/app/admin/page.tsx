@@ -268,10 +268,10 @@ function ProductModal({
       }
       if (isNew) {
         await adminFetch("/api/products", { method: "POST", body: JSON.stringify(payload) })
-        toast.success("Product created!")
+        toast.success("Product created successfully!")
       } else {
         await adminFetch(`/api/products/${product!.id}`, { method: "PUT", body: JSON.stringify(payload) })
-        toast.success("Product updated!")
+        toast.success("Product updated successfully!")
       }
       onSave()
       onClose()
@@ -282,140 +282,226 @@ function ProductModal({
     }
   }
 
+  const currentImages = imagesInput.split("\n").map((i) => i.trim()).filter(Boolean)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10 overflow-hidden">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+      
+      {/* Modal Container */}
+      <div className="relative bg-white w-full max-w-4xl max-h-full flex flex-col rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] overflow-hidden animate-in zoom-in-95 fade-in duration-300">
+        
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-100 sticky top-0 bg-white z-10 rounded-t-2xl">
-          <div>
-            <h2 className="text-lg font-bold text-neutral-900">{isNew ? "Add New Product" : "Edit Product"}</h2>
-            <p className="text-xs text-neutral-500 mt-0.5">{isNew ? "Fill in the details below" : `Editing: ${product?.name}`}</p>
+        <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-2xl ${isNew ? "bg-blue-50 text-blue-600" : "bg-indigo-50 text-indigo-600"}`}>
+              {isNew ? <Plus className="w-6 h-6" /> : <Edit2 className="w-6 h-6" />}
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                {isNew ? "Create New Product" : "Edit Product"}
+              </h2>
+              <p className="text-sm text-slate-500 font-medium">
+                {isNew ? "Add a new item to your store inventory" : `Modifying SKU: ${product?.id?.slice(0,8).toUpperCase()}`}
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-neutral-100 rounded-xl transition">
-            <X className="w-5 h-5" />
+          <button 
+            onClick={onClose} 
+            className="p-2.5 hover:bg-slate-100 rounded-2xl transition-all active:scale-95 text-slate-400 hover:text-slate-900"
+          >
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Name */}
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Product Name *</label>
-            <input
-              value={form.name ?? ""}
-              onChange={(e) => set("name", e.target.value)}
-              required
-              placeholder="e.g. Luxury Gift Hamper"
-              className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition"
-            />
-          </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+          <form id="product-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* Left Column: Basic Info */}
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-6">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Core Information</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Product Name</label>
+                  <input
+                    value={form.name ?? ""}
+                    onChange={(e) => set("name", e.target.value)}
+                    required
+                    placeholder="Luxury Blue Diamond Set"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all"
+                  />
+                </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Description</label>
-            <textarea
-              value={form.description ?? ""}
-              onChange={(e) => set("description", e.target.value)}
-              placeholder="Product description…"
-              rows={3}
-              className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition resize-none"
-            />
-          </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Description</label>
+                  <textarea
+                    value={form.description ?? ""}
+                    onChange={(e) => set("description", e.target.value)}
+                    placeholder="Write a compelling story for this product..."
+                    rows={4}
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all resize-none"
+                  />
+                </div>
 
-          {/* Price + Stock */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Price (₹) *</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.price ?? 0}
-                onChange={(e) => set("price", e.target.value)}
-                required
-                className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition"
-              />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Price (₹)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={form.price ?? 0}
+                        onChange={(e) => set("price", e.target.value)}
+                        required
+                        className="w-full pl-9 pr-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Stock Level</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.stock ?? 0}
+                      onChange={(e) => set("stock", e.target.value)}
+                      required
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-6">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Categorization</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Category</label>
+                  <input
+                    value={form.category ?? ""}
+                    onChange={(e) => set("category", e.target.value)}
+                    placeholder="e.g. Jewellery, Lifestyle, Home"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Tags (Comma Separated)</label>
+                  <input
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    placeholder="exclusive, limited, sapphire"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Stock *</label>
-              <input
-                type="number"
-                min="0"
-                value={form.stock ?? 0}
-                onChange={(e) => set("stock", e.target.value)}
-                required
-                className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition"
-              />
+
+            {/* Right Column: Media & Status */}
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-6">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Product Media</h3>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase">
+                    {currentImages.length} Images
+                  </span>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Image URLs (One per line)</label>
+                    <textarea
+                      value={imagesInput}
+                      onChange={(e) => setImagesInput(e.target.value)}
+                      placeholder="https://images.unsplash.com/photo..."
+                      rows={4}
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-mono focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all resize-none"
+                    />
+                  </div>
+
+                  {/* Preview Gallery */}
+                  {currentImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 p-2 bg-slate-50 rounded-2xl border border-slate-100">
+                      {currentImages.slice(0, 6).map((url, idx) => (
+                        <div key={idx} className="aspect-square relative rounded-xl overflow-hidden bg-white border border-slate-200 group">
+                          <img 
+                            src={url} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                            onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400?text=Invalid+URL" }}
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                            <Eye className="w-4 h-4 text-white opacity-0 group-hover:opacity-100" />
+                          </div>
+                        </div>
+                      ))}
+                      {currentImages.length > 6 && (
+                        <div className="aspect-square bg-slate-200 rounded-xl flex items-center justify-center text-slate-500 text-xs font-bold">
+                          +{currentImages.length - 6} more
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-6">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Visibility & Status</h3>
+                
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl ${form.is_active ? "bg-green-100 text-green-600" : "bg-slate-200 text-slate-500"}`}>
+                      {form.is_active ? <Check className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">Product Status</p>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {form.is_active ? "Visible to customers" : "Hidden from storefront"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => set("is_active", !form.is_active)}
+                    className={`relative w-14 h-8 rounded-full transition-all duration-300 ${form.is_active ? "bg-green-500 shadow-lg shadow-green-500/30" : "bg-slate-300"}`}
+                  >
+                    <span className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ${form.is_active ? "translate-x-6" : "translate-x-0"}`} />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          </form>
+        </div>
 
-          {/* Category */}
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Category</label>
-            <input
-              value={form.category ?? ""}
-              onChange={(e) => set("category", e.target.value)}
-              placeholder="e.g. Hampers, Jewellery, Home Decor"
-              className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition"
-            />
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Tags <span className="font-normal text-neutral-400">(comma separated)</span></label>
-            <input
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-              placeholder="luxury, birthday, handmade"
-              className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition"
-            />
-          </div>
-
-          {/* Images */}
-          <div>
-            <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-widest mb-1.5">Image URLs <span className="font-normal text-neutral-400">(one per line)</span></label>
-            <textarea
-              value={imagesInput}
-              onChange={(e) => setImagesInput(e.target.value)}
-              placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-              rows={3}
-              className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition resize-none font-mono"
-            />
-          </div>
-
-          {/* Active toggle */}
-          <div className="flex items-center justify-between bg-neutral-50 rounded-xl px-4 py-3">
-            <div>
-              <p className="text-sm font-semibold text-neutral-800">Active / Visible</p>
-              <p className="text-xs text-neutral-500 mt-0.5">Inactive products are hidden from the store</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => set("is_active", !form.is_active)}
-              className={`relative w-12 h-6 rounded-full transition-colors ${form.is_active ? "bg-green-500" : "bg-neutral-300"}`}
-            >
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.is_active ? "translate-x-6" : "translate-x-0.5"}`} />
-            </button>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 border border-neutral-200 rounded-xl text-sm font-semibold hover:bg-neutral-50 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 bg-neutral-900 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-neutral-700 transition disabled:opacity-60 flex items-center justify-center gap-2"
-            >
-              {saving ? <><RefreshCw className="w-4 h-4 animate-spin" /> Saving…</> : <><Save className="w-4 h-4" /> {isNew ? "Create Product" : "Save Changes"}</>}
-            </button>
-          </div>
-        </form>
+        {/* Footer */}
+        <div className="p-8 border-t border-slate-100 bg-white sticky bottom-0 z-20 flex flex-col sm:flex-row gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all active:scale-[0.98]"
+          >
+            Cancel
+          </button>
+          <button
+            form="product-form"
+            type="submit"
+            disabled={saving}
+            className="flex-[2] px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20 transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-3"
+          >
+            {saving ? (
+              <><RefreshCw className="w-5 h-5 animate-spin" /> Processing Request...</>
+            ) : (
+              <><Save className="w-5 h-5" /> {isNew ? "Launch Product" : "Commit Changes"}</>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -1069,7 +1155,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     const session = localStorage.getItem(STORAGE_KEY)
-    if (session === "1") setIsLoggedIn(true)
+    if (session) setIsLoggedIn(true)
     setChecking(false)
   }, [])
 
