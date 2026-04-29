@@ -9,6 +9,7 @@ import { productsApi, reviewsApi, aiApi, type Product, type Review } from "@/lib
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { ProductGrid } from "@/components/product-grid"
+import { ARViewerButton } from "@/components/ARViewerButton"
 
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -506,6 +507,16 @@ export default function ProductDetailPage() {
           </motion.div>
 
 
+
+          {/* AR Preview Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-6"
+          >
+            <ARViewerButton product={product} />
+          </motion.div>
 
           {/* Features Grid */}
           <div className="grid grid-cols-3 gap-4">

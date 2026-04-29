@@ -90,7 +90,7 @@ app.get('/health', (_req, res) => {
     features: [
       'AI Gift Recommendations',
       'Voice Search',
-
+      'AR Product Preview',
       'Personalized Feed',
       'AI Shopping Chatbot (Gemini 2.5 Flash)',
       'Razorpay / Stripe Payments',

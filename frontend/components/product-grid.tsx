@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { ShoppingBag, Star, ArrowRight } from "lucide-react"
+import { ShoppingBag, Star, ArrowRight, Smartphone } from "lucide-react"
 import { motion } from "framer-motion"
 import { productsApi, type Product } from "@/lib/api"
 import { useCart } from "@/context/CartContext"
@@ -70,6 +70,14 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           {product.stock === 0 && (
             <div className="absolute top-6 left-6 bg-black/80 backdrop-blur-md text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full z-20">
               Sold Out
+            </div>
+          )}
+
+          {/* AR Badge */}
+          {product.stock > 0 && (
+            <div className="absolute top-6 right-6 bg-primary/15 backdrop-blur-md text-primary text-[9px] uppercase font-extrabold tracking-[1.5px] px-2.5 py-1.5 rounded-full z-20 flex items-center gap-1.5 border border-primary/20">
+              <Smartphone className="w-3 h-3" />
+              AR
             </div>
           )}
           
