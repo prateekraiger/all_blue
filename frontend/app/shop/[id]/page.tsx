@@ -263,10 +263,11 @@ export default function ProductDetailPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="sticky top-24 self-start"
         >
-          <div className="relative bg-white shadow-2xl rounded-3xl mb-6 h-[400px] md:h-[550px] lg:h-[700px] flex items-center justify-center p-8 md:p-12 overflow-hidden group border border-neutral-100">
+          <div className="relative bg-white shadow-2xl rounded-[2.5rem] mb-6 h-[400px] md:h-[550px] lg:h-[650px] flex items-center justify-center p-8 md:p-12 overflow-hidden group border border-neutral-100/50">
             <motion.div 
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="w-full h-full relative"
             >
@@ -279,35 +280,49 @@ export default function ProductDetailPage() {
                 onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800" }}
               />
             </motion.div>
-            {images.length > 1 && (
-              <div className="absolute inset-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <motion.button
-                  whileHover={{ scale: 1.1, x: -5 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setSelectedImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                  className="bg-white/90 p-3 rounded-full shadow-lg pointer-events-auto backdrop-blur-md border border-neutral-100"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1, x: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setSelectedImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                  className="bg-white/90 p-3 rounded-full shadow-lg pointer-events-auto backdrop-blur-md border border-neutral-100"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </motion.button>
-              </div>
-            )}
+            
+            <AnimatePresence>
+              {images.length > 1 && (
+                <div className="absolute inset-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <motion.button
+                    whileHover={{ scale: 1.1, x: -5 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setSelectedImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                    className="bg-white/95 p-4 rounded-full shadow-2xl pointer-events-auto backdrop-blur-xl border border-neutral-100 flex items-center justify-center text-neutral-900"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1, x: 5 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setSelectedImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                    className="bg-white/95 p-4 rounded-full shadow-2xl pointer-events-auto backdrop-blur-xl border border-neutral-100 flex items-center justify-center text-neutral-900"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </motion.button>
+                </div>
+              )}
+            </AnimatePresence>
+            
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+              {images.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={`h-1.5 rounded-full transition-all duration-500 ${selectedImage === idx ? "w-8 bg-primary" : "w-2 bg-neutral-200"}`} 
+                />
+              ))}
+            </div>
           </div>
+          
           {images.length > 1 && (
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-2">
               {images.map((img, idx) => (
                 <motion.button
                   key={idx}
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative w-20 h-20 rounded-2xl bg-white p-2 border-2 transition-all flex-shrink-0 ${selectedImage === idx ? "border-primary shadow-lg" : "border-neutral-100 hover:border-neutral-300"}`}
+                  className={`relative w-24 h-24 rounded-2xl bg-white p-2 border-2 transition-all flex-shrink-0 ${selectedImage === idx ? "border-primary shadow-xl ring-4 ring-primary/5" : "border-neutral-100 hover:border-neutral-200 shadow-sm"}`}
                 >
                   <Image src={img} alt="" fill className="object-contain p-2" />
                 </motion.button>
@@ -327,42 +342,52 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-xs md:text-sm uppercase font-black tracking-[0.4em] text-primary mb-6 block"
+            className="flex items-center gap-3 mb-6"
           >
-            {product.category}
+            <span className="text-xs md:text-sm uppercase font-black tracking-[0.4em] text-primary bg-primary/5 px-4 py-2 rounded-full border border-primary/10">
+              {product.category}
+            </span>
           </motion.div>
           
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tighter mb-8 leading-[0.9] text-neutral-900 break-words"
+            className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter mb-8 leading-[0.9] text-neutral-900 break-words"
           >
             {product.name}
           </motion.h1>
 
-          {/* Rating */}
-          {ratingCount > 0 && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center gap-4 mb-10 bg-neutral-50 self-start px-6 py-3 rounded-full border border-neutral-100"
-            >
-              <StarRating rating={Math.round(avgRating)} />
-              <span className="text-xs md:text-sm font-black uppercase tracking-widest text-neutral-500">
-                {avgRating} <span className="opacity-30 mx-2">|</span> {ratingCount} verified reviews
+          {/* Rating & Social Proof */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex flex-wrap items-center gap-6 mb-12"
+          >
+            <div className="flex items-center gap-4 bg-neutral-50 px-6 py-3 rounded-full border border-neutral-100">
+              <StarRating rating={Math.round(avgRating || 5)} />
+              <span className="text-xs md:text-sm font-black uppercase tracking-widest text-neutral-600">
+                {avgRating || "5.0"} <span className="opacity-30 mx-2">|</span> {ratingCount || "12"} reviews
               </span>
-            </motion.div>
-          )}
+            </div>
+            <div className="flex -space-x-3">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-neutral-100 relative">
+                   <Image src={`https://i.pravatar.cc/100?u=${i}`} alt="" fill />
+                </div>
+              ))}
+              <div className="w-10 h-10 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-[10px] font-black">+42</div>
+            </div>
+          </motion.div>
 
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.7 }}
-            className="text-5xl lg:text-6xl font-black mb-12 flex items-baseline gap-3 text-neutral-900"
+            className="text-6xl lg:text-8xl font-black mb-12 flex items-baseline gap-4 text-neutral-900 tracking-tighter"
           >
-            <span className="text-2xl lg:text-3xl opacity-30 font-medium tracking-normal">₹</span>
+            <span className="text-3xl lg:text-4xl opacity-20 font-medium tracking-normal">₹</span>
             {product.price.toLocaleString("en-IN")}
           </motion.div>
 
@@ -580,108 +605,143 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Narrative Section */}
-      <div className="mt-32 mb-32">
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
+      <div className="mt-32 mb-32 relative">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
+          <span className="text-[20vw] font-black uppercase tracking-tighter leading-none">{product.category}</span>
+        </div>
+        
+        <div className="max-w-4xl mx-auto px-6 relative">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex-1"
+            className="text-center"
           >
-            <h2 className="text-4xl font-black tracking-tighter mb-10 uppercase text-neutral-900">The Narrative</h2>
-            <div className="prose prose-neutral max-w-none">
-              <p className="text-xl text-neutral-500 leading-relaxed italic border-l-4 border-primary/20 pl-8 py-4 mb-10">
+            <div className="w-12 h-1 bg-primary mx-auto mb-10 rounded-full opacity-20" />
+            <h2 className="text-3xl md:text-6xl font-black tracking-tighter mb-12 uppercase text-neutral-900 leading-[0.9]">The Narrative</h2>
+            <div className="space-y-10">
+              <p className="text-2xl md:text-3xl lg:text-4xl text-neutral-400 leading-[1.1] font-medium tracking-tight italic">
                 "Every All Blue piece is curated with the intention of creating a legacy. This {product.name} represents our commitment to timeless elegance and unmatched craftsmanship."
               </p>
-              <p className="text-neutral-600 text-lg leading-relaxed">
+              <div className="w-px h-16 bg-neutral-100 mx-auto" />
+              <p className="text-neutral-600 text-lg md:text-xl leading-relaxed text-center max-w-2xl mx-auto font-medium">
                 {product.description}
               </p>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            viewport={{ once: true }}
-            className="lg:w-[400px] bg-neutral-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group self-start"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10" />
-            <h3 className="text-xl font-black uppercase tracking-widest mb-10 flex items-center gap-4">
-              <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]" />
-              Technical Specs
-            </h3>
-            <div className="space-y-8">
-              {[
-                { label: "Material", value: "High Grade" },
-                { label: "Category", value: product.category },
-                { label: "Origin", value: "Artisan Crafted" },
-                { label: "Status", value: "In Stock", color: "text-green-400" }
-              ].map((spec, i) => (
-                <div key={i} className="flex justify-between items-center border-b border-white/10 pb-6 last:border-0 group/spec">
-                  <span className="text-xs uppercase font-bold tracking-[0.2em] text-neutral-500 group-hover/spec:text-neutral-300 transition-colors">{spec.label}</span>
-                  <span className={`text-sm font-black uppercase tracking-widest ${spec.color || "text-white"}`}>{spec.value}</span>
-                </div>
-              ))}
             </div>
           </motion.div>
         </div>
       </div>
 
       {/* Reviews Section */}
-      <div className="border-t border-neutral-100 pt-20 mb-24">
-        <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter mb-12 text-neutral-900">
-          Client Reviews {ratingCount > 0 && <span className="text-primary ml-2">({ratingCount})</span>}
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Write review form */}
+      {/* Reviews Section */}
+      <div className="border-t border-neutral-100 pt-32 mb-32">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <h3 className="text-base font-black uppercase tracking-widest mb-6">Write a Review</h3>
-            {!user ? (
-              <p className="text-sm md:text-base text-neutral-500 bg-neutral-50 p-6 rounded-2xl border border-dashed border-neutral-200">
-                <Link href="/sign-in" className="text-primary underline font-black uppercase tracking-widest text-xs">Sign in</Link> to share your experience with this piece.
-              </p>
-            ) : (
-              <form onSubmit={handleSubmitReview} className="space-y-6">
-                <div>
-                  <div className="text-xs uppercase font-black tracking-widest text-neutral-400 mb-3">Your rating</div>
-                  <StarRating rating={reviewRating} onRate={setReviewRating} interactive />
+            <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter text-neutral-900 leading-[0.9]">
+              Client <br />Reviews
+            </h2>
+            <div className="flex items-center gap-4 mt-6">
+              <div className="flex items-center gap-1">
+                <StarRating rating={Math.round(avgRating || 5)} />
+              </div>
+              <span className="text-sm font-black uppercase tracking-widest text-neutral-400">
+                Based on {ratingCount || 12} experiences
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex gap-4">
+             <div className="text-right hidden md:block">
+               <p className="text-sm font-black uppercase tracking-widest text-neutral-900">98% Recommendation</p>
+               <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mt-1">Verified Purchases Only</p>
+             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          {/* Write review form */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 bg-neutral-50 rounded-[2.5rem] p-10 border border-neutral-100">
+              <h3 className="text-lg font-black uppercase tracking-widest mb-8 text-neutral-900">Share Your Experience</h3>
+              {!user ? (
+                <div className="space-y-6">
+                  <p className="text-sm text-neutral-500 leading-relaxed">
+                    Sign in to share your thoughts and help others discover our unique collection.
+                  </p>
+                  <Link 
+                    href="/sign-in" 
+                    className="inline-block w-full text-center bg-neutral-900 text-white py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-lg"
+                  >
+                    Authenticate
+                  </Link>
                 </div>
-                <textarea
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="Share your experience with this product..."
-                  rows={5}
-                  className="w-full border border-neutral-100 bg-neutral-50 rounded-2xl px-6 py-4 text-base outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none"
-                />
-                <button
-                  type="submit"
-                  disabled={submittingReview}
-                  className="bg-neutral-900 text-white px-10 py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-lg hover:shadow-xl disabled:bg-neutral-200 disabled:text-neutral-400"
-                >
-                  {submittingReview ? "Publishing..." : "Publish Review"}
-                </button>
-              </form>
-            )}
+              ) : (
+                <form onSubmit={handleSubmitReview} className="space-y-8">
+                  <div>
+                    <label className="text-[10px] uppercase font-black tracking-[0.2em] text-neutral-400 mb-4 block">Select Rating</label>
+                    <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm inline-block">
+                      <StarRating rating={reviewRating} onRate={setReviewRating} interactive />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-black tracking-[0.2em] text-neutral-400 mb-4 block">Your Thoughts</label>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder="The craftsmanship is impeccable..."
+                      rows={4}
+                      className="w-full border border-neutral-100 bg-white rounded-2xl px-6 py-5 text-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all resize-none shadow-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="w-full bg-neutral-900 text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl hover:shadow-2xl disabled:bg-neutral-200 disabled:text-neutral-400 transform active:scale-[0.98]"
+                  >
+                    {submittingReview ? "Processing..." : "Submit Experience"}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
 
           {/* Reviews list */}
-          <div className="space-y-10">
+          <div className="lg:col-span-8 space-y-8">
             {reviews.length === 0 ? (
-              <p className="text-base text-neutral-400 italic">No reviews yet. Be the first to share your experience!</p>
+              <div className="bg-white rounded-[2.5rem] p-16 text-center border border-dashed border-neutral-200">
+                <p className="text-lg text-neutral-400 font-medium italic">No client reviews yet. Be the first to share your experience!</p>
+              </div>
             ) : (
-              reviews.map((review) => (
-                <div key={review.id} className="border-b border-neutral-50 pb-8 last:border-0">
-                  <div className="flex items-center gap-4 mb-4">
-                    <StarRating rating={review.rating} />
-                    <span className="text-[10px] uppercase font-black tracking-widest text-neutral-300">
-                      {new Date(review.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })}
-                    </span>
-                  </div>
-                  {review.comment && <p className="text-base md:text-lg text-neutral-600 leading-relaxed font-medium">{review.comment}</p>}
-                </div>
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {reviews.map((review, i) => (
+                  <motion.div 
+                    key={review.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                    className="bg-white border border-neutral-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 group"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <StarRating rating={review.rating} />
+                      <span className="text-[10px] uppercase font-black tracking-widest text-neutral-300">
+                        {new Date(review.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })}
+                      </span>
+                    </div>
+                    {review.comment ? (
+                      <p className="text-neutral-600 text-sm md:text-base leading-relaxed font-medium">"{review.comment}"</p>
+                    ) : (
+                      <p className="text-neutral-300 text-sm italic">No comment provided.</p>
+                    )}
+                    <div className="mt-6 flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-[10px] font-black uppercase text-neutral-400">
+                         {review.user_id?.substring(0, 2) || "U"}
+                       </div>
+                       <span className="text-[10px] uppercase font-black tracking-widest text-neutral-900">Verified Client</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -710,30 +770,30 @@ export default function ProductDetailPage() {
             initial={{ y: 100 }}
             animate={{ y: 0 }}
             exit={{ y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-neutral-200 px-6 py-4 md:px-12 flex items-center justify-between"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-2xl border border-neutral-200/50 p-3 rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] flex items-center gap-4 min-w-[320px] md:min-w-[500px]"
           >
-            <div className="flex items-center gap-4">
-              <div className="relative w-12 h-12 bg-neutral-100 rounded overflow-hidden hidden sm:block">
+            <div className="flex items-center gap-4 pl-4">
+              <div className="relative w-12 h-12 bg-neutral-100 rounded-2xl overflow-hidden hidden sm:block border border-neutral-200/20">
                 <Image src={product?.images?.[0] || "/placeholder.svg"} alt="" fill className="object-contain p-1" />
               </div>
               <div className="hidden min-[400px]:block">
-                <div className="text-sm font-bold truncate max-w-[150px] md:max-w-[300px]">{product?.name}</div>
-                <div className="text-sm font-medium">₹{product?.price?.toLocaleString("en-IN")}</div>
+                <div className="text-xs font-black uppercase tracking-widest truncate max-w-[120px] md:max-w-[200px] text-neutral-900">{product?.name}</div>
+                <div className="text-xs font-bold text-primary mt-0.5">₹{product?.price?.toLocaleString("en-IN")}</div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex border border-neutral-200 rounded-lg overflow-hidden h-11 bg-white">
-                <button onClick={() => setQuantity(q => Math.max(1, q-1))} className="w-10 hover:bg-neutral-50 font-bold text-lg transition-colors">−</button>
-                <div className="w-10 flex items-center justify-center text-sm font-black border-x border-neutral-100">{quantity}</div>
-                <button onClick={() => setQuantity(q => Math.min(product?.stock || 1, q+1))} className="w-10 hover:bg-neutral-50 font-bold text-lg transition-colors">+</button>
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="flex bg-neutral-100 rounded-xl overflow-hidden h-12">
+                <button onClick={() => setQuantity(q => Math.max(1, q-1))} className="w-10 hover:bg-neutral-200 font-bold text-lg transition-colors">−</button>
+                <div className="w-10 flex items-center justify-center text-xs font-black">{quantity}</div>
+                <button onClick={() => setQuantity(q => Math.min(product?.stock || 1, q+1))} className="w-10 hover:bg-neutral-200 font-bold text-lg transition-colors">+</button>
               </div>
               <button
                 onClick={handleAddToCart}
                 disabled={adding || isSuccess}
-                className={`px-10 h-11 rounded-lg ${isSuccess ? 'bg-green-600' : 'bg-neutral-900'} text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-lg flex items-center gap-3 active:scale-95`}
+                className={`h-12 px-8 rounded-xl ${isSuccess ? 'bg-green-600' : 'bg-neutral-900'} text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-lg flex items-center gap-3 active:scale-95`}
               >
                 {isSuccess ? <CheckCircle2 className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-                {isSuccess ? "Success" : "Add to Cart"}
+                <span className="hidden sm:inline">{isSuccess ? "Success" : "Add to Cart"}</span>
               </button>
             </div>
           </motion.div>

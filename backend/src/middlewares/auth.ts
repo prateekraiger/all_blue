@@ -18,21 +18,27 @@ export const LOCAL_ADMIN_TOKEN = 'local-admin-secret-token-allblue-2026';
  */
 async function verifyStackToken(token: string): Promise<StackPayload | null> {
   try {
+    // Stack Auth can use various issuer formats depending on the version and configuration.
+    // We include common patterns to ensure compatibility.
     const { payload } = await jose.jwtVerify(token, JWKS, {
       issuer: [
         `https://api.stackauth.com/api/v1/projects/${STACK_PROJECT_ID}`,
         `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}`,
         `https://api.stackauth.com/projects/${STACK_PROJECT_ID}`,
         `https://api.stack-auth.com/projects/${STACK_PROJECT_ID}`,
+        `https://api.stackauth.com`,
+        `https://api.stack-auth.com`,
+        `https://stackauth.com`,
+        `https://stack-auth.com`,
       ],
-      clockTolerance: 60, // Allow 60s clock skew
+      clockTolerance: 120, // Increased to 120s to handle more significant clock drift
     });
     return payload as unknown as StackPayload;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error(`[AUTH] Token verification failed: ${msg}`);
     
-    // Debug info for the user/logs
+    // Debug info for logs
     try {
       const decoded = jose.decodeJwt(token);
       console.log('[AUTH] Token Debug:', {
@@ -40,7 +46,8 @@ async function verifyStackToken(token: string): Promise<StackPayload | null> {
         subject: decoded.sub,
         expires: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'N/A',
         now: new Date().toISOString(),
-        expectedProjectId: STACK_PROJECT_ID
+        expectedProjectId: STACK_PROJECT_ID,
+        match: decoded.iss?.includes(STACK_PROJECT_ID) ? 'Project ID match found in issuer' : 'No match'
       });
     } catch (decodeError) {
       console.error('[AUTH] Could not decode failed token');
@@ -145,40 +152,18 @@ export const optionalAuth = async (
 };
 
 /**
- * requireAdmin — Checks that the authenticated user has role === 'admin'.
- * Also accepts the hardcoded local admin token for the /admin panel.
+ * requireAdmin — Middleware to restrict routes to admin users only.
+ * Supports both local bypass and Stack Auth role verification.
  */
 export const requireAdmin = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // ── Local admin panel bypass ────────────────────────────────────────────────
-  const authHeader = req.headers.authorization;
-  const expectedHeader = `Bearer ${LOCAL_ADMIN_TOKEN}`;
-  
-  if (authHeader && authHeader.trim() === expectedHeader) {
-    console.log('[Auth] Admin bypass successful');
-    req.user = {
-      id: 'local-admin',
-      email: 'admin@gmail.com',
-      user_metadata: { full_name: 'Admin', role: 'admin' },
-    };
-    return next();
-  }
-  
-  console.log(`[Auth] Admin check failed. Header: ${authHeader ? 'present' : 'missing'}`);
-  if (authHeader && authHeader !== expectedHeader) {
-    console.log(`[Auth] Header mismatch. Received: "${authHeader.substring(0, 20)}...", Expected: "${expectedHeader.substring(0, 20)}..."`);
-  }
-  
-  if (authHeader) {
-    console.log(`[Auth] Attempting standard auth. Header starts with: ${authHeader.substring(0, 15)}...`);
-  }
-
-  // ── Standard Stack Auth flow ────────────────────────────────────────────────
+  // ── Use requireAuth to populate req.user ─────────────────────────────────────
   await requireAuth(req, res, (err?: any) => {
     if (err) return next(err);
+
     const userRole = req.user?.user_metadata?.role;
     if (userRole !== 'admin') {
       return next(new AppError('Admin access required', 403));
