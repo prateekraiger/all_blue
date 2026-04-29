@@ -1,5 +1,10 @@
 import supabase from '../config/supabase';
 import { AppError } from '../middlewares/errorHandler';
+import {
+  geminiChatResponse,
+  geminiGiftReason,
+  isGeminiAvailable,
+} from './geminiService';
 import type {
   Product,
   UserPreferences,
@@ -310,7 +315,7 @@ function getIntentReply(intent: string): string | null {
 }
 
 /**
- * Enhanced rule-based chatbot with intent detection and quick replies.
+ * Enhanced chatbot with Gemini 2.5 Flash AI + rule-based fallback.
  */
 export const chatbotResponse = async (
   message: string,
@@ -318,39 +323,67 @@ export const chatbotResponse = async (
 ): Promise<ChatbotResponse> => {
   try {
     const msg = message.toLowerCase();
-    const intent = detectIntent(msg);
 
-    // Handle non-product intents immediately
-    const intentReply = getIntentReply(intent);
-    if (intentReply && intent !== 'product_search' && intent !== 'price_query') {
-      return {
-        reply: intentReply,
-        products: [],
-        quickReplies: QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
-      };
+    // ── Try Gemini AI first ─────────────────────────────────────────────────
+    const geminiResult = await geminiChatResponse(message);
+
+    let reply: string;
+    let matchedTags: string[] = [];
+    let maxPrice: number | null = null;
+    let minPrice: number | null = null;
+    let intent: string;
+
+    if (geminiResult) {
+      // Gemini succeeded — use its intelligent parsing
+      reply = geminiResult.reply;
+      matchedTags = geminiResult.suggestedTags;
+      maxPrice = geminiResult.maxPrice;
+      minPrice = geminiResult.minPrice;
+      intent = geminiResult.intent;
+
+      // For non-product intents, return Gemini's reply directly
+      if (intent !== 'product_search' && intent !== 'price_query' && intent !== 'unknown') {
+        return {
+          reply,
+          products: [],
+          quickReplies: QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
+        };
+      }
+    } else {
+      // ── Fallback: rule-based intent detection ───────────────────────────
+      intent = detectIntent(msg);
+      const intentReply = getIntentReply(intent);
+      if (intentReply && intent !== 'product_search' && intent !== 'price_query') {
+        return {
+          reply: intentReply,
+          products: [],
+          quickReplies: QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
+        };
+      }
+
+      // Extract price constraints (rule-based)
+      const priceMatch =
+        msg.match(/under\s*[₹rs.]?\s*(\d+)/i) ??
+        msg.match(/below\s*[₹rs.]?\s*(\d+)/i) ??
+        msg.match(/less than\s*[₹rs.]?\s*(\d+)/i) ??
+        msg.match(/max\s*[₹rs.]?\s*(\d+)/i);
+      maxPrice = priceMatch ? parseInt(priceMatch[1], 10) : null;
+
+      const minPriceMatch =
+        msg.match(/above\s*[₹rs.]?\s*(\d+)/i) ??
+        msg.match(/over\s*[₹rs.]?\s*(\d+)/i) ??
+        msg.match(/more than\s*[₹rs.]?\s*(\d+)/i);
+      minPrice = minPriceMatch ? parseInt(minPriceMatch[1], 10) : null;
+
+      // Collect matching tags (rule-based)
+      for (const [keyword, tags] of Object.entries(KEYWORD_TAG_MAP)) {
+        if (msg.includes(keyword)) matchedTags.push(...tags);
+      }
+
+      reply = ''; // Will be set after product fetch
     }
 
-    // Extract optional price ceiling from message
-    const priceMatch =
-      msg.match(/under\s*[₹rs.]?\s*(\d+)/i) ??
-      msg.match(/below\s*[₹rs.]?\s*(\d+)/i) ??
-      msg.match(/less than\s*[₹rs.]?\s*(\d+)/i) ??
-      msg.match(/max\s*[₹rs.]?\s*(\d+)/i);
-    const maxPrice = priceMatch ? parseInt(priceMatch[1], 10) : null;
-
-    // Extract optional price floor
-    const minPriceMatch =
-      msg.match(/above\s*[₹rs.]?\s*(\d+)/i) ??
-      msg.match(/over\s*[₹rs.]?\s*(\d+)/i) ??
-      msg.match(/more than\s*[₹rs.]?\s*(\d+)/i);
-    const minPrice = minPriceMatch ? parseInt(minPriceMatch[1], 10) : null;
-
-    // Collect all matching tags
-    const matchedTags: string[] = [];
-    for (const [keyword, tags] of Object.entries(KEYWORD_TAG_MAP)) {
-      if (msg.includes(keyword)) matchedTags.push(...tags);
-    }
-
+    // ── Fetch products from database ──────────────────────────────────────
     let products: Product[] = [];
 
     try {
@@ -388,32 +421,33 @@ export const chatbotResponse = async (
       products = MOCK_PRODUCTS.filter(p => {
         const matchesMaxPrice = maxPrice ? p.price <= maxPrice : true;
         const matchesMinPrice = minPrice ? p.price >= minPrice : true;
-        const matchesTags = matchedTags.length > 0 
-          ? p.tags?.some(t => matchedTags.includes(t)) ?? false 
+        const matchesTags = matchedTags.length > 0
+          ? p.tags?.some(t => matchedTags.includes(t)) ?? false
           : true;
         return matchesMaxPrice && matchesMinPrice && matchesTags;
       }).slice(0, 6);
     }
 
-    let reply: string;
-
-    if (!products || products.length === 0) {
-      const priceHint = maxPrice ? ` under ₹${maxPrice.toLocaleString('en-IN')}` : '';
-      reply = `I couldn't find gifts${priceHint} matching that. Try browsing our full shop or adjusting your search! 🛍️`;
-    } else {
-      const topTag = matchedTags.length > 0 ? matchedTags[0] : null;
-      const priceRange = maxPrice
-        ? ` under ₹${maxPrice.toLocaleString('en-IN')}`
-        : minPrice
-        ? ` above ₹${minPrice.toLocaleString('en-IN')}`
-        : '';
-      
-      if (topTag) {
-        reply = `Great choice! 🎁 Here are some **${topTag}** gift ideas${priceRange}:`;
-      } else if (priceRange) {
-        reply = `Here are our top picks${priceRange}:`;
+    // ── Build reply if rule-based (Gemini already set reply above) ────────
+    if (!reply) {
+      if (!products || products.length === 0) {
+        const priceHint = maxPrice ? ` under ₹${maxPrice.toLocaleString('en-IN')}` : '';
+        reply = `I couldn't find gifts${priceHint} matching that. Try browsing our full shop or adjusting your search! 🛍️`;
       } else {
-        reply = `Here are some gift ideas you might love:`;
+        const topTag = matchedTags.length > 0 ? matchedTags[0] : null;
+        const priceRange = maxPrice
+          ? ` under ₹${maxPrice.toLocaleString('en-IN')}`
+          : minPrice
+          ? ` above ₹${minPrice.toLocaleString('en-IN')}`
+          : '';
+
+        if (topTag) {
+          reply = `Great choice! 🎁 Here are some **${topTag}** gift ideas${priceRange}:`;
+        } else if (priceRange) {
+          reply = `Here are our top picks${priceRange}:`;
+        } else {
+          reply = `Here are some gift ideas you might love:`;
+        }
       }
     }
 
@@ -597,12 +631,34 @@ export const giftFinderRecommendations = async (
     allProducts = MOCK_PRODUCTS.filter(p => p.price <= budget).slice(0, RESULT_LIMIT);
   }
 
-  // 5. Score, sort, and build response
-  const scored: GiftFinderProduct[] = allProducts.map((product) => ({
-    ...product,
-    matchScore: calculateMatchScore(product, targetTags),
-    reason: generateReason(product, persona, occasion, budget),
-  }));
+  // 5. Score, sort, and build response — use Gemini when available
+  const scored: GiftFinderProduct[] = [];
+
+  for (const product of allProducts) {
+    let matchScore = calculateMatchScore(product, targetTags);
+    let reason = generateReason(product, persona, occasion, budget);
+
+    // Try Gemini for smarter personalised reasons (non-blocking)
+    try {
+      const geminiReason = await geminiGiftReason(
+        product.name,
+        product.category ?? 'Gifts',
+        product.tags ?? [],
+        product.price,
+        persona,
+        occasion,
+        budget
+      );
+      if (geminiReason) {
+        reason = geminiReason.reason;
+        matchScore = geminiReason.matchScore;
+      }
+    } catch {
+      // Fallback to rule-based — already set above
+    }
+
+    scored.push({ ...product, matchScore, reason });
+  }
 
   scored.sort((a, b) => {
     if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;

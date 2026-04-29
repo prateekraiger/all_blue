@@ -5,7 +5,7 @@ import { Hero } from "@/components/hero"
 import { ProductGrid } from "@/components/product-grid"
 import { Collections } from "@/components/collections"
 import { Newsletter } from "@/components/newsletter"
-import { ChatBot } from "@/components/chatbot"
+
 import { productsApi, aiApi, type Product } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 
@@ -63,7 +63,7 @@ export default function Home() {
         <Newsletter />
       </div>
       
-      <ChatBot />
+
     </div>
   )
 }

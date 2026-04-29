@@ -83,7 +83,7 @@ app.get('/health', (_req, res) => {
   res.json({
     success: true,
     message: 'ALL BLUE — GiftShop AI Backend is running',
-    version: '2.1.0',
+    version: '2.2.0',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV ?? 'development',
     uptime: `${uptimeSec}s`,
@@ -92,7 +92,7 @@ app.get('/health', (_req, res) => {
       'Voice Search',
 
       'Personalized Feed',
-      'AI Shopping Chatbot',
+      'AI Shopping Chatbot (Gemini 2.5 Flash)',
       'Razorpay / Stripe Payments',
       'Order Tracking',
       'Admin Dashboard',
@@ -125,11 +125,12 @@ app.use(errorHandler);
 
 // ─── Start server ─────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🚀 ALL BLUE — GiftShop AI Backend v2.1.0 running on port ${PORT}`);
+  console.log(`🚀 ALL BLUE — GiftShop AI Backend v2.2.0 running on port ${PORT}`);
   console.log(`📦 Environment : ${process.env.NODE_ENV ?? 'development'}`);
   console.log(`🌐 CORS allowed: ${process.env.FRONTEND_URL ?? 'http://localhost:3000'}`);
   console.log(`✅ Health check: http://localhost:${PORT}/health`);
   console.log(`🤖 AI features : recommendations, chatbot, gift finder`);
+  console.log(`🧠 Gemini 2.5  : ${process.env.GEMINI_API_KEY ? 'ENABLED (Flash)' : 'DISABLED — using rule-based fallback'}`);
   console.log(`🔒 Rate limiting: enabled`);
 });
 
