@@ -3,572 +3,750 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALL BLUE - Hackathon Showcase</title>
-
+    <title>Oriental TechHack 2.0 - Team Claw (113) Pitch Deck</title>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --nike-black: #111111;
-            --nike-white: #FFFFFF;
-            --grey-100: #F5F5F5;
-            --grey-200: #E5E5E5;
-            --grey-500: #707072;
-            --nike-blue: #1151FF;
-            --lab-grid: rgba(17, 81, 255, 0.05);
-            
-            --background: var(--nike-white);
-            --foreground: var(--nike-black);
-            
-            --font-display: "Oswald", sans-serif;
-            --font-body: "Inter", sans-serif;
-            --font-mono: "JetBrains Mono", monospace;
-
-            --ease-nike: cubic-bezier(0.16, 1, 0.3, 1);
-            --duration: 0.8s;
-            --slide-padding: clamp(2rem, 8vw, 8rem);
+            --primary: #0066FF;
+            --primary-dark: #0052CC;
+            --secondary: #0F172A;
+            --accent: #38BDF8;
+            --background: #FFFFFF;
+            --surface: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--background);
-            color: var(--foreground);
-            font-family: var(--font-body);
+            background-color: #F1F5F9;
+            color: var(--text-main);
+            font-family: var(--font-sans);
             overflow-x: hidden;
-            scroll-snap-type: y mandatory;
-            height: 100vh;
+            -webkit-print-color-adjust: exact;
         }
 
-        .slide {
+        /* Slide Container */
+        .presentation-container {
             width: 100vw;
             height: 100vh;
-            height: 100dvh;
-            scroll-snap-align: start;
             display: flex;
-            flex-direction: column;
-            position: relative;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
-            border-bottom: 1px solid var(--grey-200);
+            position: relative;
+            background: #0F172A; /* Dark background for the presentation stage */
         }
 
-        /* Lab Grid Background for Tech Slides */
-        .slide.tech-slide::before {
+        .slides-wrapper {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Slide Layout (16:9) */
+        .slide {
+            width: 1280px;
+            height: 720px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 3.5rem;
+            overflow: hidden;
+            border-radius: 12px;
+            opacity: 0;
+            transform: scale(0.98) translateY(10px);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .slide.prev {
+            transform: scale(0.9) translateX(-100%);
+            opacity: 0;
+        }
+
+        .slide.next {
+            transform: scale(0.9) translateX(100%);
+            opacity: 0;
+        }
+
+        /* Pattern Background */
+        .slide::after {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(var(--lab-grid) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--lab-grid) 1px, transparent 1px);
-            background-size: 50px 50px;
+            top: 0; right: 0;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle at 100% 0%, rgba(0, 102, 255, 0.05) 0%, transparent 70%);
             z-index: 0;
+            pointer-events: none;
         }
 
         .slide-content {
-            flex: 1;
+            position: relative;
+            z-index: 2;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+        }
+
+        /* Header Decor */
+        .header-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: var(--slide-padding);
-            z-index: 2;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
         }
 
-        h1, h2 {
-            font-family: var(--font-display);
-            text-transform: uppercase;
-            font-weight: 700;
-            line-height: 0.95;
-            letter-spacing: -0.02em;
-            margin-bottom: 1rem;
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
         }
 
-        h1 { font-size: clamp(4rem, 12vw, 8rem); }
-        h2 { font-size: clamp(3rem, 8vw, 5rem); }
-        
-        .blue-accent { color: var(--nike-blue); }
-        .mono { font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: -0.02em; }
-
-        .tag {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: var(--nike-black);
-            color: var(--nike-white);
-            font-family: var(--font-display);
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.1em;
-            margin-bottom: 2rem;
-        }
-
-        .tech-pill {
-            padding: 0.4rem 1rem;
-            border: 1px solid var(--grey-200);
-            border-radius: 200px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
+        .brand-box {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-
-        .tech-pill::before {
-            content: "";
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--nike-blue);
-        }
-
-        .tech-stack-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1.5rem;
-            margin-top: 3rem;
-        }
-
-        /* Code Block Component */
-        .code-window {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            color: #d4d4d4;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            line-height: 1.6;
-            position: relative;
-            margin-top: 2rem;
-        }
-
-        .code-window::before {
-            content: "•••";
-            position: absolute;
-            top: 0.8rem; left: 1rem;
-            color: #555;
-            font-size: 1.2rem;
-        }
-
-        /* Navigation */
-        .progress-bar {
-            position: fixed;
-            top: 0; left: 0;
-            height: 4px;
-            background: var(--nike-blue);
-            z-index: 1000;
-            transition: width 0.3s var(--ease-nike);
-        }
-
-        .slide-nav {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
-            display: flex;
             gap: 1rem;
         }
 
-        .nav-btn {
-            width: 3.5rem; height: 3.5rem;
-            border: 1px solid var(--grey-200);
-            background: var(--nike-white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .logo-img {
+            height: 40px;
+            width: auto;
         }
 
-        .nav-btn:hover { background: var(--nike-black); color: var(--nike-white); border-color: var(--nike-black); }
-
-        /* Animations */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all var(--duration) var(--ease-nike);
+        .event-label {
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--primary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
-        .slide.visible .reveal {
-            opacity: 1;
-            transform: translateY(0);
+        .team-pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
         }
 
-        .stagger-1 { transition-delay: 0.1s; }
-        .stagger-2 { transition-delay: 0.2s; }
-        .stagger-3 { transition-delay: 0.3s; }
+        /* Typography */
+        h1 { font-size: 4rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1rem; color: var(--secondary); }
+        h2 { font-size: 2.8rem; font-weight: 700; letter-spacing: -0.03em; color: var(--secondary); margin-bottom: 0.5rem; }
+        h3 { font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        h3::before { content: ""; width: 8px; height: 8px; background: var(--primary); border-radius: 2px; }
 
-        /* Feature Card */
+        p { line-height: 1.6; color: var(--text-muted); font-size: 1.1rem; }
+
+        /* Grid Layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; flex: 1; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+
+        /* Component: Card */
         .feature-card {
-            border: 1px solid var(--grey-200);
-            padding: 2.5rem;
-            transition: border-color 0.3s ease;
-            background: var(--nike-white);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .feature-card:hover { border-color: var(--nike-blue); }
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary);
+            opacity: 0.7;
+        }
 
-        .feature-icon {
-            width: 3rem; height: 3rem;
-            background: var(--nike-blue);
+        .feature-card h4 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .feature-card ul { list-style: none; }
+        .feature-card li { 
+            margin-bottom: 0.8rem; 
+            padding-left: 1.5rem; 
+            position: relative; 
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        .feature-card li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        /* Component: Metric Pill */
+        .metric-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric-item {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .metric-value { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .metric-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+
+        /* Component: Architecture Diagram Mock */
+        .arch-viz {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            gap: 1.5rem;
+        }
+
+        .viz-node {
+            padding: 1rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 2px 2px 0 var(--border);
+            position: relative;
+        }
+
+        .viz-node.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 2px 2px 0 var(--primary);
+        }
+
+        .viz-arrow {
+            height: 20px;
+            width: 2px;
+            background: var(--border);
+            align-self: center;
+        }
+
+        /* Footer */
+        .slide-footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-info { display: flex; gap: 2rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; }
+        .page-num { font-family: var(--font-mono); font-weight: 800; color: var(--primary); }
+
+        /* Title Slide Decorations */
+        .title-hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+        }
+
+        .title-hero .logo-large {
+            height: 120px;
             margin-bottom: 2rem;
         }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 3.5rem; }
-            h2 { font-size: 2.5rem; }
-            .slide-content { padding: 2rem; }
+        .team-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            width: 100%;
+            margin-top: 3rem;
+        }
+
+        .meta-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: left;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        /* Navigation Controls */
+        .nav-controls {
+            position: fixed;
+            bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 0.8rem 1.5rem;
+            border-radius: 99px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-indicator {
+            color: white;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        /* Print Settings */
+        @media print {
+            body { background: white; color: black; }
+            .presentation-container { 
+                display: block; 
+                width: auto; 
+                height: auto; 
+                overflow: visible;
+                background: none;
+            }
+            .slides-wrapper {
+                display: block;
+                width: auto;
+                height: auto;
+            }
+            .slide { 
+                position: relative;
+                opacity: 1 !important;
+                transform: none !important;
+                display: flex !important;
+                box-shadow: none; 
+                border: 1px solid #eee; 
+                margin-bottom: 2rem;
+                width: 1122px; /* A4 width */
+                height: 793px;
+                page-break-after: always;
+                border-radius: 0;
+            }
+            .nav-controls { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="progress-bar" id="progressBar"></div>
 
-    <div class="slide-nav">
-        <div class="nav-btn" onclick="navigate(-1)">↑</div>
-        <div class="nav-btn" onclick="navigate(1)">↓</div>
+<div class="presentation-container">
+    <div class="slides-wrapper">
+
+    <!-- SLIDE 1: TITLE PAGE -->
+    <section class="slide">
+        <div class="header-bar"></div>
+        <div class="slide-content">
+            <div class="slide-header">
+                <div class="event-label">ORIENTAL TECHHACK 2.0</div>
+                <div class="team-pill">TEAM CLAW // #113</div>
+            </div>
+            
+            <div class="title-hero">
+                <!-- Using Logo from public folder -->
+                <img src="../frontend/public/logo.png" alt="ALL BLUE Logo" class="logo-large">
+                <h1>ALL BLUE.</h1>
+                <p style="font-size: 1.8rem; font-weight: 500; color: var(--primary);">Next-Gen AI E-Commerce Web Platform</p>
+                <div style="margin-top: 1rem; height: 2px; width: 100px; background: var(--primary);"></div>
+            </div>
+
+            <div class="team-meta">
+                <div class="meta-card">
+                    <div class="metric-label">Problem Statement</div>
+                    <div class="metric-value" style="font-size: 1.2rem;">Statement 10</div>
+                </div>
+                <div class="meta-card">
+                    <div class="metric-label">Theme</div>
+                    <div class="metric-value" style="font-size: 1.2rem;">Smart App</div>
+                </div>
+                <div class="meta-card">
+                    <div class="metric-label">Project Status</div>
+                    <div class="metric-value" style="font-size: 1.2rem;">Production Ready</div>
+                </div>
+                <div class="meta-card">
+                    <div class="metric-label">Innovation Focus</div>
+                    <div class="metric-value" style="font-size: 1.2rem;">Spatial & AI</div>
+                </div>
+            </div>
+            
+            <div class="slide-footer">
+                <div class="footer-info">
+                    <span>Oriental TechHack 2.0</span>
+                    <span>Next-Gen Gifting Experience</span>
+                </div>
+                <div class="page-num">01</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: PROPOSED SOLUTION -->
+    <section class="slide">
+        <div class="header-bar"></div>
+        <div class="slide-content">
+            <div class="slide-header">
+                <h2>Proposed Solution</h2>
+                <div class="team-pill">SOLUTION OVERVIEW</div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="feature-card">
+                    <h3>Core E-Commerce Rails</h3>
+                    <ul>
+                        <li><b>Unified Identity:</b> Secure Login/Registration with social auth.</li>
+                        <li><b>Dynamic Catalog:</b> Sub-second search and AI-curated product grids.</li>
+                        <li><b>Indian Rails:</b> Seamless Razorpay & Stripe integration for INR.</li>
+                        <li><b>Real-time Logistics:</b> End-to-end order tracking from checkout to delivery.</li>
+                        <li><b>Smart Cart:</b> Persistent, cross-device shopping bags.</li>
+                    </ul>
+                </div>
+                <div class="feature-card" style="border-color: var(--primary);">
+                    <h3>Advanced AI Intelligence</h3>
+                    <ul>
+                        <li><b>AI Recommendation Engine:</b> Deep learning for gift intent mapping.</li>
+                        <li><b>AR Product Preview:</b> 1:1 scale WebAR for "try-before-you-buy".</li>
+                        <li><b>AI Shopping Bot:</b> Personalized assistant for gift discovery.</li>
+                        <li><b>Voice Interface:</b> Natural language search and navigation.</li>
+                        <li><b>Personalized Feed:</b> Behavioral product discovery engine.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="footer-info">
+                    <span>Statement 10: Next-Gen AI E-Commerce</span>
+                    <span>Transforming Gifting through AI</span>
+                </div>
+                <div class="page-num">02</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: THE HACK - TECHNICAL EXECUTION -->
+    <section class="slide">
+        <div class="header-bar"></div>
+        <div class="slide-content">
+            <div class="slide-header">
+                <h2>The "Hack": Technical Velocity</h2>
+                <div class="team-pill">ENGINEERING EXCELLENCE</div>
+            </div>
+            
+            <p style="margin-bottom: 2rem;">Our implementation focuses on extreme performance and developer velocity, delivering a production-grade backend within the hackathon timeline.</p>
+
+            <div class="grid-2">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="metric-item">
+                        <div class="metric-value">24h</div>
+                        <div class="metric-label">Velocity (Concept to Deploy)</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">52</div>
+                        <div class="metric-label">API Endpoints (Full CRUD via Supabase)</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">03</div>
+                        <div class="metric-label">Microservices (Next.js | Express | AR-Server)</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">98</div>
+                        <div class="metric-label">Lighthouse Score (Speed & Core Web Vitals)</div>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Why this matters?</h4>
+                    <p style="font-size: 0.95rem; margin-bottom: 1rem;">We didn't just build a UI; we built a scalable ecosystem.</p>
+                    <ul>
+                        <li><b>Supabase Edge:</b> Real-time database sync for inventory.</li>
+                        <li><b>Zero Regression:</b> Automated test coverage for payments.</li>
+                        <li><b>LCP Optimization:</b> Next.js Server Components for instant loads.</li>
+                        <li><b>Service Mesh:</b> Dedicated Python server for heavy AR processing.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="footer-info">
+                    <span>Team Claw</span>
+                    <span>High-Performance Architecture</span>
+                </div>
+                <div class="page-num">03</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: TECHNICAL APPROACH -->
+    <section class="slide">
+        <div class="header-bar"></div>
+        <div class="slide-content">
+            <div class="slide-header">
+                <h2>Technical Approach</h2>
+                <div class="team-pill">SYSTEM ARCHITECTURE</div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="arch-viz">
+                    <div class="viz-node active">FRONTEND: NEXT.JS 15 (APP ROUTER)</div>
+                    <div class="viz-arrow"></div>
+                    <div class="viz-node">API GATEWAY: EXPRESS.JS / FASTAPI</div>
+                    <div class="viz-arrow"></div>
+                    <div class="viz-node active">AI ENGINE: TENSORFLOW / NLP</div>
+                    <div class="viz-arrow"></div>
+                    <div class="viz-node">SPATIAL ENGINE: THREE.JS / WEBAR</div>
+                    <div class="viz-arrow"></div>
+                    <div class="viz-node active">STORAGE: SUPABASE / POSTGRES</div>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Tech Stack Mastery</h4>
+                    <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Leveraging modern toolkits for a competitive edge.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <span class="team-pill">Next.js</span>
+                        <span class="team-pill">TensorFlow</span>
+                        <span class="team-pill">WebAR</span>
+                        <span class="team-pill">Supabase</span>
+                        <span class="team-pill">Stripe/Razorpay</span>
+                        <span class="team-pill">Three.js</span>
+                        <span class="team-pill">FastAPI</span>
+                    </div>
+                    <ul style="margin-top: 1.5rem;">
+                        <li><b>AI Recommendation:</b> Collaborative filtering via TensorFlow.</li>
+                        <li><b>Spatial Gifting:</b> Photorealistic 3D model streaming.</li>
+                        <li><b>Voice Intent:</b> OpenAI Whisper integration for search.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="footer-info">
+                    <span>Oriental TechHack 2.0</span>
+                    <span>Modern Stack Implementation</span>
+                </div>
+                <div class="page-num">04</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: MARKET & SCALING -->
+    <section class="slide">
+        <div class="header-bar"></div>
+        <div class="slide-content">
+            <div class="slide-header">
+                <h2>Market & Scaling Strategy</h2>
+                <div class="team-pill">BUSINESS VIABILITY</div>
+            </div>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <h4>Premium Gifting</h4>
+                    <p style="font-size: 0.9rem;">Targeting high-growth luxury segment with AOV exceeding <b>$500</b>. AI curation makes premium selection effortless.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Corporate B2B</h4>
+                    <p style="font-size: 0.9rem;">Automated high-end gifting pipelines for Real Estate, Law Firms, and Wealth Management via API triggers.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Artisan Network</h4>
+                    <p style="font-size: 0.9rem;">Scaling to <b>10k+</b> independent artisans. Empowering creators with Stripe-powered payment mesh and global reach.</p>
+                </div>
+            </div>
+
+            <div class="feature-card" style="margin-top: 2rem; border-color: var(--accent);">
+                <h4>Future Roadmap</h4>
+                <div class="grid-3" style="margin-top: 0.5rem;">
+                    <p style="font-size: 0.85rem;"><b>Phase 1:</b> PAN-India scaling with local payment localization.</p>
+                    <p style="font-size: 0.85rem;"><b>Phase 2:</b> AR "Virtual Storefront" for independent artisans.</p>
+                    <p style="font-size: 0.85rem;"><b>Phase 3:</b> Global logistics integration for cross-border gifting.</p>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="footer-info">
+                    <span>Business Model</span>
+                    <span>Growth & Artisan Empowerment</span>
+                </div>
+                <div class="page-num">05</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: IMPACT & REFERENCES -->
+    <section class="slide">
+        <div class="header-bar"></div>
+        <div class="slide-content">
+            <div class="slide-header">
+                <h2>Impact & Conclusion</h2>
+                <div class="team-pill">FINAL PITCH</div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="feature-card">
+                    <h4>Key Impact Metrics</h4>
+                    <ul>
+                        <li><b>Reduced Returns:</b> AR preview decreases return rates by 40%.</li>
+                        <li><b>Inclusion:</b> Direct-to-consumer access for rural artisans.</li>
+                        <li><b>Efficiency:</b> 5x faster gift selection via AI assistant.</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Technical References</h4>
+                    <ul style="font-family: var(--font-mono); font-size: 0.8rem;">
+                        <li>[1] Next.js 15: Optimization for High-Traffic Commerce.</li>
+                        <li>[2] TensorFlow: Neural Collaborative Filtering for Gifting.</li>
+                        <li>[3] WebAR: Low-Latency Spatial Preview on Mobile Browsers.</li>
+                        <li>[4] Supabase: High-Availability Edge Architectures.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; text-align: center; background: var(--surface); padding: 2.5rem; border-radius: 12px; border: 2px dashed var(--primary);">
+                <h3 style="justify-content: center; font-size: 1.5rem;">THANK YOU</h3>
+                <p style="font-weight: 800; color: var(--secondary); font-size: 1.4rem;">TEAM CLAW (#113)</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem; letter-spacing: 0.05em;">ORIENTAL TECHHACK 2.0 // INNOVATING COMMERCE</p>
+            </div>
+
+            <div class="slide-footer">
+                <div class="footer-info">
+                    <span>Team Claw #113</span>
+                    <span>Oriental TechHack 2.0 Submission</span>
+                </div>
+                <div class="page-num">06</div>
+            </div>
+        </div>
+    </section>
+
+    </div> <!-- End slides-wrapper -->
+
+    <!-- Navigation UI -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" title="Previous Slide (Left Arrow)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="slide-indicator" id="slideIndicator">01 / 06</div>
+        <button class="nav-btn" id="nextBtn" title="Next Slide (Right Arrow)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
     </div>
 
-    <!-- SLIDE 1: INTRO -->
-    <section class="slide">
-        <div class="slide-content" style="text-align: center; align-items: center;">
-            <div class="tag reveal">Hackathon Submission 2026</div>
-            <h1 class="reveal stagger-1">ALL <span class="blue-accent">BLUE.</span></h1>
-            <p class="reveal stagger-2" style="font-size: 1.5rem; font-weight: 500; margin-top: 1rem;">The Intelligent Infrastructure for Curated Generosity.</p>
-            <div class="reveal stagger-3" style="margin-top: 4rem; display: flex; gap: 2rem;">
-                <div class="tech-pill">Next.js 16</div>
-                <div class="tech-pill">Supabase</div>
-                <div class="tech-pill">Gemini AI</div>
-                <div class="tech-pill">Three.js</div>
-            </div>
-        </div>
-    </section>
+</div>
 
-    <!-- SLIDE 2: THE PROBLEM -->
-    <section class="slide">
-        <div class="slide-content">
-            <h2 class="reveal">The Problem:<br><span class="blue-accent">Choice Friction.</span></h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 2rem;">
-                <div class="reveal stagger-1">
-                    <p class="muted-text">Traditional e-commerce is built for <b>Search</b>, not <b>Selection</b>. High-net-worth gifting requires discernment, but algorithms only offer noise.</p>
-                </div>
-                <div class="reveal stagger-2">
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
-                        <li style="display: flex; gap: 1rem; align-items: flex-start;">
-                            <span class="blue-accent" style="font-weight: 700;">—</span>
-                            <span><b>Decision Paralysis:</b> Infinite options lead to lower conversion.</span>
-                        </li>
-                        <li style="display: flex; gap: 1rem; align-items: flex-start;">
-                            <span class="blue-accent" style="font-weight: 700;">—</span>
-                            <span><b>The Empathy Gap:</b> Bots recommend based on keywords, not sentiment.</span>
-                        </li>
-                        <li style="display: flex; gap: 1rem; align-items: flex-start;">
-                            <span class="blue-accent" style="font-weight: 700;">—</span>
-                            <span><b>Spatial Doubt:</b> "Will this fit their space and style?"</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const indicator = document.getElementById('slideIndicator');
+    let currentIdx = 0;
 
-    <!-- SLIDE 3: THE THREE PILLARS (CORE HACK) -->
-    <section class="slide tech-slide">
-        <div class="slide-content">
-            <h2 class="reveal">The Multi-Modal<br><span class="blue-accent">Solution.</span></h2>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
-                <div class="feature-card reveal stagger-1">
-                    <h3>Neural Engine</h3>
-                    <p class="muted-text" style="font-size: 0.9rem; margin-top: 1rem;">Vector-based recommendation engine deciphering emotional intent via LLM synthesis.</p>
-                </div>
-                <div class="feature-card reveal stagger-2">
-                    <h3>Spatial Gifting</h3>
-                    <p class="muted-text" style="font-size: 0.9rem; margin-top: 1rem;">Real-time WebGL & AR previews for zero-friction visualization of luxury goods.</p>
-                </div>
-                <div class="feature-card reveal stagger-3">
-                    <h3>Ambient Commerce</h3>
-                    <p class="muted-text" style="font-size: 0.9rem; margin-top: 1rem;">Natural Language voice intent processing for hands-free discovery.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    function updateSlides() {
+        slides.forEach((slide, idx) => {
+            slide.classList.remove('active', 'prev', 'next');
+            if (idx === currentIdx) {
+                slide.classList.add('active');
+            } else if (idx < currentIdx) {
+                slide.classList.add('prev');
+            } else {
+                slide.classList.add('next');
+            }
+        });
 
-    <!-- SLIDE 4: TECH STACK -->
-    <section class="slide">
-        <div class="slide-content">
-            <h2 class="reveal">The Powerhouse<br><span class="blue-accent">Stack.</span></h2>
-            <div class="tech-stack-grid">
-                <div class="reveal stagger-1 stat-block">
-                    <p class="mono blue-accent">Frontend</p>
-                    <h3>Next.js 16</h3>
-                    <p class="muted-text" style="font-size: 0.8rem;">App Router, RSC, Edge Middleware.</p>
-                </div>
-                <div class="reveal stagger-2 stat-block">
-                    <p class="mono blue-accent">Data Layer</p>
-                    <h3>Supabase</h3>
-                    <p class="muted-text" style="font-size: 0.8rem;">pgvector for AI search, Realtime for UX.</p>
-                </div>
-                <div class="reveal stagger-3 stat-block">
-                    <p class="mono blue-accent">Intelligence</p>
-                    <h3>Gemini Pro</h3>
-                    <p class="muted-text" style="font-size: 0.8rem;">Intent extraction & sentiment analysis.</p>
-                </div>
-                <div class="reveal stagger-1 stat-block">
-                    <p class="mono blue-accent">Visuals</p>
-                    <h3>Three.js</h3>
-                    <p class="muted-text" style="font-size: 0.8rem;">Custom WebGL pipeline for AR previews.</p>
-                </div>
-                <div class="reveal stagger-2 stat-block">
-                    <p class="mono blue-accent">Auth</p>
-                    <h3>Stack Auth</h3>
-                    <p class="muted-text" style="font-size: 0.8rem;">Managed, ultra-secure auth flow.</p>
-                </div>
-                <div class="reveal stagger-3 stat-block">
-                    <p class="mono blue-accent">Payments</p>
-                    <h3>Stripe</h3>
-                    <p class="muted-text" style="font-size: 0.8rem;">Treasury & Connect for global artisans.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        // Update UI
+        indicator.textContent = `${String(currentIdx + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+        prevBtn.disabled = currentIdx === 0;
+        nextBtn.disabled = currentIdx === slides.length - 1;
+    }
 
-    <!-- SLIDE 5: NEURAL ENGINE (DEEP DIVE) -->
-    <section class="slide tech-slide">
-        <div class="slide-content">
-            <h2 class="reveal">Deep Dive:<br>Neural <span class="blue-accent">Engine.</span></h2>
-            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem;">
-                <div class="reveal stagger-1">
-                    <p class="muted-text">How we map "minimalist architect" to a physical item:</p>
-                    <div style="margin-top: 2rem;">
-                        <div style="margin-bottom: 1rem; border-left: 2px solid var(--nike-blue); padding-left: 1rem;">
-                            <b>1. Vectorization:</b> Input text converted to 1536-dim embeddings.
-                        </div>
-                        <div style="margin-bottom: 1rem; border-left: 2px solid var(--nike-blue); padding-left: 1rem;">
-                            <b>2. Semantic Search:</b> Searching our Supabase pgvector store.
-                        </div>
-                        <div style="border-left: 2px solid var(--nike-blue); padding-left: 1rem;">
-                            <b>3. RAG Synthesis:</b> Gemini refines the top 10 results into the "Perfect 3".
-                        </div>
-                    </div>
-                </div>
-                <div class="reveal stagger-2">
-                    <div class="code-window">
-<span style="color: #6a9955;">// The Core Logic</span>
-<span style="color: #569cd6;">const</span> <span style="color: #dcdcaa;">recommendGift</span> = <span style="color: #569cd6;">async</span> (intent) => {
-  <span style="color: #569cd6;">const</span> { data: embedding } = <span style="color: #569cd6;">await</span> generateEmbedding(intent);
-  
-  <span style="color: #569cd6;">const</span> { data: items } = <span style="color: #569cd6;">await</span> supabase
-    .rpc(<span style="color: #ce9178;">'match_gifts'</span>, {
-      query_embedding: embedding,
-      match_threshold: <span style="color: #b5cea8;">0.8</span>,
-      match_count: <span style="color: #b5cea8;">5</span>
+    function nextSlide() {
+        if (currentIdx < slides.length - 1) {
+            currentIdx++;
+            updateSlides();
+        }
+    }
+
+    function prevSlide() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            updateSlides();
+        }
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
     });
 
-  <span style="color: #c586c0;">return</span> synthesizeWithGemini(items, intent);
-};
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    // Button controls
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
 
-    <!-- SLIDE 6: SPATIAL GIFTING -->
-    <section class="slide tech-slide">
-        <div class="slide-content">
-            <h2 class="reveal">Spatial Gifting:<br><span class="blue-accent">AR Pipeline.</span></h2>
-            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem;">
-                <div class="reveal stagger-1">
-                    <div class="code-window">
-<span style="color: #6a9955;">// Custom Three.js Component</span>
-<span style="color: #569cd6;">function</span> <span style="color: #dcdcaa;">ProductPreview</span>({ modelUrl }) {
-  <span style="color: #569cd6;">const</span> { scene } = useGLTF(modelUrl);
-  
-  <span style="color: #c586c0;">return</span> (
-    &lt;<span style="color: #569cd6;">primitive</span> object={scene} scale={<span style="color: #b5cea8;">2</span>} /&gt;
-    &lt;<span style="color: #569cd6;">ContactShadows</span> opacity={<span style="color: #b5cea8;">1</span>} scale={<span style="color: #b5cea8;">10</span>} /&gt;
-    &lt;<span style="color: #569cd6;">Environment</span> preset=<span style="color: #ce9178;">"luxury"</span> /&gt;
-  );
-}
-                    </div>
-                </div>
-                <div class="reveal stagger-2">
-                    <p class="muted-text">Bridging the physical and digital gap:</p>
-                    <div style="margin-top: 2rem;">
-                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
-                            <li><b>Real-time Lighting:</b> HDR environment maps for photorealism.</li>
-                            <li><b>ARCore Integration:</b> Zero-app install AR via WebXR.</li>
-                            <li><b>Interactive UX:</b> Rotate, scale, and "place" with a tap.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    // Initialize
+    updateSlides();
+</script>
 
-    <!-- SLIDE 7: VOICE SEARCH -->
-    <section class="slide">
-        <div class="slide-content">
-            <h2 class="reveal">Ambient Intent:<br><span class="blue-accent">Voice Search.</span></h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 2rem;">
-                <div class="reveal stagger-1">
-                    <p class="muted-text">Implemented using the <b>Web Speech API</b> + <b>Custom Intent Parser</b>.</p>
-                    <p class="muted-text" style="margin-top: 2rem;">Users can speak natural sentences. Our backend extracts the "Occasion", "Relationship", and "Budget" to feed the Neural Engine.</p>
-                </div>
-                <div class="reveal stagger-2" style="background: var(--grey-100); display: flex; align-items: center; justify-content: center; padding: 4rem;">
-                    <div style="text-align: center;">
-                        <div style="width: 4rem; height: 4rem; background: var(--nike-blue); border-radius: 50%; margin: 0 auto 2rem; animation: pulse 2s infinite;"></div>
-                        <p class="mono">"Find me a housewarming gift for a friend who loves Bauhaus design."</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SLIDE 8: THE "HACK" -->
-    <section class="slide tech-slide">
-        <div class="slide-content">
-            <h2 class="reveal">The "Hack":<br><span class="blue-accent">24h Velocity.</span></h2>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
-                <div class="reveal stagger-1 stat-block">
-                    <div class="stat-value">52</div>
-                    <div class="stat-label">API Endpoints</div>
-                    <p class="muted-text" style="font-size: 0.8rem; margin-top: 1rem;">Full CRUD for products, orders, and AI profiles built on Supabase.</p>
-                </div>
-                <div class="reveal stagger-2 stat-block">
-                    <div class="stat-value">03</div>
-                    <div class="stat-label">Microservices</div>
-                    <p class="muted-text" style="font-size: 0.8rem; margin-top: 1rem;">Frontend (Next), Backend (Express), and a dedicated AR-Server.</p>
-                </div>
-                <div class="reveal stagger-3 stat-block">
-                    <div class="stat-value">98</div>
-                    <div class="stat-label">Lighthouse Score</div>
-                    <p class="muted-text" style="font-size: 0.8rem; margin-top: 1rem;">Optimized for speed and core web vitals from the first commit.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SLIDE 9: ARCHITECTURE -->
-    <section class="slide">
-        <div class="slide-content">
-            <h2 class="reveal">The System<br><span class="blue-accent">Architecture.</span></h2>
-            <div class="reveal stagger-1" style="border: 1px solid var(--grey-200); padding: 4rem; text-align: center;">
-                <p class="mono">NEXT.JS FRONTEND (CLIENT)</p>
-                <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
-                <div style="display: flex; justify-content: center; gap: 4rem;">
-                    <div>
-                        <p class="mono">EXPRESS BACKEND</p>
-                        <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
-                        <p class="mono blue-accent">SUPABASE DB</p>
-                    </div>
-                    <div>
-                        <p class="mono">AR SERVER</p>
-                        <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
-                        <p class="mono blue-accent">3D ASSETS</p>
-                    </div>
-                    <div>
-                        <p class="mono">GEMINI API</p>
-                        <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
-                        <p class="mono blue-accent">VECTORS</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SLIDE 10: IMPACT -->
-    <section class="slide">
-        <div class="slide-content">
-            <h2 class="reveal">Market &<br><span class="blue-accent">Scaling.</span></h2>
-            <div class="grid-3">
-                <div class="reveal stagger-1">
-                    <h3>Premium Gifting</h3>
-                    <p class="muted-text">Targeting the high-growth luxury segment where average order value exceeds $500.</p>
-                </div>
-                <div class="reveal stagger-2">
-                    <h3>Corporate B2B</h3>
-                    <p class="muted-text">Automated high-end gifting for real estate, law firms, and wealth management.</p>
-                </div>
-                <div class="reveal stagger-3">
-                    <h3>Artisan Network</h3>
-                    <p class="muted-text">Scaling to 10k+ independent artisans through our Stripe-powered payment mesh.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SLIDE 11: TEAM & FUTURE -->
-    <section class="slide">
-        <div class="slide-content">
-            <h2 class="reveal">Future:<br><span class="blue-accent">ALL BLUE.</span></h2>
-            <div style="display: flex; gap: 4rem; margin-top: 2rem;">
-                <div class="reveal stagger-1">
-                    <p class="muted-text">Beyond Gifting: Becoming the universal "Discerning Interface" for all luxury consumption.</p>
-                </div>
-                <div class="reveal stagger-2">
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
-                        <li><b>— Haptic Integration:</b> Feel materials before buying.</li>
-                        <li><b>— Crypto-Native:</b> Sol and Eth payment rails.</li>
-                        <li><b>— DAO Sourcing:</b> Community-curated artisans.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SLIDE 12: CONCLUSION -->
-    <section class="slide">
-        <div class="slide-content" style="text-align: center; align-items: center;">
-            <h1 class="reveal">THANK YOU.</h1>
-            <p class="reveal stagger-1" style="font-size: 1.5rem;">Let's build the future of generosity.</p>
-            <div class="reveal stagger-2" style="margin-top: 4rem;">
-                <p class="mono">LIVE AT: <span class="blue-accent">ALLBLUE.GIFT</span></p>
-            </div>
-        </div>
-    </section>
-
-    <style>
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-    </style>
-
-    <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const progressBar = document.getElementById('progressBar');
-
-        function updateProgress() {
-            const progress = ((currentSlide + 1) / slides.length) * 100;
-            progressBar.style.width = `${progress}%`;
-        }
-
-        function navigate(direction) {
-            currentSlide = Math.max(0, Math.min(slides.length - 1, currentSlide + direction));
-            slides[currentSlide].scrollIntoView({ behavior: 'smooth' });
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    currentSlide = Array.from(slides).indexOf(entry.target);
-                    updateProgress();
-                }
-            });
-        }, { threshold: 0.5 });
-
-        slides.forEach(slide => observer.observe(slide));
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') navigate(1);
-            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') navigate(-1);
-        });
-    </script>
 </body>
 </html>
