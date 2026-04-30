@@ -32,12 +32,14 @@ A modern e-commerce platform for finding the perfect gifts with AI recommendatio
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd all_blue
 ```
 
 2. Install dependencies:
+
 ```bash
 # Frontend
 cd frontend
@@ -49,6 +51,7 @@ pnpm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 # Frontend (.env.local)
 NEXT_PUBLIC_API_URL=http://localhost:5000
@@ -72,6 +75,7 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5000
 ```
 
 4. Run the application:
+
 ```bash
 # Frontend
 cd frontend
@@ -112,6 +116,7 @@ backend/
 ## Environment Variables
 
 ### Frontend
+
 - `NEXT_PUBLIC_API_URL` - backend API base URL (e.g. `http://localhost:5000`)
 - `NEXT_PUBLIC_AR_SERVER_URL` - AR preview server URL (e.g. `http://localhost:4000`)
 - `NEXT_PUBLIC_SITE_URL` - frontend application URL (e.g. `http://localhost:3000`)
@@ -120,6 +125,7 @@ backend/
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
 
 ### Backend
+
 - `PORT` - backend server port (default `5000`)
 - `FRONTEND_URL` - frontend application URL used for CORS and redirect links
 - `DATABASE_URL` - PostgreSQL connection string
@@ -128,6 +134,7 @@ backend/
 - `NODE_ENV` - Environment (development/production)
 
 ### AR Server
+
 - `AR_PORT` - AR server port (default `4000`)
 - `FRONTEND_URL` - frontend application URL used by the AR preview server
 - `ALLOWED_ORIGINS` - comma-separated list of allowed origins for AR server CORS
@@ -135,6 +142,7 @@ backend/
 ## Deployment
 
 ### Frontend (Vercel)
+
 ```bash
 cd frontend
 pnpm build
@@ -142,9 +150,9 @@ vercel --prod
 ```
 
 ### Backend (Railway/
+
 ```bash
 cd backend
 pnpm build
 # Deploy to your preferred platform
 ```
-
