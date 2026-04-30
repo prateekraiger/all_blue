@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
-  User, Package, Heart, Settings, LogOut, ChevronRight,
-  ShoppingBag, MapPin, ShieldCheck, Clock, CreditCard,
-  Gift, Bell, HelpCircle, UserCheck
+  User, Package, Heart, LogOut, ChevronRight,
+  ShoppingBag, ShieldCheck, Clock,
+  Gift, UserCheck, Bookmark
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { ordersApi, type Order } from "@/lib/api"
@@ -121,7 +121,7 @@ export default function ProfilePage() {
                 { label: "Orders", value: recentOrders.length || 0, icon: ShoppingBag, color: "bg-blue-50 text-blue-600" },
                 { label: "Rewards", value: "240", icon: Gift, color: "bg-amber-50 text-amber-600" },
                 { label: "Wishlist", value: "12", icon: Heart, color: "bg-rose-50 text-rose-600" },
-                { label: "Saved", value: "3", icon: MapPin, color: "bg-emerald-50 text-emerald-600" },
+                { label: "Saved", value: "3", icon: Bookmark, color: "bg-emerald-50 text-emerald-600" },
               ].map((stat, i) => (
                 <div key={i} className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100 hover:border-blue-100 transition-colors">
                   <div className={`w-10 h-10 ${stat.color} rounded-2xl flex items-center justify-center mb-4`}>
@@ -209,20 +209,15 @@ export default function ProfilePage() {
               <div className="p-4 space-y-2">
                 {[
                   { label: "Profile Information", icon: User, href: "/profile", color: "bg-blue-50 text-blue-600" },
-                  { label: "Delivery Addresses", icon: MapPin, href: "/profile", color: "bg-emerald-50 text-emerald-600", disabled: true },
-                  { label: "Payment Methods", icon: CreditCard, href: "/profile", color: "bg-indigo-50 text-indigo-600", disabled: true },
-                  { label: "Notifications", icon: Bell, href: "/profile", color: "bg-amber-50 text-amber-600", disabled: true },
-                  { label: "Privacy & Security", icon: Settings, href: "/profile", color: "bg-slate-100 text-slate-600", disabled: true },
                 ].map((item, i) => (
-                  <div key={i} className={`flex items-center justify-between p-4 rounded-2xl transition-all ${item.disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50 cursor-pointer group'}`}>
+                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl transition-all hover:bg-slate-50 cursor-pointer group">
                     <div className="flex items-center gap-4">
                       <div className={`p-2.5 ${item.color} rounded-xl group-hover:scale-110 transition-transform`}>
                         <item.icon className="w-5 h-5" />
                       </div>
                       <span className="text-sm font-bold text-slate-700">{item.label}</span>
                     </div>
-                    {!item.disabled && <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 transition-colors" />}
-                    {item.disabled && <span className="text-[8px] font-black bg-slate-100 px-2 py-0.5 rounded-full uppercase text-slate-400">Soon</span>}
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 transition-colors" />
                   </div>
                 ))}
               </div>
