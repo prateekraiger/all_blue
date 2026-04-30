@@ -11,17 +11,12 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "@/stack/server";
 import { SilenceWarnings } from "@/components/SilenceWarnings"
 
+import { ClientLayoutWrapper } from "@/components/ClientLayoutWrapper"
+
 // ─── Lazy-loaded components (below-the-fold / non-critical) ─────────────────
 const Footer = dynamic(() => import("@/components/footer").then(m => ({ default: m.Footer })), {
   loading: () => <footer className="w-full bg-[#111111] h-[300px]" />,
 })
-const AIChatbot = dynamic(() => import("@/components/AIChatbot").then(m => ({ default: m.AIChatbot })), {
-  ssr: false,
-})
-const PageTransition = dynamic(
-  () => import("@/components/PageTransition").then(m => ({ default: m.PageTransition })),
-  { ssr: false },
-)
 
 // ─── Metadata ───────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
@@ -123,16 +118,15 @@ export default function RootLayout({
               <AuthProvider>
                 <CartProvider>
                   <Navigation />
-                  <PageTransition>
+                  <ClientLayoutWrapper>
                     <main id="main-content">
                       {children}
                     </main>
-                  </PageTransition>
+                  </ClientLayoutWrapper>
                   <div className="max-w-[1920px] mx-auto">
                     <Footer />
                   </div>
                   <Toaster position="bottom-right" />
-                  <AIChatbot />
                 </CartProvider>
               </AuthProvider>
             </Suspense>
