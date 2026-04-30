@@ -66,13 +66,26 @@ export default function GiftFinderPage() {
   useEffect(() => {
     aiApi
       .getGiftFinderMetadata()
-      .then((res) => {
-        setMetadata(res);
+      .then((res: any) => {
+        // Merge response with existing budgetRange default
+        const mergedMetadata = {
+          personas: res.personas || [],
+          occasions: res.occasions || [],
+          budgetRange: res.budgetRange || metadata.budgetRange,
+        };
+        setMetadata(mergedMetadata);
         // Set initial budget to a reasonable midpoint if current budget is out of range
-        if (budget < res.budgetRange.min || budget > res.budgetRange.max) {
+        if (
+          budget < mergedMetadata.budgetRange.min ||
+          budget > mergedMetadata.budgetRange.max
+        ) {
           setBudget(
-            Math.round((res.budgetRange.min + res.budgetRange.max) / 4 / 500) *
-              500,
+            Math.round(
+              (mergedMetadata.budgetRange.min +
+                mergedMetadata.budgetRange.max) /
+                4 /
+                500,
+            ) * 500,
           );
         }
       })
