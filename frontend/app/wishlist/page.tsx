@@ -24,7 +24,7 @@ export default function WishlistPage() {
         return
       }
 
-      const products = await Promise.all(
+      const products: Array<Product | null> = await Promise.all(
         ids.map(async (id) => {
           try {
             return await productsApi.get(id)

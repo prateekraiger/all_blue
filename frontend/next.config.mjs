@@ -58,6 +58,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'www.bigsmall.in' },
       { protocol: 'https', hostname: 'www.boxupgifting.com' },
       { protocol: 'https', hostname: 'www.pebel.in' },
+      { protocol: 'https', hostname: 'i.pinimg.com' },
     ],
   },
 

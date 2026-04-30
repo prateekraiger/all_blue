@@ -10,18 +10,13 @@ import { Toaster } from "@/components/ui/sonner"
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "@/stack/server";
 import { SilenceWarnings } from "@/components/SilenceWarnings"
+import { AIChatbot } from "@/components/AIChatbot"
+import { PageTransition } from "@/components/PageTransition"
 
 // ─── Lazy-loaded components (below-the-fold / non-critical) ─────────────────
 const Footer = dynamic(() => import("@/components/footer").then(m => ({ default: m.Footer })), {
   loading: () => <footer className="w-full bg-[#111111] h-[300px]" />,
 })
-const AIChatbot = dynamic(() => import("@/components/AIChatbot").then(m => ({ default: m.AIChatbot })), {
-  ssr: false,
-})
-const PageTransition = dynamic(
-  () => import("@/components/PageTransition").then(m => ({ default: m.PageTransition })),
-  { ssr: false },
-)
 
 // ─── Metadata ───────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
