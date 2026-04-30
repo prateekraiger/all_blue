@@ -65,8 +65,13 @@ export function ChatBot() {
     setInput("")
     setLoading(true)
 
+    const history = messages.map(m => ({
+      role: (m.role === "bot" ? "assistant" : "user") as "user" | "assistant",
+      content: m.text
+    }))
+
     try {
-      const response = await aiApi.chat(text, token)
+      const response = await aiApi.chat(text, history, token)
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "bot",

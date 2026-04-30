@@ -97,7 +97,7 @@ function SearchContent() {
       if (p === 1) setLoading(true)
       else setLoadingMore(true)
 
-      const result = await searchApi.search({ q, limit: LIMIT, offset: (p - 1) * LIMIT })
+      const result = await searchApi.search({ q, limit: LIMIT, page: p })
 
       if (p === 1) {
         setProducts(result.products)

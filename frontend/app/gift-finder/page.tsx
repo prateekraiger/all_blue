@@ -523,11 +523,11 @@ export default function GiftFinderPage() {
                   >
                     Selected for a{" "}
                     <span className="text-[#111111] font-medium">
-                      {persona}
+                      {persona?.name}
                     </span>{" "}
                     celebrating{" "}
                     <span className="text-[#111111] font-medium">
-                      {occasion}
+                      {occasion?.name}
                     </span>
                     .
                   </p>
