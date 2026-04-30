@@ -44,15 +44,19 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
+      const envOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
       const allowed = [
-        process.env.FRONTEND_URL ?? "http://localhost:3000",
-        "http://localhost:3001",
+        ...envOrigins,
         "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:5000",
+        "http://localhost:4000",
       ];
       // Allow requests with no origin (e.g. curl, server-to-server)
       if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`[CORS] Origin ${origin} blocked`);
         callback(new Error(`CORS: Origin ${origin} not allowed`));
       }
     },

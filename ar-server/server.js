@@ -12,18 +12,33 @@
  *   GET /api/ar/product/:id → Get AR-ready product data
  */
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
 const PORT = parseInt(process.env.AR_PORT || '4000', 10);
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000', FRONTEND_URL],
+  origin: (origin, callback) => {
+    const envOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+    const allowed = [
+      ...envOrigins,
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5000',
+      FRONTEND_URL
+    ];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Origin ${origin} blocked on AR Server`);
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -153,7 +168,13 @@ app.get('/proxy', async (req, res) => {
   if (!url) return res.status(400).send('URL is required');
   
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Referer': 'https://www.pinterest.com/'
+      }
+    });
     if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
     
     const contentType = response.headers.get('content-type');
@@ -1196,7 +1217,6 @@ app.listen(PORT, () => {
   console.log('  ALL BLUE — AR Preview Server v1.0.0');
   console.log('  ────────────────────────────────────');
   console.log('  Port     :', PORT);
-  console.log('  Backend  :', BACKEND_URL);
   console.log('  Frontend :', FRONTEND_URL);
   console.log('  Health   : http://localhost:' + PORT);
   console.log('  AR View  : http://localhost:' + PORT + '/ar/:productId');

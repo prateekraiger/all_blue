@@ -17,7 +17,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 500;
-const REQUEST_TIMEOUT_MS = 30_000; // Increased to 60s for AI responses
+const REQUEST_TIMEOUT_MS = 60_000; // Increased to 60s for AI responses
 
 // Cache TTLs (ms)
 const CACHE_TTL = {

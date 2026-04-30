@@ -101,9 +101,13 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [scale, setScale] = useState(1)
   const [rotation, setRotation] = useState(0)
+  const [opacity, setOpacity] = useState(1)
+  const [brightness, setBrightness] = useState(1)
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [showCapture, setShowCapture] = useState(false)
+  const [cameraZoom, setCameraZoom] = useState(1)
+  const [zoomCapabilities, setZoomCapabilities] = useState<{ min: number; max: number; step: number } | null>(null)
 
   const arServerUrl = process.env.NEXT_PUBLIC_AR_SERVER_URL || "http://localhost:4000"
   const rawImageUrl = product.images?.[0] || ""
@@ -149,6 +153,22 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
         if (videoRef.current) {
           videoRef.current.srcObject = stream
           
+          // Get camera capabilities for zoom
+          const track = stream.getVideoTracks()[0]
+          try {
+            const capabilities = track.getCapabilities() as any
+            if (capabilities.zoom) {
+              setZoomCapabilities({
+                min: capabilities.zoom.min,
+                max: capabilities.zoom.max,
+                step: capabilities.zoom.step
+              })
+              setCameraZoom(capabilities.zoom.min)
+            }
+          } catch (e) {
+            console.log("Zoom not supported by this camera")
+          }
+
           const playVideo = async () => {
             if (!videoRef.current || !isMounted) return
             try {
@@ -238,6 +258,25 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
     setPosition({ x: 0, y: 0 })
     setScale(1)
     setRotation(0)
+    setOpacity(1)
+    setBrightness(1)
+    if (zoomCapabilities) {
+      applyCameraZoom(zoomCapabilities.min)
+    }
+  }
+
+  const applyCameraZoom = async (val: number) => {
+    setCameraZoom(val)
+    if (streamRef.current) {
+      const track = streamRef.current.getVideoTracks()[0]
+      try {
+        await track.applyConstraints({
+          advanced: [{ zoom: val }] as any
+        })
+      } catch (e) {
+        console.error("Failed to apply zoom:", e)
+      }
+    }
   }
 
   const handleRotate = () => {
@@ -278,7 +317,8 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
         ctx.save()
         ctx.translate(drawX + drawW / 2, drawY + drawH / 2)
         ctx.rotate((rotation * Math.PI) / 180)
-        ctx.filter = "drop-shadow(0px 20px 40px rgba(0,0,0,0.4))"
+        ctx.globalAlpha = opacity
+        ctx.filter = `drop-shadow(0px 20px 40px rgba(0,0,0,0.4)) brightness(${brightness})`
         ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH)
         ctx.restore()
       }
@@ -419,8 +459,9 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
             width: baseSize * scale,
             height: baseSize * scale,
             transform: `rotate(${rotation}deg)`,
+            opacity: opacity,
+            filter: `drop-shadow(0 20px 40px rgba(0,0,0,${0.4 * opacity})) brightness(${brightness})`,
             cursor: isDragging ? "grabbing" : "grab",
-            filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.4))",
           }}
           onMouseDown={(e) => {
             e.stopPropagation()
@@ -502,45 +543,110 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
               </span>
             </div>
 
-            {/* Scale slider */}
-            <div className="flex items-center gap-3 bg-white/8 backdrop-blur-xl border border-white/10 px-4 py-3 rounded-2xl">
-              <span className="text-[9px] font-extrabold uppercase tracking-[1.5px] text-white/40 whitespace-nowrap">Size</span>
-              <ZoomIn className="w-3.5 h-3.5 text-white/30" />
-              <input
-                type="range"
-                min="30"
-                max="200"
-                value={Math.round(scale * 100)}
-                onChange={(e) => setScale(parseInt(e.target.value) / 100)}
-                onClick={(e) => e.stopPropagation()}
-                className="flex-1 h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-lg"
-              />
-              <span className="text-xs font-extrabold text-blue-400 min-w-[36px] text-right">
-                {Math.round(scale * 100)}%
-              </span>
+            {/* Enhanced Controls Grid */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Scale slider */}
+              <div className="flex flex-col gap-1.5 bg-white/8 backdrop-blur-xl border border-white/10 px-3 py-2.5 rounded-2xl">
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Scale</span>
+                  <span className="text-[10px] font-black text-blue-400">{Math.round(scale * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="20"
+                  max="250"
+                  value={Math.round(scale * 100)}
+                  onChange={(e) => setScale(parseInt(e.target.value) / 100)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                />
+              </div>
+
+              {/* Rotation slider */}
+              <div className="flex flex-col gap-1.5 bg-white/8 backdrop-blur-xl border border-white/10 px-3 py-2.5 rounded-2xl">
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Rotate</span>
+                  <span className="text-[10px] font-black text-blue-400">{rotation}°</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value={rotation}
+                  onChange={(e) => setRotation(parseInt(e.target.value))}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                />
+              </div>
+
+              {/* Opacity slider */}
+              <div className="flex flex-col gap-1.5 bg-white/8 backdrop-blur-xl border border-white/10 px-3 py-2.5 rounded-2xl">
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Opacity</span>
+                  <span className="text-[10px] font-black text-blue-400">{Math.round(opacity * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  value={Math.round(opacity * 100)}
+                  onChange={(e) => setOpacity(parseInt(e.target.value) / 100)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                />
+              </div>
+
+              {/* Brightness slider */}
+              <div className="flex flex-col gap-1.5 bg-white/8 backdrop-blur-xl border border-white/10 px-3 py-2.5 rounded-2xl">
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Light</span>
+                  <span className="text-[10px] font-black text-blue-400">{Math.round(brightness * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={Math.round(brightness * 100)}
+                  onChange={(e) => setBrightness(parseInt(e.target.value) / 100)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                />
+              </div>
             </div>
+
+            {/* Camera Zoom Control (if supported) */}
+            {zoomCapabilities && (
+              <div className="bg-white/8 backdrop-blur-xl border border-white/10 px-4 py-3 rounded-2xl flex items-center gap-4">
+                <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Camera Zoom</span>
+                <input
+                  type="range"
+                  min={zoomCapabilities.min}
+                  max={zoomCapabilities.max}
+                  step={zoomCapabilities.step}
+                  value={cameraZoom}
+                  onChange={(e) => applyCameraZoom(parseFloat(e.target.value))}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 h-1 bg-blue-500/30 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-400"
+                />
+                <span className="text-[10px] font-black text-blue-400">{cameraZoom.toFixed(1)}x</span>
+              </div>
+            )}
 
             {/* Action buttons */}
             <div className="flex gap-2">
               <button
-                onClick={(e) => { e.stopPropagation(); handleRotate() }}
-                className="flex-1 flex items-center justify-center gap-2 bg-white/10 backdrop-blur-xl border border-white/15 text-white py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-wider hover:bg-white/20 transition-all active:scale-95"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Rotate
-              </button>
-              <button
                 onClick={(e) => { e.stopPropagation(); handleCapture() }}
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-500/25 backdrop-blur-xl border border-blue-400/30 text-white py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-wider hover:bg-blue-500/35 transition-all active:scale-95"
+                className="flex-[2] flex items-center justify-center gap-2 bg-blue-600 text-white py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
               >
                 <Camera className="w-4 h-4" />
-                Capture
+                Snap Photo
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handleReset() }}
                 className="flex-1 flex items-center justify-center gap-2 bg-white/10 backdrop-blur-xl border border-white/15 text-white py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-wider hover:bg-white/20 transition-all active:scale-95"
               >
-                <Move className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4" />
                 Reset
               </button>
             </div>
