@@ -147,15 +147,53 @@ app.get('/api/ar/product/:id', (req, res) => {
   });
 });
 
+// ─── API: Proxy image for CORS ──────────────────────────────────────────────
+app.get('/proxy', async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).send('URL is required');
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType) res.setHeader('Content-Type', contentType);
+    
+    // Ensure CORS headers are set for the proxied image
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Proxy error:', error);
+    res.status(500).send('Error fetching image through proxy');
+  }
+});
+
 // ─── AR Viewer Page ─────────────────────────────────────────────────────────
 app.get('/ar/:productId', (req, res) => {
   const { productId } = req.params;
   const config = AR_PRODUCT_CONFIG[productId] || { ...DEFAULT_AR_CONFIG, name: `Product ${productId}` };
   
   // Get product image URL and back URL from query params
-  const imageUrl = req.query.image || '';
+  const rawImageUrl = req.query.image || '';
   const backUrl = req.query.back || `${FRONTEND_URL}/shop/${productId}`;
   const productName = req.query.name || config.name;
+
+  // Resolve final image URL
+  let finalImageUrl = rawImageUrl;
+  if (rawImageUrl && !rawImageUrl.startsWith('http')) {
+    // Relative URL, assume it's from the frontend
+    finalImageUrl = `${FRONTEND_URL}${rawImageUrl.startsWith('/') ? '' : '/'}${rawImageUrl}`;
+  }
+
+  // Use proxy for all images that are not on this server's origin
+  // This ensures we always have CORS headers for canvas capture
+  const imageUrl = finalImageUrl && !finalImageUrl.includes(`localhost:${PORT}`)
+    ? `http://localhost:${PORT}/proxy?url=${encodeURIComponent(finalImageUrl)}`
+    : finalImageUrl;
 
   res.send(generateARViewerHTML({
     productId,

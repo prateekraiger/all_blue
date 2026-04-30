@@ -105,7 +105,13 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [showCapture, setShowCapture] = useState(false)
 
-  const imageUrl = product.images?.[0] || ""
+  const arServerUrl = process.env.NEXT_PUBLIC_AR_SERVER_URL || "http://localhost:4000"
+  const rawImageUrl = product.images?.[0] || ""
+  
+  // Use proxy for external images to avoid CORS issues with Canvas capture
+  const imageUrl = rawImageUrl.startsWith("http") && !rawImageUrl.includes("localhost")
+    ? `${arServerUrl}/proxy?url=${encodeURIComponent(rawImageUrl)}`
+    : rawImageUrl;
 
   // AR scale based on product category
   const getBaseSize = () => {
