@@ -13,6 +13,8 @@ import { SilenceWarnings } from "@/components/SilenceWarnings"
 import { AIChatbot } from "@/components/AIChatbot"
 import { PageTransition } from "@/components/PageTransition"
 
+import { ClientLayoutWrapper } from "@/components/ClientLayoutWrapper"
+
 // ─── Lazy-loaded components (below-the-fold / non-critical) ─────────────────
 const Footer = dynamic(() => import("@/components/footer").then(m => ({ default: m.Footer })), {
   loading: () => <footer className="w-full bg-[#111111] h-[300px]" />,
@@ -118,16 +120,15 @@ export default function RootLayout({
               <AuthProvider>
                 <CartProvider>
                   <Navigation />
-                  <PageTransition>
+                  <ClientLayoutWrapper>
                     <main id="main-content">
                       {children}
                     </main>
-                  </PageTransition>
+                  </ClientLayoutWrapper>
                   <div className="max-w-[1920px] mx-auto">
                     <Footer />
                   </div>
                   <Toaster position="bottom-right" />
-                  <AIChatbot />
                 </CartProvider>
               </AuthProvider>
             </Suspense>
