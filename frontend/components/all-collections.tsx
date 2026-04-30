@@ -10,7 +10,7 @@ const collections = [
     subtitle: "Timeless Elegance",
     image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1200&auto=format&fit=crop",
     link: "/shop?category=Jewelry",
-    className: "md:col-span-2 md:row-span-2 h-[500px] md:h-[600px]",
+    className: "md:col-span-2 md:row-span-2 h-[400px] md:h-[624px]",
     titleSize: "text-[32px] md:text-[48px] lg:text-[64px]",
   },
   {
@@ -50,7 +50,7 @@ const collections = [
     subtitle: "The Perfect Details",
     image: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?q=80&w=800&auto=format&fit=crop",
     link: "/shop?category=Accessories",
-    className: "md:col-span-1 md:row-span-2 h-[400px] md:h-[616px]",
+    className: "md:col-span-1 md:row-span-2 h-[400px] md:h-[624px]",
     titleSize: "text-[28px] md:text-[40px]",
   },
   {
@@ -74,7 +74,7 @@ const collections = [
     subtitle: "Artisan Crafted",
     image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=800&auto=format&fit=crop",
     link: "/shop?category=Drinkware",
-    className: "md:col-span-1 md:row-span-1 h-[300px]",
+    className: "md:col-span-2 md:row-span-1 h-[300px]",
     titleSize: "text-[24px] md:text-[32px]",
   },
   {
@@ -82,21 +82,21 @@ const collections = [
     subtitle: "Inspire Creativity",
     image: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1200&auto=format&fit=crop",
     link: "/shop?category=Stationery",
-    className: "md:col-span-2 md:row-span-1 h-[300px]",
+    className: "md:col-span-3 md:row-span-1 h-[300px] md:h-[400px]",
     titleSize: "text-[28px] md:text-[40px]",
   },
 ]
 
 export function AllCollections() {
   return (
-    <section className="w-full pt-32 pb-16 px-4 sm:px-6 lg:px-12 bg-[#FAFAFA]">
+    <section className="w-full pt-24 pb-16 px-4 sm:px-6 lg:px-12 bg-[#FAFAFA]">
       <div className="max-w-[1920px] mx-auto">
         {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16 md:mb-24 flex flex-col items-center text-center max-w-3xl mx-auto"
+          className="mb-12 md:mb-16 flex flex-col items-center text-center max-w-3xl mx-auto"
         >
           <h1 className="nike-display text-[48px] md:text-[72px] lg:text-[88px] text-[#111111] mb-6 tracking-tight leading-[0.9]">
             THE<br/>COLLECTIONS
@@ -107,7 +107,7 @@ export function AllCollections() {
         </motion.div>
 
         {/* Collections Grid - Complex asymmetrical layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 grid-flow-row-dense">
           {collections.map((collection, index) => (
             <motion.div
               key={collection.title}

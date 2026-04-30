@@ -1,4 +1,4 @@
-import { Collections } from "@/components/collections"
+import { AllCollections } from "@/components/all-collections"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 export default function CollectionsPage() {
   return (
-    <div className="max-w-[1920px] mx-auto">
-      <Collections />
+    <div className="bg-[#FAFAFA] min-h-screen">
+      <AllCollections />
     </div>
   )
 }

@@ -15,8 +15,9 @@ export function Hero() {
   return (
     <section
       ref={containerRef}
-      className="w-full relative overflow-hidden bg-[#FAFAFA] text-[#111111] h-[100svh] flex items-center justify-center selection:bg-black selection:text-white"
+      className="w-full relative overflow-hidden bg-white text-[#111111] h-[100svh] flex items-center justify-center selection:bg-black selection:text-white"
     >
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
       {/* Dynamic 2D/3D Background Elements using CSS and Framer Motion */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Soft elegant gradients */}
