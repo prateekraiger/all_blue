@@ -40,7 +40,7 @@ const INITIAL_MESSAGE: Message = {
   id: "1",
   role: "assistant",
   content:
-    'Hey there! I\'m your **AI Gift Concierge** powered by Gemini 2.5 Flash. Tell me who you\'re shopping for and I\'ll find something perfect.\n\nTry something like *"birthday gift under ₹500"* or *"romantic anniversary ideas"*!',
+    'Hey there! I\'m your **AI Gift Concierge**. Tell me who you\'re shopping for and I\'ll find something perfect.\n\nTry something like *"birthday gift under ₹500"* or *"romantic anniversary ideas"*!',
   quickReplies: INITIAL_QUICK_REPLIES,
   timestamp: new Date(),
 };

@@ -132,7 +132,9 @@ async function apiFetch<T>(
 
   const method = options.method?.toUpperCase() || "GET";
   const isIdempotent = method === "GET" || method === "HEAD";
-  const retries = isIdempotent ? MAX_RETRIES : 0; // Only retry safe methods
+  const isAIRequest =
+    path.includes("/api/ai") || path.includes("/api/gift-finder");
+  const retries = isIdempotent || isAIRequest ? MAX_RETRIES : 0; // Retry safe methods and AI requests
 
   let lastError: Error | null = null;
 
@@ -421,7 +423,11 @@ export const aiApi = {
     ),
 
   getGiftFinderMetadata: () =>
-    apiFetch<{ personas: string[]; occasions: string[] }>('/api/gift-finder/metadata'),
+    apiFetch<{
+      personas: string[];
+      occasions: string[];
+      budgetRange: { min: number; max: number };
+    }>("/api/gift-finder/metadata"),
 
   generateGiftSuggestions: (
     input: { persona: string; occasion: string; budget: number },

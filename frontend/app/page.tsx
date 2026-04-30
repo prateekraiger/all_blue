@@ -17,7 +17,7 @@ const Collections = dynamic(
 const Newsletter = dynamic(
   () => import("@/components/newsletter").then((m) => ({ default: m.Newsletter })),
   {
-    loading: () => <div className="w-full h-[300px] bg-[#111111]" />,
+    loading: () => <div className="w-full h-[300px] bg-[#FAFAFA]" />,
     ssr: true,
   }
 )

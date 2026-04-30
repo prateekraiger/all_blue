@@ -61,6 +61,7 @@ export default function GiftFinderPage() {
   const [metadata, setMetadata] = useState<{
     personas: string[];
     occasions: string[];
+    budgetRange: { min: number; max: number };
   }>({
     personas: ["Partner", "Colleague", "Friend", "Parent", "Client"],
     occasions: [
@@ -70,6 +71,7 @@ export default function GiftFinderPage() {
       "Corporate",
       "Just Because",
     ],
+    budgetRange: { min: 500, max: 25000 },
   });
 
   useEffect(() => {
@@ -77,6 +79,13 @@ export default function GiftFinderPage() {
       .getGiftFinderMetadata()
       .then((res) => {
         setMetadata(res);
+        // Set initial budget to a reasonable midpoint if current budget is out of range
+        if (budget < res.budgetRange.min || budget > res.budgetRange.max) {
+          setBudget(
+            Math.round((res.budgetRange.min + res.budgetRange.max) / 4 / 500) *
+              500,
+          );
+        }
       })
       .catch((err) => {
         console.error("[GiftFinder] Failed to fetch metadata:", err);
@@ -107,12 +116,32 @@ export default function GiftFinderPage() {
     setStep(1);
     setPersona(null);
     setOccasion(null);
-    setBudget(5000);
+    setBudget(
+      Math.round(
+        (metadata.budgetRange.min + metadata.budgetRange.max) / 4 / 500,
+      ) * 500,
+    );
     setResults(null);
     setError(null);
   };
 
-  const budgetPresets = [1000, 2500, 5000, 10000, 25000];
+  const budgetPresets = [
+    metadata.budgetRange.min,
+    Math.round(
+      (metadata.budgetRange.min +
+        (metadata.budgetRange.max - metadata.budgetRange.min) * 0.25) /
+        500,
+    ) * 500,
+    Math.round(
+      (metadata.budgetRange.min + metadata.budgetRange.max) / 2 / 500,
+    ) * 500,
+    Math.round(
+      (metadata.budgetRange.min +
+        (metadata.budgetRange.max - metadata.budgetRange.min) * 0.75) /
+        500,
+    ) * 500,
+    metadata.budgetRange.max,
+  ].filter((v, i, a) => a.indexOf(v) === i); // unique values
 
   return (
     <div className="min-h-screen bg-white py-12 md:py-20">
@@ -309,7 +338,9 @@ export default function GiftFinderPage() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{OCCASION_EMOJIS[o] || "✨"}</span>
+                        <span className="text-xl">
+                          {OCCASION_EMOJIS[o] || "✨"}
+                        </span>
                         <span
                           className="text-[14px] font-medium"
                           style={{
@@ -411,8 +442,8 @@ export default function GiftFinderPage() {
                   <div className="px-2">
                     <input
                       type="range"
-                      min="500"
-                      max="25000"
+                      min={metadata.budgetRange.min}
+                      max={metadata.budgetRange.max}
                       step="500"
                       value={budget}
                       onChange={(e) => setBudget(Number(e.target.value))}
@@ -425,9 +456,20 @@ export default function GiftFinderPage() {
                           '"Helvetica Neue", Helvetica, Arial, sans-serif',
                       }}
                     >
-                      <span>₹500</span>
-                      <span>₹12,500</span>
-                      <span>₹25,000</span>
+                      <span>
+                        ₹{metadata.budgetRange.min.toLocaleString("en-IN")}
+                      </span>
+                      <span>
+                        ₹
+                        {Math.round(
+                          (metadata.budgetRange.min +
+                            metadata.budgetRange.max) /
+                            2,
+                        ).toLocaleString("en-IN")}
+                      </span>
+                      <span>
+                        ₹{metadata.budgetRange.max.toLocaleString("en-IN")}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -500,7 +542,7 @@ export default function GiftFinderPage() {
                           '"Helvetica Neue", Helvetica, Arial, sans-serif',
                       }}
                     >
-                      Curated by Gemini AI
+                      Curated by Gemini 2.0
                     </span>
                   </motion.div>
                   <h2 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-3">

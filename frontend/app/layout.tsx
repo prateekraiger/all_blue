@@ -20,7 +20,7 @@ import { ClientLayoutWrapper } from "@/components/ClientLayoutWrapper";
 const Footer = dynamic(
   () => import("@/components/footer").then((m) => ({ default: m.Footer })),
   {
-    loading: () => <footer className="w-full bg-[#111111] h-[300px]" />,
+    loading: () => <footer className="w-full bg-[#FAFAFA] h-[300px]" />,
   },
 );
 

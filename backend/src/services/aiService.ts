@@ -597,25 +597,34 @@ export const getGiftFinderMetadata = async () => {
   try {
     const { data: products } = await supabase
       .from("products")
-      .select("tags, category")
+      .select("price, tags, category")
       .eq("is_active", true);
 
-    if (!products)
+    if (!products || products.length === 0) {
       return {
         personas: Object.keys(PERSONA_TAG_MAP),
         occasions: Object.keys(OCCASION_TAG_MAP),
+        budgetRange: { min: 500, max: 25000 },
       };
+    }
 
-    // In a real app, you might have a 'personas' and 'occasions' table.
-    // For now, we'll return the hardcoded keys but this allows for future expansion.
+    const prices = products.map((p) => p.price);
+    const minPrice = Math.floor(Math.min(...prices) / 100) * 100;
+    const maxPrice = Math.ceil(Math.max(...prices) / 500) * 500;
+
     return {
       personas: Object.keys(PERSONA_TAG_MAP),
       occasions: Object.keys(OCCASION_TAG_MAP),
+      budgetRange: {
+        min: Math.max(100, minPrice),
+        max: Math.max(minPrice + 1000, maxPrice),
+      },
     };
   } catch {
     return {
       personas: Object.keys(PERSONA_TAG_MAP),
       occasions: Object.keys(OCCASION_TAG_MAP),
+      budgetRange: { min: 500, max: 25000 },
     };
   }
 };

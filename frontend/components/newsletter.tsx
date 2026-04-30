@@ -17,13 +17,13 @@ export function Newsletter() {
   }
 
   return (
-    <section className="w-full bg-[#111111]">
+    <section className="w-full bg-[#FAFAFA]">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16 md:py-24">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="nike-display text-white text-[32px] md:text-[48px] lg:text-[64px] mb-4">
+          <h2 className="font-serif text-[32px] md:text-[48px] lg:text-[64px] mb-4 text-[#111111]">
             STAY IN THE LOOP
           </h2>
-          <p className="text-[16px] text-[#707072] mb-8 md:mb-10 leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+          <p className="text-[16px] text-black/60 mb-8 md:mb-10 leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             Be the first to secure limited-edition drops and artisan collaborations. Our inner circle never misses a masterpiece.
           </p>
 
@@ -34,13 +34,13 @@ export function Newsletter() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
               required
-              className="flex-1 bg-[#28282A] border-none rounded-full px-6 py-3.5 text-[16px] text-white outline-none placeholder:text-[#707072] focus:ring-2 focus:ring-white/20 transition-all"
+              className="flex-1 bg-white border border-black/10 rounded-full px-6 py-3.5 text-[16px] text-[#111111] outline-none placeholder:text-black/40 focus:ring-2 focus:ring-black/10 transition-all"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             />
             <button
               type="submit"
               disabled={subscribed}
-              className="nike-btn-primary-inverted text-[16px] px-8 py-3.5 shrink-0"
+              className="bg-[#111111] text-white hover:bg-black rounded-full flex items-center justify-center gap-2 font-medium transition-colors text-[16px] px-8 py-3.5 shrink-0"
             >
               {subscribed ? "Subscribed" : (
                 <>
@@ -52,7 +52,7 @@ export function Newsletter() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
             {["10k+ Members", "Weekly Drops", "Exclusive Access"].map((item) => (
-              <span key={item} className="text-[12px] text-[#707072] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              <span key={item} className="text-[12px] text-black/60 font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                 {item}
               </span>
             ))}

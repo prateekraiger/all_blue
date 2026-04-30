@@ -5,8 +5,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 // Primary and Secondary models for high-availability
-const PRIMARY_MODEL = "gemini-2.5-flash";
-const SECONDARY_MODEL = "gemini-2.5-flash-lite-preview";
+const PRIMARY_MODEL = "gemini-2.0-flash";
+const SECONDARY_MODEL = "gemini-2.0-flash-lite";
 
 export const isGeminiAvailable = (): boolean => {
   return !!genAI;
