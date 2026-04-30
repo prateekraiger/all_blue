@@ -263,7 +263,7 @@ export function AIChatbot() {
                           '"Helvetica Neue", Helvetica, Arial, sans-serif',
                       }}
                     >
-                      <Zap className="w-3 h-3" /> Powered by Gemini 2.5
+                      Your personal shopping assistant
                     </p>
                   </div>
                 </div>

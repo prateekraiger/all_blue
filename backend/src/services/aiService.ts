@@ -306,6 +306,31 @@ export const updatePreferences = async (
   }
 };
 
+/**
+ * Get a summarized product catalog for AI context.
+ */
+export const getProductCatalogContext = async (): Promise<string> => {
+  try {
+    const { data: products } = await supabase
+      .from("products")
+      .select("name, price, category, tags")
+      .eq("is_active", true)
+      .limit(50); // Limit to top 50 for context window efficiency
+
+    if (!products) return "No products available.";
+
+    return products
+      .map(
+        (p) =>
+          `- ${p.name}: ₹${p.price} [Category: ${p.category}] [Tags: ${p.tags?.join(", ")}]`,
+      )
+      .join("\n");
+  } catch (error) {
+    console.error("[AI Service] Failed to fetch catalog context:", error);
+    return "Error fetching catalog.";
+  }
+};
+
 // ─── Chatbot ──────────────────────────────────────────────────────────────────
 
 /**
@@ -370,7 +395,13 @@ export const chatbotResponse = async (
 ): Promise<ChatbotResponse> => {
   try {
     // ── Try Gemini AI first ─────────────────────────────────────────────────
-    const geminiResult = await geminiChatResponse(message, history, userName);
+    const catalogContext = await getProductCatalogContext();
+    const geminiResult = await geminiChatResponse(
+      message,
+      history,
+      userName,
+      catalogContext,
+    );
 
     let reply: string;
     let matchedTags: string[] = [];
@@ -382,107 +413,26 @@ export const chatbotResponse = async (
     if (geminiResult) {
       reply = geminiResult.reply;
       matchedTags = geminiResult.suggestedTags;
-      maxPrice = geminiResult.maxPrice;
-      minPrice = geminiResult.minPrice;
-      intent = geminiResult.intent;
       searchQuery = geminiResult.searchQuery;
+      minPrice = geminiResult.minPrice;
+      maxPrice = geminiResult.maxPrice;
+      intent = geminiResult.intent;
 
-      console.log(
-        `[AI Service] Intent: ${intent}, Query: ${searchQuery}, Tags: ${matchedTags.join(", ")}`,
-      );
-
-      // For non-product intents, return Gemini's reply directly
-      if (
-        intent !== "product_search" &&
-        intent !== "price_query" &&
-        intent !== "unknown"
-      ) {
-        let qrs =
-          QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)];
-        if (intent === "garbage") {
-          qrs = ["Show me real gifts", "Surprise me", "Gift finder"];
-        }
-
+      // Special case: If AI says garbage, we don't need to search products
+      if (intent === "garbage") {
         return {
           reply,
           products: [],
-          quickReplies: qrs,
+          quickReplies: ["Show all gifts", "Gift finder", "Under ₹1000"],
         };
       }
     } else {
-      // ── Fallback: rule-based intent detection ───────────────────────────
-      intent = detectIntent(message);
-      if (intent === "garbage") {
-        return {
-          reply:
-            "I didn't quite catch that. Could you try asking for a gift, like 'birthday gift under ₹1000'?",
-          products: [],
-          quickReplies: ["Show me real gifts", "Surprise me", "Gift finder"],
-        };
-      }
-
-      const intentReply = getIntentReply(intent);
-      if (
-        intentReply &&
-        intent !== "product_search" &&
-        intent !== "price_query"
-      ) {
-        return {
-          reply: intentReply,
-          products: [],
-          quickReplies:
-            QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
-        };
-      }
-
-      // Extract price constraints (rule-based)
-      const priceMatch =
-        message.match(/under\s*[₹rs.]?\s*(\d+)/i) ??
-        message.match(/below\s*[₹rs.]?\s*(\d+)/i) ??
-        message.match(/less than\s*[₹rs.]?\s*(\d+)/i) ??
-        message.match(/max\s*[₹rs.]?\s*(\d+)/i);
-      maxPrice = priceMatch ? parseInt(priceMatch[1], 10) : null;
-
-      const minPriceMatch =
-        message.match(/above\s*[₹rs.]?\s*(\d+)/i) ??
-        message.match(/over\s*[₹rs.]?\s*(\d+)/i) ??
-        message.match(/more than\s*[₹rs.]?\s*(\d+)/i);
-      minPrice = minPriceMatch ? parseInt(minPriceMatch[1], 10) : null;
-
-      // Extract matching tags (rule-based)
+      // Fallback to rule-based logic only if Gemini fails entirely
+      // (This block is already set up to be minimal)
       for (const [keyword, tags] of Object.entries(KEYWORD_TAG_MAP)) {
         if (message.toLowerCase().includes(keyword)) matchedTags.push(...tags);
       }
-
-      // ── Enhanced fallback: Extract search query from common patterns ──────
-      const searchPatterns = [
-        /find\s+(?:me\s+)?(?:a\s+)?([^,.?!]+)/i,
-        /show\s+(?:me\s+)?(?:some\s+)?([^,.?!]+)/i,
-        /looking\s+for\s+(?:a\s+)?([^,.?!]+)/i,
-        /suggest\s+(?:a\s+)?([^,.?!]+)/i,
-        /search\s+(?:for\s+)?([^,.?!]+)/i,
-      ];
-
-      for (const pattern of searchPatterns) {
-        const match = message.match(pattern);
-        if (match && match[1]) {
-          const candidate = match[1].trim().toLowerCase();
-          // Filter out common filler words
-          const cleanQuery = candidate
-            .replace(
-              /\b(gift|gifts|idea|ideas|under|below|for|someone|something|please|me|a|some|find|show|suggest|search|looking)\b/g,
-              "",
-            )
-            .trim();
-
-          if (cleanQuery.length > 2) {
-            searchQuery = cleanQuery;
-            break;
-          }
-        }
-      }
-
-      reply = ""; // Will be set after product fetch
+      reply = ""; 
     }
 
     // ── Fetch products from database ──────────────────────────────────────

@@ -523,28 +523,6 @@ export default function GiftFinderPage() {
                 className="w-full"
               >
                 <div className="text-center mb-12">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 20,
-                      delay: 0.2,
-                    }}
-                    className="inline-flex items-center gap-2 bg-[#007D48]/10 px-4 py-2 rounded-full mb-4"
-                  >
-                    <Gift className="w-4 h-4 text-[#007D48]" />
-                    <span
-                      className="text-[12px] font-medium text-[#007D48] uppercase tracking-wider"
-                      style={{
-                        fontFamily:
-                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                      }}
-                    >
-                      Curated by Gemini 2.0
-                    </span>
-                  </motion.div>
                   <h2 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-3">
                     YOUR PERFECT MATCHES
                   </h2>

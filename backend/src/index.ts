@@ -132,7 +132,7 @@ app.listen(PORT, () => {
   console.log(`✅ Health check: http://localhost:${PORT}/health`);
   console.log(`🤖 AI features : recommendations, chatbot, gift finder`);
   console.log(
-    `🧠 Gemini 2.0  : ${process.env.GEMINI_API_KEY ? "ENABLED (Flash/Lite)" : "DISABLED — using rule-based fallback"}`,
+    `🧠 Gemini 2.5  : ${process.env.GEMINI_API_KEY ? "ENABLED (Flash/Lite)" : "DISABLED — using rule-based fallback"}`,
   );
   console.log(`🔒 Rate limiting: enabled`);
 });

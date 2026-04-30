@@ -5,8 +5,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 // Primary and Secondary models for high-availability
-const PRIMARY_MODEL = "gemini-2.0-flash";
-const SECONDARY_MODEL = "gemini-2.0-flash-lite";
+const PRIMARY_MODEL = "gemini-2.5-flash";
+const SECONDARY_MODEL = "gemini-2.5-flash-lite";
 
 export const isGeminiAvailable = (): boolean => {
   return !!genAI;
@@ -61,6 +61,7 @@ export const geminiChatResponse = async (
   message: string,
   history: Array<{ role: "user" | "assistant"; content: string }> = [],
   userName: string | null = null,
+  catalogContext: string = "",
 ): Promise<GeminiChatResult | null> => {
   if (!isGeminiAvailable()) return null;
 
@@ -75,6 +76,9 @@ export const geminiChatResponse = async (
 
       ${userName ? `The user's name is ${userName}. Greet them personally if appropriate.` : ""}
 
+      AVAILABLE PRODUCT CATALOG:
+      ${catalogContext}
+
       Conversation History:
       ${historyText}
 
@@ -82,7 +86,7 @@ export const geminiChatResponse = async (
 
       JSON schema:
       {
-        "reply": "A helpful, conversational, and premium-feeling response.",
+        "reply": "A helpful, conversational, and premium-feeling response. Mention specific products from the catalog above if they match the user's intent.",
         "suggestedTags": ["list", "of", "relevant", "gift", "tags"],
         "searchQuery": "A single specific noun representing the product (e.g., 'perfume', 'wallet', 'hamper', 'watch'). NEVER use multiple words like 'perfume set' or 'chocolate box', just 'perfume' or 'chocolate'. Return null if no specific product is mentioned.",
         "maxPrice": number or null,
@@ -91,12 +95,11 @@ export const geminiChatResponse = async (
       }
 
       Guidelines:
-      - If the message is a greeting, be welcoming and mention what we sell (gifts, hampers, luxury items).
+      - If the message is a greeting, be welcoming and mention specific items we have in stock (e.g. "We have some exquisite Aromatherapy Candle Sets and Premium Watches today").
       - If the user's name is known, use it in greetings or personal moments.
       - If the message is about searching for gifts, extract specific tags AND a searchQuery for the main item.
-      - Even if you are asking a clarifying question, try to set a searchQuery if the user mentioned a specific item.
-      - Extract price only if mentioned (e.g., "within 1000" -> maxPrice: 1000).
-      - If the message is "garbage" (nonsense, random letters, offensive, completely irrelevant to shopping/gifting, e.g. "ajskhfasdf" or "write me a poem"), set intent to "garbage" and provide a polite reply redirecting to shopping.
+      - Use the PROVIDED CATALOG to inform your recommendations and replies.
+      - If the message is "garbage" (nonsense, random letters, offensive, completely irrelevant to shopping/gifting), set intent to "garbage" and provide a polite reply redirecting to shopping.
       - ALWAYS respond with ONLY the valid JSON object.
     `;
 
