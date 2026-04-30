@@ -5,8 +5,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 // Primary and Secondary models for high-availability
-const PRIMARY_MODEL = "gemini-2.5-flash";
-const SECONDARY_MODEL = "gemini-2.5-flash-lite";
+const PRIMARY_MODEL = "gemini-2.5-flash-lite";
+const SECONDARY_MODEL = "gemini-2.5-flash";
 
 export const isGeminiAvailable = (): boolean => {
   return !!genAI;
@@ -58,13 +58,12 @@ async function generateWithFallback(prompt: string, attempt = 1) {
         return await fallbackModel.generateContent(prompt);
       } catch (fallbackError: any) {
         console.error(
-          `[Gemini Service] Fallback to ${SECONDARY_MODEL} also failed:`,
-          fallbackError?.message || fallbackError,
+          `[Gemini Service] Fallback to ${SECONDARY_MODEL} also failed, returning null for fallback.`,
         );
-        throw fallbackError;
+        return null; // Return null gracefully so service can use DB fallback
       }
     }
-    throw error;
+    return null;
   }
 }
 
