@@ -6,7 +6,7 @@ import Image from "next/image"
 
 export function ExperienceSection() {
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
@@ -52,7 +52,7 @@ export function ExperienceSection() {
 
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         <motion.div style={{ opacity }} className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          
+
           {/* Left Text Content */}
           <div className="flex flex-col justify-center space-y-8">
             <motion.div
@@ -84,7 +84,7 @@ export function ExperienceSection() {
           </div>
 
           {/* Right Image/3D Element */}
-          <motion.div 
+          <motion.div
             style={{ y: y1 }}
             className="relative h-[600px] w-full hidden md:block perspective-[1200px]"
           >
@@ -99,13 +99,13 @@ export function ExperienceSection() {
               className="w-full h-full relative flex items-center justify-center cursor-crosshair"
             >
               {/* Main Image Layer */}
-              <motion.div 
+              <motion.div
                 style={{ translateZ: 50 }}
                 className="absolute inset-0 bg-gray-100 shadow-2xl overflow-hidden rounded-sm border border-black/5"
               >
-                <Image 
-                  src="https://images.unsplash.com/photo-1607344645866-009c320b63e0?q=80&w=2000&auto=format&fit=crop"
-                  alt="Luxury Gift Wrapping"
+                <Image
+                  src="https://i.pinimg.com/736x/ee/8f/eb/ee8febee411ab13382c172e63bec3169.jpg"
+                  alt="Luxury Gift Selection"
                   fill
                   className="object-cover"
                 />

@@ -17,7 +17,7 @@ export function Hero() {
       ref={containerRef}
       className="relative w-full h-[100svh] overflow-hidden bg-white text-[#111111] selection:bg-black selection:text-white"
     >
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
       {/* Dynamic 2D/3D Background Elements using CSS and Framer Motion */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Soft elegant gradients */}
@@ -51,8 +51,8 @@ export function Hero() {
         className="absolute top-[20%] w-full text-center z-10 select-none pointer-events-none"
       >
         <h1
-          className="text-[18vw] leading-[0.8] tracking-tighter text-[#0066FF]/30 font-bold uppercase whitespace-nowrap"
-          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 900 }}
+          className="text-[18vw] leading-[0.8] tracking-tighter text-[#0066FF] font-black uppercase whitespace-nowrap"
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
         >
           ALL BLUE
         </h1>

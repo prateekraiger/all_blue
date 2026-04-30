@@ -51,6 +51,7 @@ export default function GiftFinderPage() {
   const [budget, setBudget] = useState(5000);
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<GiftResult[] | null>(null);
+  const [introMessage, setIntroMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<{
     personas: Persona[];
@@ -91,6 +92,7 @@ export default function GiftFinderPage() {
         budget,
       });
       setResults(response.products as GiftResult[]);
+      setIntroMessage(response.message);
       setStep(4);
     } catch (err: any) {
       console.error("[GiftFinder] API error:", err);
@@ -110,6 +112,7 @@ export default function GiftFinderPage() {
       ) * 500,
     );
     setResults(null);
+    setIntroMessage(null);
     setError(null);
   };
 
@@ -514,24 +517,102 @@ export default function GiftFinderPage() {
                   <h2 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-3">
                     YOUR PERFECT MATCHES
                   </h2>
-                  <p
-                    className="text-[14px] text-[#707072]"
-                    style={{
-                      fontFamily:
-                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                    }}
-                  >
-                    Selected for a{" "}
-                    <span className="text-[#111111] font-medium">
-                      {persona?.name}
-                    </span>{" "}
-                    celebrating{" "}
-                    <span className="text-[#111111] font-medium">
-                      {occasion?.name}
-                    </span>
-                    .
-                  </p>
+                  {introMessage ? (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[16px] md:text-[18px] text-[#111111] max-w-2xl mx-auto leading-relaxed italic"
+                      style={{
+                        fontFamily:
+                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      }}
+                    >
+                      &ldquo;{introMessage}&rdquo;
+                    </motion.p>
+                  ) : (
+                    <p
+                      className="text-[14px] text-[#707072]"
+                      style={{
+                        fontFamily:
+                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      }}
+                    >
+                      Selected for a{" "}
+                      <span className="text-[#111111] font-medium">
+                        {persona?.name}
+                      </span>{" "}
+                      celebrating{" "}
+                      <span className="text-[#111111] font-medium">
+                        {occasion?.name}
+                      </span>
+                      .
+                    </p>
+                  )}
                 </div>
+
+                {/* Compact Product List (Chatbot-style) */}
+                {results.length > 0 && (
+                  <div className="mb-12">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="h-[1px] flex-1 bg-[#E5E5E5]" />
+                      <span
+                        className="text-[11px] font-bold uppercase tracking-widest text-[#CACACB]"
+                        style={{
+                          fontFamily:
+                            '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                        }}
+                      >
+                        Quick Selection
+                      </span>
+                      <div className="h-[1px] flex-1 bg-[#E5E5E5]" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {results.map((product) => (
+                        <Link
+                          key={`quick-${product.id}`}
+                          href={`/shop/${product.id}`}
+                          className="group flex items-center gap-3 p-3 bg-white border border-[#E5E5E5] hover:border-[#111111] transition-all duration-300 no-underline"
+                        >
+                          <div className="w-12 h-12 bg-[#F5F5F5] overflow-hidden flex-shrink-0">
+                            {product.images && product.images[0] ? (
+                              <Image
+                                src={product.images[0]}
+                                alt={product.name}
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Gift className="w-4 h-4 text-[#CACACB]" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className="text-[12px] font-semibold text-[#111111] truncate group-hover:underline"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
+                              {product.name}
+                            </p>
+                            <p
+                              className="text-[12px] text-[#707072] font-medium"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
+                              ₹{product.price.toLocaleString("en-IN")}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 gap-3">
                   {results.map((product, i) => (
