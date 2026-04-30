@@ -10,7 +10,7 @@ export function Hero() {
       {/* Full-bleed hero image — edge-to-edge, no border radius */}
       <div className="relative w-full h-[70vh] min-h-[500px] md:h-[85vh] lg:h-[90vh]">
         <Image
-          src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1920&auto=format&fit=crop"
+          src="/images/hero.png"
           alt="Hero — curated luxury gifts collection"
           fill
           priority
