@@ -149,6 +149,11 @@ export interface PaginatedResult<T> {
 }
 
 // ─── Chatbot ─────────────────────────────────────────────────────────────────
+export interface ChatHistoryItem {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export interface ChatbotResponse {
   reply: string;
   products: Product[];

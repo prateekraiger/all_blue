@@ -364,10 +364,10 @@ export const aiApi = {
   ) =>
     apiFetch('/api/ai/preferences', { method: 'POST', body: JSON.stringify(data) }, token),
 
-  chat: (message: string, token?: string | null) =>
+  chat: (message: string, history: Array<{ role: 'user' | 'assistant'; content: string }> = [], token?: string | null) =>
     apiFetch<{ reply: string; products: Product[]; quickReplies?: string[] }>(
       '/api/ai/chat',
-      { method: 'POST', body: JSON.stringify({ message }) },
+      { method: 'POST', body: JSON.stringify({ message, history }) },
       token
     ),
 

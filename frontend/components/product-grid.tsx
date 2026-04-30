@@ -178,7 +178,7 @@ export function ProductGrid({
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {Array.from({ length: limit > 4 ? 4 : limit }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="bg-[#F5F5F5] aspect-square mb-3" />
@@ -188,7 +188,7 @@ export function ProductGrid({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {products.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}

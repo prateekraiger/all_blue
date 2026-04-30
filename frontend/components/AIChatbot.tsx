@@ -117,7 +117,8 @@ export function AIChatbot() {
       setIsLoading(true)
 
       try {
-        const response = await aiApi.chat(userMessage, token)
+        const history = messages.map(m => ({ role: m.role, content: m.content }));
+        const response = await aiApi.chat(userMessage, history, token);
         const aiMsg: Message = {
           id: (Date.now() + 1).toString(),
           role: "assistant",

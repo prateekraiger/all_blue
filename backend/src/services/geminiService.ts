@@ -1,10 +1,11 @@
+import 'dotenv/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-// Use gemini-2.5-flash for state-of-the-art fast responses
-const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }) : null;
+// Use gemini-2.5-flash-lite to handle high demand gracefully
+const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' }) : null;
 
 export const isGeminiAvailable = (): boolean => {
   return !!genAI && !!model;
@@ -13,6 +14,7 @@ export const isGeminiAvailable = (): boolean => {
 interface GeminiChatResult {
   reply: string;
   suggestedTags: string[];
+  searchQuery: string | null;
   maxPrice: number | null;
   minPrice: number | null;
   intent: string;
@@ -22,40 +24,56 @@ interface GeminiChatResult {
  * Intelligent chat parsing using Gemini AI.
  */
 export const geminiChatResponse = async (
-  message: string
+  message: string,
+  history: Array<{ role: 'user' | 'assistant'; content: string }> = [],
+  userName: string | null = null
 ): Promise<GeminiChatResult | null> => {
   if (!isGeminiAvailable()) return null;
 
   try {
+    const historyText = history
+      .map((h) => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`)
+      .join('\n');
+
     const prompt = `
-      You are an AI Shopping Assistant for "ALL BLUE", a premium gift shop.
-      Analyze the user's message and respond in JSON format.
-      
-      User message: "${message}"
-      
+      You are "ALL BLUE", an elite AI Shopping Concierge for an ultra-premium gift shop.
+      Your goal is to help users find the perfect gift from our catalog.
+
+      ${userName ? `The user's name is ${userName}. Greet them personally if appropriate.` : ''}
+
+      Conversation History:
+      ${historyText}
+
+      Current User message: "${message}"
+
       JSON schema:
       {
-        "reply": "A friendly, helpful conversational reply",
-        "suggestedTags": ["list", "of", "relevant", "gift", "tags", "like", "birthday", "luxury", "romantic"],
+        "reply": "A helpful, conversational, and premium-feeling response.",
+        "suggestedTags": ["list", "of", "relevant", "gift", "tags"],
+        "searchQuery": "the main product or category requested (e.g., 'perfume', 'wallet', 'hamper') or null",
         "maxPrice": number or null,
         "minPrice": number or null,
-        "intent": "greeting" | "farewell" | "help" | "product_search" | "price_query" | "order_help" | "unknown"
+        "intent": "greeting" | "farewell" | "help" | "product_search" | "price_query" | "order_help" | "garbage" | "unknown"
       }
-      
-      Constraints:
-      - If searching for gifts, keep suggestedTags specific.
-      - Extract price only if mentioned (e.g., "under 500" -> maxPrice: 500).
-      - Keep the reply concise and professional.
+
+      Guidelines:
+      - If the message is a greeting, be welcoming and mention what we sell (gifts, hampers, luxury items).
+      - If the user's name is known, use it in greetings or personal moments.
+      - If the message is about searching for gifts, extract specific tags AND a searchQuery for the main item.
+      - Extract price only if mentioned (e.g., "within 1000" -> maxPrice: 1000).
+      - Maintain continuity with the Conversation History. If the user asks "show me more", look at the previous context.
+      - If the message is "garbage" (nonsense, random letters, offensive, or completely irrelevant to shopping/gifting), set intent to "garbage".
+      - ALWAYS respond with ONLY the valid JSON object.
     `;
 
     const result = await model!.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     // Extract JSON from potential markdown blocks
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
-    
+
     return JSON.parse(jsonMatch[0]) as GeminiChatResult;
   } catch (error) {
     console.error('[Gemini Service] Chat parsing failed:', error);
@@ -90,7 +108,7 @@ export const geminiGiftReason = async (
       Target Recipient: ${persona}
       Occasion: ${occasion}
       User Budget: ₹${budget}
-      
+
       Explain why this product is a great gift for this recipient and occasion.
       Return JSON:
       {
@@ -102,10 +120,10 @@ export const geminiGiftReason = async (
     const result = await model!.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
-    
+
     return JSON.parse(jsonMatch[0]) as GeminiReasonResult;
   } catch (error) {
     console.error('[Gemini Service] Reason generation failed:', error);

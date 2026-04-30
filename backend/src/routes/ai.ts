@@ -44,8 +44,15 @@ router.post(
   optionalAuth,
   validate(schemas.chat),
   async (req: AuthRequest, res: Response) => {
-    const { message } = req.body as { message: string };
-    const response = await aiService.chatbotResponse(message, req.user?.id ?? null);
+    const { message, history } = req.body as { message: string; history?: any[] };
+    const userName = req.user?.user_metadata?.full_name || undefined;
+    
+    const response = await aiService.chatbotResponse(
+      message, 
+      req.user?.id ?? null,
+      history,
+      userName
+    );
     res.json({ success: true, data: response });
   }
 );

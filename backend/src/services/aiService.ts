@@ -9,6 +9,7 @@ import type {
   Product,
   UserPreferences,
   ChatbotResponse,
+  ChatHistoryItem,
   GiftFinderInput,
   GiftFinderProduct,
   GiftFinderResult,
@@ -68,8 +69,26 @@ const QUICK_REPLIES: string[][] = [
   ['Corporate gifting', 'Gift hampers'],
 ];
 
-// ─── Recommendations ──────────────────────────────────────────────────────────
+/**
+ * Fetch fallback products from the database when specific searches fail.
+ */
+async function fetchFallbackProducts(limit: number = 6): Promise<Product[]> {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .gt('stock', 0)
+      .order('created_at', { ascending: false })
+      .limit(limit);
 
+    if (error) throw error;
+    return (data ?? []) as Product[];
+  } catch (err) {
+    console.error('[AI Service] fetchFallbackProducts failed:', err);
+    return [];
+  }
+}
 /**
  * Return personalised product recommendations for a user.
  */
@@ -147,8 +166,8 @@ export const getRecommendations = async (
 
     return products.slice(0, limit);
   } catch (error) {
-    console.error('[AI Service] getRecommendations fallback used');
-    return MOCK_PRODUCTS.slice(0, limit);
+    console.error('[AI Service] getRecommendations error, using database fallback');
+    return fetchFallbackProducts(limit);
   }
 };
 
@@ -204,8 +223,8 @@ export const getSimilarProducts = async (
 
     return similar.slice(0, limit);
   } catch (error) {
-    console.error('[AI Service] getSimilarProducts fallback used');
-    return MOCK_PRODUCTS.filter(p => p.id !== productId).slice(0, limit);
+    console.error('[AI Service] getSimilarProducts error, using database fallback');
+    return fetchFallbackProducts(limit);
   }
 };
 
@@ -287,12 +306,15 @@ export const updatePreferences = async (
 /**
  * Detect intent from message for smarter chatbot replies.
  */
-function detectIntent(msg: string): 'greeting' | 'farewell' | 'help' | 'product_search' | 'price_query' | 'order_help' | 'unknown' {
+function detectIntent(msg: string): 'greeting' | 'farewell' | 'help' | 'product_search' | 'price_query' | 'order_help' | 'garbage' | 'unknown' {
   if (/\b(hi|hello|hey|hola|namaste|howdy)\b/i.test(msg)) return 'greeting';
   if (/\b(bye|goodbye|see you|later|thanks|thank you|thx)\b/i.test(msg)) return 'farewell';
   if (/\b(help|what can you do|how|guide|support)\b/i.test(msg)) return 'help';
   if (/\b(order|track|status|cancel|refund|return)\b/i.test(msg)) return 'order_help';
   if (/\b(price|cost|how much|cheap|expensive|budget)\b/i.test(msg)) return 'price_query';
+  
+  if (/^([a-zA-Z])\1{5,}$/i.test(msg) || !/\w/.test(msg) || (msg.length > 20 && !/\s/.test(msg))) return 'garbage';
+
   return 'product_search';
 }
 
@@ -319,39 +341,55 @@ function getIntentReply(intent: string): string | null {
  */
 export const chatbotResponse = async (
   message: string,
-  userId: string | null
+  userId: string | null,
+  history: ChatHistoryItem[] = [],
+  userName?: string
 ): Promise<ChatbotResponse> => {
   try {
-    const msg = message.toLowerCase();
-
     // ── Try Gemini AI first ─────────────────────────────────────────────────
-    const geminiResult = await geminiChatResponse(message);
+    const geminiResult = await geminiChatResponse(message, history, userName);
 
     let reply: string;
     let matchedTags: string[] = [];
     let maxPrice: number | null = null;
     let minPrice: number | null = null;
     let intent: string;
+    let searchQuery: string | null = null;
 
     if (geminiResult) {
-      // Gemini succeeded — use its intelligent parsing
       reply = geminiResult.reply;
       matchedTags = geminiResult.suggestedTags;
       maxPrice = geminiResult.maxPrice;
       minPrice = geminiResult.minPrice;
       intent = geminiResult.intent;
+      searchQuery = geminiResult.searchQuery;
+
+      console.log(`[AI Service] Intent: ${intent}, Query: ${searchQuery}, Tags: ${matchedTags.join(', ')}`);
 
       // For non-product intents, return Gemini's reply directly
       if (intent !== 'product_search' && intent !== 'price_query' && intent !== 'unknown') {
+        let qrs = QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)];
+        if (intent === 'garbage') {
+          qrs = ['Show me real gifts', 'Surprise me', 'Gift finder'];
+        }
+
         return {
           reply,
           products: [],
-          quickReplies: QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
+          quickReplies: qrs,
         };
       }
     } else {
       // ── Fallback: rule-based intent detection ───────────────────────────
-      intent = detectIntent(msg);
+      intent = detectIntent(message);
+      if (intent === 'garbage') {
+        return {
+          reply: "I didn't quite catch that. Could you try asking for a gift, like 'birthday gift under ₹1000'?",
+          products: [],
+          quickReplies: ['Show me real gifts', 'Surprise me', 'Gift finder'],
+        };
+      }
+
       const intentReply = getIntentReply(intent);
       if (intentReply && intent !== 'product_search' && intent !== 'price_query') {
         return {
@@ -363,21 +401,21 @@ export const chatbotResponse = async (
 
       // Extract price constraints (rule-based)
       const priceMatch =
-        msg.match(/under\s*[₹rs.]?\s*(\d+)/i) ??
-        msg.match(/below\s*[₹rs.]?\s*(\d+)/i) ??
-        msg.match(/less than\s*[₹rs.]?\s*(\d+)/i) ??
-        msg.match(/max\s*[₹rs.]?\s*(\d+)/i);
+        message.match(/under\s*[₹rs.]?\s*(\d+)/i) ??
+        message.match(/below\s*[₹rs.]?\s*(\d+)/i) ??
+        message.match(/less than\s*[₹rs.]?\s*(\d+)/i) ??
+        message.match(/max\s*[₹rs.]?\s*(\d+)/i);
       maxPrice = priceMatch ? parseInt(priceMatch[1], 10) : null;
 
       const minPriceMatch =
-        msg.match(/above\s*[₹rs.]?\s*(\d+)/i) ??
-        msg.match(/over\s*[₹rs.]?\s*(\d+)/i) ??
-        msg.match(/more than\s*[₹rs.]?\s*(\d+)/i);
+        message.match(/above\s*[₹rs.]?\s*(\d+)/i) ??
+        message.match(/over\s*[₹rs.]?\s*(\d+)/i) ??
+        message.match(/more than\s*[₹rs.]?\s*(\d+)/i);
       minPrice = minPriceMatch ? parseInt(minPriceMatch[1], 10) : null;
 
       // Collect matching tags (rule-based)
       for (const [keyword, tags] of Object.entries(KEYWORD_TAG_MAP)) {
-        if (msg.includes(keyword)) matchedTags.push(...tags);
+        if (message.toLowerCase().includes(keyword)) matchedTags.push(...tags);
       }
 
       reply = ''; // Will be set after product fetch
@@ -397,13 +435,22 @@ export const chatbotResponse = async (
 
       if (maxPrice) query = query.lte('price', maxPrice);
       if (minPrice) query = query.gte('price', minPrice);
-      if (matchedTags.length > 0) query = query.overlaps('tags', matchedTags);
+
+      if (searchQuery) {
+        // Prioritize name match or tag overlap for the search query words
+        const words = searchQuery.replace(/,/g, '').split(/\s+/).filter(w => w.length > 0);
+        const tagsOverlapStr = words.length > 0 ? `,tags.cd.{${words.join(',')}}` : '';
+        query = query.or(`name.ilike.%${searchQuery.replace(/,/g, '')}%${tagsOverlapStr}`);
+      } else if (matchedTags.length > 0) {
+        query = query.overlaps('tags', matchedTags);
+      }
 
       const { data } = await query;
       products = (data ?? []) as Product[];
 
-      // If tag-based search returned nothing, fall back to full catalog with price filter
-      if (products.length === 0 && (maxPrice || minPrice)) {
+      // If tag-based search returned nothing, don't fall back to random products if there's a specific search query.
+      // We only fall back if there's no specific text search, to avoid showing irrelevant products like chocolate for a watch query.
+      if (products.length === 0 && (maxPrice || minPrice) && !searchQuery && matchedTags.length === 0) {
         let fallback = supabase
           .from('products')
           .select('id, name, price, images, category, tags, stock')
@@ -417,15 +464,10 @@ export const chatbotResponse = async (
         products = (fallbackData ?? []) as Product[];
       }
     } catch {
-      // Mock fallback for database query
-      products = MOCK_PRODUCTS.filter(p => {
-        const matchesMaxPrice = maxPrice ? p.price <= maxPrice : true;
-        const matchesMinPrice = minPrice ? p.price >= minPrice : true;
-        const matchesTags = matchedTags.length > 0
-          ? p.tags?.some(t => matchedTags.includes(t)) ?? false
-          : true;
-        return matchesMaxPrice && matchesMinPrice && matchesTags;
-      }).slice(0, 6);
+      // If DB fails, fetch featured products but only if it's a general request
+      if (!searchQuery && matchedTags.length === 0) {
+        products = await fetchFallbackProducts(6);
+      }
     }
 
     // ── Build reply if rule-based (Gemini already set reply above) ────────
@@ -464,9 +506,11 @@ export const chatbotResponse = async (
         : undefined,
     };
   } catch (error) {
+    console.error('[AI Service] chatbotResponse error, fetching featured items');
+    const fallbackProducts = await fetchFallbackProducts(3);
     return {
       reply: "I'm having a bit of trouble right now. Here are some featured items you might like! 🎁",
-      products: MOCK_PRODUCTS.slice(0, 3) as Product[],
+      products: fallbackProducts,
     };
   }
 };
@@ -511,7 +555,7 @@ const PERSONA_CATEGORY_MAP: Record<GiftFinderPersona, string[]> = {
  */
 function calculateMatchScore(product: Product, targetTags: string[]): number {
   if (!product.tags || product.tags.length === 0 || targetTags.length === 0) {
-    return 50; 
+    return 50;
   }
 
   const productTagSet = new Set(product.tags.map((t) => t.toLowerCase()));
@@ -627,8 +671,8 @@ export const giftFinderRecommendations = async (
       allProducts = [...allProducts, ...((data ?? []) as Product[])];
     }
   } catch {
-    console.error('[AI Service] GiftFinder fallback used');
-    allProducts = MOCK_PRODUCTS.filter(p => p.price <= budget).slice(0, RESULT_LIMIT);
+    console.error('[AI Service] GiftFinder error, using database fallback');
+    allProducts = await fetchFallbackProducts(RESULT_LIMIT);
   }
 
   // 5. Score, sort, and build response — use Gemini when available
@@ -678,53 +722,4 @@ export const giftFinderRecommendations = async (
   };
 };
 
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: "Classic Men's Watch",
-    category: "Gifts for Him",
-    price: 29900,
-    tags: ['luxury', 'premium', 'corporate', 'anniversary'],
-    images: ["/gift_watch.png"],
-    stock: 10,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: "Designer Perfume",
-    category: "Gifts for Her",
-    price: 15900,
-    tags: ['romantic', 'love', 'luxury', 'perfume'],
-    images: ["/gift_perfume.png"],
-    stock: 10,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '3',
-    name: "Artisan Chocolates",
-    category: "Gifts",
-    price: 5900,
-    tags: ['birthday', 'thank you', 'celebration'],
-    images: ["/gift_chocolates.png"],
-    stock: 10,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '4',
-    name: "Elegant Floral Bouquet",
-    category: "Gifts",
-    price: 8900,
-    tags: ['floral', 'love', 'romantic'],
-    images: ["/gift_bouquet.png"],
-    stock: 10,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
+// MOCK_PRODUCTS removed to favor database fallbacks.

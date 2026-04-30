@@ -87,7 +87,16 @@ export const preferencesSchema = z.object({
 });
 
 export const chatSchema = z.object({
-  message: z.string().min(1).max(500),
+  message: z.string().min(1).max(1000),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 export const paymentCreateSchema = z.object({
