@@ -1,5 +1,16 @@
 import Image from "next/image"
 import { Mail, Phone } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description:
+    "Get in touch with ALL BLUE. Reach our concierge team for personalized gifting assistance, corporate inquiries, or support.",
+  openGraph: {
+    title: "Contact Us | ALL BLUE",
+    description: "Reach our concierge team for personalized gifting assistance.",
+  },
+}
 
 export default function ContactPage() {
   return (

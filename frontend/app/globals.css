@@ -390,3 +390,64 @@
 .nike-hero-scrim {
   background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, transparent 100%);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PERFORMANCE — Layout Containment & GPU Hints
+   ═══════════════════════════════════════════════════════════ */
+
+/* Contain layout recalculations within product cards */
+.contain-layout {
+  contain: layout style;
+}
+
+/* GPU-accelerated transforms for animated elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Reduce paint area for fixed/sticky elements */
+nav[class*="sticky"] {
+  contain: layout style;
+  will-change: transform;
+}
+
+/* Optimize image containers — prevent layout shift */
+[class*="aspect-square"] {
+  contain: layout size style;
+}
+
+/* Reduce CLS for skeleton loading states */
+.animate-pulse {
+  contain: layout style paint;
+}
+
+/* Optimize off-screen content */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Smooth scrolling with reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus-visible for keyboard users only (no outlines on click) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

@@ -1,9 +1,33 @@
 /**
- * GiftShop AI — API Client
- * Centralized fetch wrapper for all backend calls.
+ * GiftShop AI — Production API Client
+ *
+ * Features:
+ * - Automatic retry with exponential backoff for transient errors
+ * - Request timeout protection
+ * - Built-in cache integration for GET requests
+ * - AbortController support
+ * - Structured error handling
  */
 
+import { cachedFetch, invalidateCacheByPrefix } from './cache';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 800;
+const REQUEST_TIMEOUT_MS = 15_000; // 15 seconds
+
+// Cache TTLs (ms)
+const CACHE_TTL = {
+  PRODUCTS_LIST: 2 * 60 * 1000, // 2 min
+  PRODUCT_DETAIL: 5 * 60 * 1000, // 5 min
+  CATEGORIES: 10 * 60 * 1000, // 10 min
+  TRENDING: 3 * 60 * 1000, // 3 min
+  SIMILAR: 5 * 60 * 1000, // 5 min
+  REVIEWS: 3 * 60 * 1000, // 3 min
+} as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,7 +37,7 @@ export interface Product {
   description?: string;
   price: number;
   category?: string;
-tags?: string[];
+  tags?: string[];
   images?: string[];
   stock: number;
   is_active: boolean;
@@ -78,12 +102,24 @@ export interface PaginatedResult<T> {
   totalPages: number;
 }
 
-// ─── Core Fetch ───────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Check if an HTTP status is retryable (server errors or rate-limit) */
+function isRetryableStatus(status: number): boolean {
+  return status === 429 || status === 502 || status === 503 || status === 504;
+}
+
+/** Sleep utility */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ─── Core Fetch with Retry + Timeout ─────────────────────────────────────────
 
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
-  token?: string | null
+  token?: string | null,
 ): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -94,21 +130,69 @@ async function apiFetch<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  const method = options.method?.toUpperCase() || 'GET';
+  const isIdempotent = method === 'GET' || method === 'HEAD';
+  const retries = isIdempotent ? MAX_RETRIES : 0; // Only retry safe methods
 
-  const json = await res.json();
+  let lastError: Error | null = null;
 
-  if (!res.ok) {
-    throw new Error(json.error || `Request failed with status ${res.status}`);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    // AbortController for timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const res = await fetch(`${API_URL}${path}`, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      // If retryable error and we have retries left, sleep and continue
+      if (!res.ok && isRetryableStatus(res.status) && attempt < retries) {
+        const delay = RETRY_DELAY_MS * Math.pow(2, attempt);
+        await sleep(delay);
+        continue;
+      }
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || `Request failed with status ${res.status}`);
+      }
+
+      return json.data as T;
+    } catch (err: unknown) {
+      clearTimeout(timeout);
+      lastError = err instanceof Error ? err : new Error(String(err));
+
+      // Abort errors (timeout) are retryable
+      if (lastError.name === 'AbortError' && attempt < retries) {
+        const delay = RETRY_DELAY_MS * Math.pow(2, attempt);
+        await sleep(delay);
+        continue;
+      }
+
+      // Network errors are retryable
+      if (lastError.message === 'Failed to fetch' && attempt < retries) {
+        const delay = RETRY_DELAY_MS * Math.pow(2, attempt);
+        await sleep(delay);
+        continue;
+      }
+
+      // Non-retryable or out of retries
+      if (attempt === retries) {
+        throw lastError;
+      }
+    }
   }
 
-  return json.data as T;
+  throw lastError || new Error('Request failed');
 }
 
-// ─── Products API ─────────────────────────────────────────────────────────────
+// ─── Products API (cached GET requests) ──────────────────────────────────────
 
 export const productsApi = {
   list: (params?: {
@@ -127,29 +211,56 @@ export const productsApi = {
     if (params?.limit) qs.set('limit', String(params.limit));
     if (params?.sort) qs.set('sort', params.sort);
     const query = qs.toString();
-    return apiFetch<{ products: Product[]; total: number; page: number; totalPages: number }>(
-      `/api/products${query ? `?${query}` : ''}`
+    const path = `/api/products${query ? `?${query}` : ''}`;
+    return cachedFetch(
+      `products:list:${query}`,
+      () => apiFetch<{ products: Product[]; total: number; page: number; totalPages: number }>(path),
+      CACHE_TTL.PRODUCTS_LIST,
     );
   },
 
-  get: (id: string) => apiFetch<Product>(`/api/products/${id}`),
+  get: (id: string) =>
+    cachedFetch(
+      `products:detail:${id}`,
+      () => apiFetch<Product>(`/api/products/${id}`),
+      CACHE_TTL.PRODUCT_DETAIL,
+    ),
 
-  trending: (limit = 8) => apiFetch<Product[]>(`/api/products/trending?limit=${limit}`),
+  trending: (limit = 8) =>
+    cachedFetch(
+      `products:trending:${limit}`,
+      () => apiFetch<Product[]>(`/api/products/trending?limit=${limit}`),
+      CACHE_TTL.TRENDING,
+    ),
 
-  categories: () => apiFetch<string[]>('/api/products/categories'),
+  categories: () =>
+    cachedFetch(
+      'products:categories',
+      () => apiFetch<string[]>('/api/products/categories'),
+      CACHE_TTL.CATEGORIES,
+    ),
 
-  create: (data: Partial<Product>, token: string) =>
-    apiFetch<Product>('/api/products', { method: 'POST', body: JSON.stringify(data) }, token),
+  create: (data: Partial<Product>, token: string) => {
+    const result = apiFetch<Product>('/api/products', { method: 'POST', body: JSON.stringify(data) }, token);
+    result.then(() => invalidateCacheByPrefix('products:'));
+    return result;
+  },
 
-  update: (id: string, data: Partial<Product>, token: string) =>
-    apiFetch<Product>(
+  update: (id: string, data: Partial<Product>, token: string) => {
+    const result = apiFetch<Product>(
       `/api/products/${id}`,
       { method: 'PUT', body: JSON.stringify(data) },
       token
-    ),
+    );
+    result.then(() => invalidateCacheByPrefix('products:'));
+    return result;
+  },
 
-  delete: (id: string, token: string) =>
-    apiFetch<{ message: string }>(`/api/products/${id}`, { method: 'DELETE' }, token),
+  delete: (id: string, token: string) => {
+    const result = apiFetch<{ message: string }>(`/api/products/${id}`, { method: 'DELETE' }, token);
+    result.then(() => invalidateCacheByPrefix('products:'));
+    return result;
+  },
 };
 
 // ─── Cart API ─────────────────────────────────────────────────────────────────
@@ -241,7 +352,11 @@ export const aiApi = {
     apiFetch<Product[]>(`/api/ai/recommendations?limit=${limit}`, {}, token),
 
   similar: (productId: string, limit = 8) =>
-    apiFetch<Product[]>(`/api/ai/similar/${productId}?limit=${limit}`),
+    cachedFetch(
+      `ai:similar:${productId}:${limit}`,
+      () => apiFetch<Product[]>(`/api/ai/similar/${productId}?limit=${limit}`),
+      CACHE_TTL.SIMILAR,
+    ),
 
   updatePreferences: (
     data: { viewed_category?: string; viewed_tags?: string[]; last_search?: string },
@@ -279,12 +394,17 @@ export const reviewsApi = {
     const qs = new URLSearchParams();
     if (params?.page) qs.set('page', String(params.page));
     if (params?.limit) qs.set('limit', String(params.limit));
-    return apiFetch<{
-      reviews: Review[];
-      total: number;
-      avgRating: number;
-      ratingCount: number;
-    }>(`/api/reviews/${productId}?${qs.toString()}`);
+    const query = qs.toString();
+    return cachedFetch(
+      `reviews:${productId}:${query}`,
+      () => apiFetch<{
+        reviews: Review[];
+        total: number;
+        avgRating: number;
+        ratingCount: number;
+      }>(`/api/reviews/${productId}?${query}`),
+      CACHE_TTL.REVIEWS,
+    );
   },
 
   create: (data: { product_id: string; rating: number; comment?: string }, token: string) =>
