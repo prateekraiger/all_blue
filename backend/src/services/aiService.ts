@@ -74,18 +74,33 @@ const QUICK_REPLIES: string[][] = [
 
 /**
  * Fetch fallback products from the database when specific searches fail.
+ * Prioritizes budget and stock.
  */
-async function fetchFallbackProducts(limit: number = 6): Promise<Product[]> {
+async function fetchFallbackProducts(
+  limit: number = 6,
+  maxPrice?: number,
+): Promise<Product[]> {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
       .select("*")
       .eq("is_active", true)
       .gt("stock", 0)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+      .order("created_at", { ascending: false });
+
+    if (maxPrice) {
+      query = query.lte("price", maxPrice);
+    }
+
+    const { data, error } = await query.limit(limit);
 
     if (error) throw error;
+
+    // If budget-restricted search returns nothing, try without budget
+    if ((!data || data.length === 0) && maxPrice) {
+      return fetchFallbackProducts(limit);
+    }
+
     return (data ?? []) as Product[];
   } catch (err) {
     console.error("[AI Service] fetchFallbackProducts failed:", err);
@@ -745,10 +760,34 @@ export const giftFinderRecommendations = async (
           .order("price", { ascending: false })
           .limit(RESULT_LIMIT);
 
-        if (data) allProducts = data as Product[];
+        if (data && data.length > 0) {
+          allProducts = data as Product[];
+        }
+      }
+
+      // If still no products, try category-based fallback
+      if (allProducts.length === 0) {
+        const categories = PERSONA_CATEGORY_MAP[persona] ?? [];
+        if (categories.length > 0) {
+          const { data } = await supabase
+            .from("products")
+            .select("*")
+            .eq("is_active", true)
+            .gt("stock", 0)
+            .lte("price", budget)
+            .in("category", categories)
+            .order("price", { ascending: false })
+            .limit(RESULT_LIMIT);
+          if (data && data.length > 0) allProducts = data as Product[];
+        }
+      }
+
+      // Final dynamic fallback if still empty
+      if (allProducts.length === 0) {
+        allProducts = await fetchFallbackProducts(RESULT_LIMIT, budget);
       }
     } catch {
-      allProducts = await fetchFallbackProducts(RESULT_LIMIT);
+      allProducts = await fetchFallbackProducts(RESULT_LIMIT, budget);
     }
   }
 
@@ -795,10 +834,18 @@ export const giftFinderRecommendations = async (
 
   const finalProducts = scored.slice(0, RESULT_LIMIT);
 
-  let message =
-    finalProducts.length > 0
-      ? `Found ${finalProducts.length} perfect gift${finalProducts.length > 1 ? "s" : ""} for your ${persona.toLowerCase()}'s ${occasion.toLowerCase()}!`
-      : `We couldn't find products matching your criteria right now. Try adjusting your budget or browsing our full catalog.`;
+  let message = "";
+  if (finalProducts.length > 0) {
+    // We found products, but were they high-scoring?
+    const topScore = finalProducts[0].matchScore;
+    if (topScore >= 90) {
+      message = `Found ${finalProducts.length} perfect gift${finalProducts.length > 1 ? "s" : ""} for your ${persona.toLowerCase()}'s ${occasion.toLowerCase()}!`;
+    } else {
+      message = `We've hand-picked ${finalProducts.length} exceptional gifts that your ${persona.toLowerCase()} will love for this ${occasion.toLowerCase()}.`;
+    }
+  } else {
+    message = `We couldn't find products matching your criteria right now. Try adjusting your budget or browsing our full catalog.`;
+  }
 
   if (isGeminiAvailable() && finalProducts.length > 0) {
     try {

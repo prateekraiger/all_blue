@@ -8,7 +8,7 @@ interface UseInViewOptions {
 
 export function useInView(
   options: UseInViewOptions = {}
-): [RefObject<HTMLDivElement>, boolean] {
+): [RefObject<HTMLDivElement | null>, boolean] {
   const [isInView, setIsInView] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
