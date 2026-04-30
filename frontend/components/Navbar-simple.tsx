@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useUser, useStackApp } from "@stackframe/stack"
 import { useCart } from "@/context/CartContext"
 import { toast } from "sonner"
+import { getLikedProductIds, wishlistUpdatedEventName } from "@/lib/wishlist"
 
 const navLinks = [
   { name: "New & Featured", href: "/shop" },
@@ -19,11 +20,27 @@ const navLinks = [
 
 export function NavbarSimple() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [likedCount, setLikedCount] = useState(0)
   const router = useRouter()
   const pathname = usePathname()
   const user = useUser()
   const stackApp = useStackApp()
   const { itemCount } = useCart()
+
+  useEffect(() => {
+    const updateLikedCount = () => {
+      setLikedCount(getLikedProductIds().length)
+    }
+
+    updateLikedCount()
+    window.addEventListener("storage", updateLikedCount)
+    window.addEventListener(wishlistUpdatedEventName(), updateLikedCount)
+
+    return () => {
+      window.removeEventListener("storage", updateLikedCount)
+      window.removeEventListener(wishlistUpdatedEventName(), updateLikedCount)
+    }
+  }, [])
 
   // Body scroll lock when mobile menu is open
   useEffect(() => {
@@ -94,9 +111,14 @@ export function NavbarSimple() {
             </Link>
 
             {/* Favorites */}
-            <button className="p-2 text-[#111111] hover:text-[#707072] transition-colors hidden sm:block">
+            <Link href="/wishlist" className="relative p-2 text-[#111111] hover:text-[#707072] transition-colors hidden sm:block">
               <Heart className="w-6 h-6" strokeWidth={1.5} />
-            </button>
+              {likedCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#111111] text-white text-[10px] font-medium min-w-[18px] h-[18px] flex items-center justify-center rounded-full">
+                  {likedCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <Link href="/cart" className="relative p-2 text-[#111111] hover:text-[#707072] transition-colors">

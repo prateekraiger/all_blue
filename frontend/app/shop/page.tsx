@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { ChevronDown, ShoppingBag, Search, X, SlidersHorizontal } from "lucide-react"
 import { productsApi, type Product } from "@/lib/api"
+import { getLikedProductIds, toggleLikedProduct } from "@/lib/wishlist"
 import { useCart } from "@/context/CartContext"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,7 +20,15 @@ const SORT_OPTIONS = [
   { value: "trending", label: "Trending" },
 ]
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({
+  product,
+  isLiked,
+  onToggleLike,
+}: {
+  product: Product
+  isLiked: boolean
+  onToggleLike: (productId: string) => void
+}) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
   const [imgSrc, setImgSrc] = useState(product.images?.[0] || "/placeholder.svg")
@@ -73,8 +82,18 @@ function ProductCard({ product }: { product: Product }) {
           )}
 
           {/* Heart icon */}
-          <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center text-[#CACACB] hover:text-[#D30005] transition-colors z-10">
-            <Heart className="w-4 h-4" strokeWidth={1.5} />
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onToggleLike(product.id)
+            }}
+            aria-label={isLiked ? `Remove ${product.name} from liked items` : `Like ${product.name}`}
+            className={`absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center transition-colors z-10 ${
+              isLiked ? "text-[#D30005]" : "text-[#CACACB] hover:text-[#D30005]"
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} strokeWidth={1.5} />
           </button>
 
           {/* Quick Add on hover */}
@@ -118,6 +137,11 @@ function ShopContent() {
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
+  const [likedProductIds, setLikedProductIds] = useState<string[]>([])
+
+  useEffect(() => {
+    setLikedProductIds(getLikedProductIds())
+  }, [])
 
   const currentCategory = searchParams.get("category") || ""
   const currentSort = searchParams.get("sort") || "created_at"
@@ -162,6 +186,11 @@ function ShopContent() {
 
   const clearFilters = () => {
     router.push("/shop")
+  }
+
+  const toggleLike = (productId: string) => {
+    const next = toggleLikedProduct(productId)
+    setLikedProductIds(next)
   }
 
   const hasFilters = currentCategory || currentSearch
@@ -356,7 +385,12 @@ function ShopContent() {
           <motion.div layout className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-3">
             <AnimatePresence>
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isLiked={likedProductIds.includes(product.id)}
+                  onToggleLike={toggleLike}
+                />
               ))}
             </AnimatePresence>
           </motion.div>
