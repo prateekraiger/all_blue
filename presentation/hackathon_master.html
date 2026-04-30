@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALL BLUE - Hackathon Showcase</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --nike-black: #111111;
+            --nike-white: #FFFFFF;
+            --grey-100: #F5F5F5;
+            --grey-200: #E5E5E5;
+            --grey-500: #707072;
+            --nike-blue: #1151FF;
+            --lab-grid: rgba(17, 81, 255, 0.05);
+            
+            --background: var(--nike-white);
+            --foreground: var(--nike-black);
+            
+            --font-display: "Oswald", sans-serif;
+            --font-body: "Inter", sans-serif;
+            --font-mono: "JetBrains Mono", monospace;
+
+            --ease-nike: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration: 0.8s;
+            --slide-padding: clamp(2rem, 8vw, 8rem);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--grey-200);
+        }
+
+        /* Lab Grid Background for Tech Slides */
+        .slide.tech-slide::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(var(--lab-grid) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--lab-grid) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--slide-padding);
+            z-index: 2;
+        }
+
+        h1, h2 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: clamp(4rem, 12vw, 8rem); }
+        h2 { font-size: clamp(3rem, 8vw, 5rem); }
+        
+        .blue-accent { color: var(--nike-blue); }
+        .mono { font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: -0.02em; }
+
+        .tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--nike-black);
+            color: var(--nike-white);
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+        }
+
+        .tech-pill {
+            padding: 0.4rem 1rem;
+            border: 1px solid var(--grey-200);
+            border-radius: 200px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tech-pill::before {
+            content: "";
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--nike-blue);
+        }
+
+        .tech-stack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        /* Code Block Component */
+        .code-window {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            color: #d4d4d4;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            position: relative;
+            margin-top: 2rem;
+        }
+
+        .code-window::before {
+            content: "•••";
+            position: absolute;
+            top: 0.8rem; left: 1rem;
+            color: #555;
+            font-size: 1.2rem;
+        }
+
+        /* Navigation */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 4px;
+            background: var(--nike-blue);
+            z-index: 1000;
+            transition: width 0.3s var(--ease-nike);
+        }
+
+        .slide-nav {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            width: 3.5rem; height: 3.5rem;
+            border: 1px solid var(--grey-200);
+            background: var(--nike-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover { background: var(--nike-black); color: var(--nike-white); border-color: var(--nike-black); }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all var(--duration) var(--ease-nike);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+
+        /* Feature Card */
+        .feature-card {
+            border: 1px solid var(--grey-200);
+            padding: 2.5rem;
+            transition: border-color 0.3s ease;
+            background: var(--nike-white);
+        }
+
+        .feature-card:hover { border-color: var(--nike-blue); }
+
+        .feature-icon {
+            width: 3rem; height: 3rem;
+            background: var(--nike-blue);
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 3.5rem; }
+            h2 { font-size: 2.5rem; }
+            .slide-content { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="slide-nav">
+        <div class="nav-btn" onclick="navigate(-1)">↑</div>
+        <div class="nav-btn" onclick="navigate(1)">↓</div>
+    </div>
+
+    <!-- SLIDE 1: INTRO -->
+    <section class="slide">
+        <div class="slide-content" style="text-align: center; align-items: center;">
+            <div class="tag reveal">Hackathon Submission 2026</div>
+            <h1 class="reveal stagger-1">ALL <span class="blue-accent">BLUE.</span></h1>
+            <p class="reveal stagger-2" style="font-size: 1.5rem; font-weight: 500; margin-top: 1rem;">The Intelligent Infrastructure for Curated Generosity.</p>
+            <div class="reveal stagger-3" style="margin-top: 4rem; display: flex; gap: 2rem;">
+                <div class="tech-pill">Next.js 16</div>
+                <div class="tech-pill">Supabase</div>
+                <div class="tech-pill">Gemini AI</div>
+                <div class="tech-pill">Three.js</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: THE PROBLEM -->
+    <section class="slide">
+        <div class="slide-content">
+            <h2 class="reveal">The Problem:<br><span class="blue-accent">Choice Friction.</span></h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 2rem;">
+                <div class="reveal stagger-1">
+                    <p class="muted-text">Traditional e-commerce is built for <b>Search</b>, not <b>Selection</b>. High-net-worth gifting requires discernment, but algorithms only offer noise.</p>
+                </div>
+                <div class="reveal stagger-2">
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
+                        <li style="display: flex; gap: 1rem; align-items: flex-start;">
+                            <span class="blue-accent" style="font-weight: 700;">—</span>
+                            <span><b>Decision Paralysis:</b> Infinite options lead to lower conversion.</span>
+                        </li>
+                        <li style="display: flex; gap: 1rem; align-items: flex-start;">
+                            <span class="blue-accent" style="font-weight: 700;">—</span>
+                            <span><b>The Empathy Gap:</b> Bots recommend based on keywords, not sentiment.</span>
+                        </li>
+                        <li style="display: flex; gap: 1rem; align-items: flex-start;">
+                            <span class="blue-accent" style="font-weight: 700;">—</span>
+                            <span><b>Spatial Doubt:</b> "Will this fit their space and style?"</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: THE THREE PILLARS (CORE HACK) -->
+    <section class="slide tech-slide">
+        <div class="slide-content">
+            <h2 class="reveal">The Multi-Modal<br><span class="blue-accent">Solution.</span></h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
+                <div class="feature-card reveal stagger-1">
+                    <h3>Neural Engine</h3>
+                    <p class="muted-text" style="font-size: 0.9rem; margin-top: 1rem;">Vector-based recommendation engine deciphering emotional intent via LLM synthesis.</p>
+                </div>
+                <div class="feature-card reveal stagger-2">
+                    <h3>Spatial Gifting</h3>
+                    <p class="muted-text" style="font-size: 0.9rem; margin-top: 1rem;">Real-time WebGL & AR previews for zero-friction visualization of luxury goods.</p>
+                </div>
+                <div class="feature-card reveal stagger-3">
+                    <h3>Ambient Commerce</h3>
+                    <p class="muted-text" style="font-size: 0.9rem; margin-top: 1rem;">Natural Language voice intent processing for hands-free discovery.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: TECH STACK -->
+    <section class="slide">
+        <div class="slide-content">
+            <h2 class="reveal">The Powerhouse<br><span class="blue-accent">Stack.</span></h2>
+            <div class="tech-stack-grid">
+                <div class="reveal stagger-1 stat-block">
+                    <p class="mono blue-accent">Frontend</p>
+                    <h3>Next.js 16</h3>
+                    <p class="muted-text" style="font-size: 0.8rem;">App Router, RSC, Edge Middleware.</p>
+                </div>
+                <div class="reveal stagger-2 stat-block">
+                    <p class="mono blue-accent">Data Layer</p>
+                    <h3>Supabase</h3>
+                    <p class="muted-text" style="font-size: 0.8rem;">pgvector for AI search, Realtime for UX.</p>
+                </div>
+                <div class="reveal stagger-3 stat-block">
+                    <p class="mono blue-accent">Intelligence</p>
+                    <h3>Gemini Pro</h3>
+                    <p class="muted-text" style="font-size: 0.8rem;">Intent extraction & sentiment analysis.</p>
+                </div>
+                <div class="reveal stagger-1 stat-block">
+                    <p class="mono blue-accent">Visuals</p>
+                    <h3>Three.js</h3>
+                    <p class="muted-text" style="font-size: 0.8rem;">Custom WebGL pipeline for AR previews.</p>
+                </div>
+                <div class="reveal stagger-2 stat-block">
+                    <p class="mono blue-accent">Auth</p>
+                    <h3>Stack Auth</h3>
+                    <p class="muted-text" style="font-size: 0.8rem;">Managed, ultra-secure auth flow.</p>
+                </div>
+                <div class="reveal stagger-3 stat-block">
+                    <p class="mono blue-accent">Payments</p>
+                    <h3>Stripe</h3>
+                    <p class="muted-text" style="font-size: 0.8rem;">Treasury & Connect for global artisans.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: NEURAL ENGINE (DEEP DIVE) -->
+    <section class="slide tech-slide">
+        <div class="slide-content">
+            <h2 class="reveal">Deep Dive:<br>Neural <span class="blue-accent">Engine.</span></h2>
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem;">
+                <div class="reveal stagger-1">
+                    <p class="muted-text">How we map "minimalist architect" to a physical item:</p>
+                    <div style="margin-top: 2rem;">
+                        <div style="margin-bottom: 1rem; border-left: 2px solid var(--nike-blue); padding-left: 1rem;">
+                            <b>1. Vectorization:</b> Input text converted to 1536-dim embeddings.
+                        </div>
+                        <div style="margin-bottom: 1rem; border-left: 2px solid var(--nike-blue); padding-left: 1rem;">
+                            <b>2. Semantic Search:</b> Searching our Supabase pgvector store.
+                        </div>
+                        <div style="border-left: 2px solid var(--nike-blue); padding-left: 1rem;">
+                            <b>3. RAG Synthesis:</b> Gemini refines the top 10 results into the "Perfect 3".
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal stagger-2">
+                    <div class="code-window">
+<span style="color: #6a9955;">// The Core Logic</span>
+<span style="color: #569cd6;">const</span> <span style="color: #dcdcaa;">recommendGift</span> = <span style="color: #569cd6;">async</span> (intent) => {
+  <span style="color: #569cd6;">const</span> { data: embedding } = <span style="color: #569cd6;">await</span> generateEmbedding(intent);
+  
+  <span style="color: #569cd6;">const</span> { data: items } = <span style="color: #569cd6;">await</span> supabase
+    .rpc(<span style="color: #ce9178;">'match_gifts'</span>, {
+      query_embedding: embedding,
+      match_threshold: <span style="color: #b5cea8;">0.8</span>,
+      match_count: <span style="color: #b5cea8;">5</span>
+    });
+
+  <span style="color: #c586c0;">return</span> synthesizeWithGemini(items, intent);
+};
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: SPATIAL GIFTING -->
+    <section class="slide tech-slide">
+        <div class="slide-content">
+            <h2 class="reveal">Spatial Gifting:<br><span class="blue-accent">AR Pipeline.</span></h2>
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem;">
+                <div class="reveal stagger-1">
+                    <div class="code-window">
+<span style="color: #6a9955;">// Custom Three.js Component</span>
+<span style="color: #569cd6;">function</span> <span style="color: #dcdcaa;">ProductPreview</span>({ modelUrl }) {
+  <span style="color: #569cd6;">const</span> { scene } = useGLTF(modelUrl);
+  
+  <span style="color: #c586c0;">return</span> (
+    &lt;<span style="color: #569cd6;">primitive</span> object={scene} scale={<span style="color: #b5cea8;">2</span>} /&gt;
+    &lt;<span style="color: #569cd6;">ContactShadows</span> opacity={<span style="color: #b5cea8;">1</span>} scale={<span style="color: #b5cea8;">10</span>} /&gt;
+    &lt;<span style="color: #569cd6;">Environment</span> preset=<span style="color: #ce9178;">"luxury"</span> /&gt;
+  );
+}
+                    </div>
+                </div>
+                <div class="reveal stagger-2">
+                    <p class="muted-text">Bridging the physical and digital gap:</p>
+                    <div style="margin-top: 2rem;">
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
+                            <li><b>Real-time Lighting:</b> HDR environment maps for photorealism.</li>
+                            <li><b>ARCore Integration:</b> Zero-app install AR via WebXR.</li>
+                            <li><b>Interactive UX:</b> Rotate, scale, and "place" with a tap.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: VOICE SEARCH -->
+    <section class="slide">
+        <div class="slide-content">
+            <h2 class="reveal">Ambient Intent:<br><span class="blue-accent">Voice Search.</span></h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 2rem;">
+                <div class="reveal stagger-1">
+                    <p class="muted-text">Implemented using the <b>Web Speech API</b> + <b>Custom Intent Parser</b>.</p>
+                    <p class="muted-text" style="margin-top: 2rem;">Users can speak natural sentences. Our backend extracts the "Occasion", "Relationship", and "Budget" to feed the Neural Engine.</p>
+                </div>
+                <div class="reveal stagger-2" style="background: var(--grey-100); display: flex; align-items: center; justify-content: center; padding: 4rem;">
+                    <div style="text-align: center;">
+                        <div style="width: 4rem; height: 4rem; background: var(--nike-blue); border-radius: 50%; margin: 0 auto 2rem; animation: pulse 2s infinite;"></div>
+                        <p class="mono">"Find me a housewarming gift for a friend who loves Bauhaus design."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: THE "HACK" -->
+    <section class="slide tech-slide">
+        <div class="slide-content">
+            <h2 class="reveal">The "Hack":<br><span class="blue-accent">24h Velocity.</span></h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
+                <div class="reveal stagger-1 stat-block">
+                    <div class="stat-value">52</div>
+                    <div class="stat-label">API Endpoints</div>
+                    <p class="muted-text" style="font-size: 0.8rem; margin-top: 1rem;">Full CRUD for products, orders, and AI profiles built on Supabase.</p>
+                </div>
+                <div class="reveal stagger-2 stat-block">
+                    <div class="stat-value">03</div>
+                    <div class="stat-label">Microservices</div>
+                    <p class="muted-text" style="font-size: 0.8rem; margin-top: 1rem;">Frontend (Next), Backend (Express), and a dedicated AR-Server.</p>
+                </div>
+                <div class="reveal stagger-3 stat-block">
+                    <div class="stat-value">98</div>
+                    <div class="stat-label">Lighthouse Score</div>
+                    <p class="muted-text" style="font-size: 0.8rem; margin-top: 1rem;">Optimized for speed and core web vitals from the first commit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 9: ARCHITECTURE -->
+    <section class="slide">
+        <div class="slide-content">
+            <h2 class="reveal">The System<br><span class="blue-accent">Architecture.</span></h2>
+            <div class="reveal stagger-1" style="border: 1px solid var(--grey-200); padding: 4rem; text-align: center;">
+                <p class="mono">NEXT.JS FRONTEND (CLIENT)</p>
+                <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
+                <div style="display: flex; justify-content: center; gap: 4rem;">
+                    <div>
+                        <p class="mono">EXPRESS BACKEND</p>
+                        <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
+                        <p class="mono blue-accent">SUPABASE DB</p>
+                    </div>
+                    <div>
+                        <p class="mono">AR SERVER</p>
+                        <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
+                        <p class="mono blue-accent">3D ASSETS</p>
+                    </div>
+                    <div>
+                        <p class="mono">GEMINI API</p>
+                        <div style="height: 2rem; width: 1px; background: var(--grey-200); margin: 1rem auto;"></div>
+                        <p class="mono blue-accent">VECTORS</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: IMPACT -->
+    <section class="slide">
+        <div class="slide-content">
+            <h2 class="reveal">Market &<br><span class="blue-accent">Scaling.</span></h2>
+            <div class="grid-3">
+                <div class="reveal stagger-1">
+                    <h3>Premium Gifting</h3>
+                    <p class="muted-text">Targeting the high-growth luxury segment where average order value exceeds $500.</p>
+                </div>
+                <div class="reveal stagger-2">
+                    <h3>Corporate B2B</h3>
+                    <p class="muted-text">Automated high-end gifting for real estate, law firms, and wealth management.</p>
+                </div>
+                <div class="reveal stagger-3">
+                    <h3>Artisan Network</h3>
+                    <p class="muted-text">Scaling to 10k+ independent artisans through our Stripe-powered payment mesh.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11: TEAM & FUTURE -->
+    <section class="slide">
+        <div class="slide-content">
+            <h2 class="reveal">Future:<br><span class="blue-accent">ALL BLUE.</span></h2>
+            <div style="display: flex; gap: 4rem; margin-top: 2rem;">
+                <div class="reveal stagger-1">
+                    <p class="muted-text">Beyond Gifting: Becoming the universal "Discerning Interface" for all luxury consumption.</p>
+                </div>
+                <div class="reveal stagger-2">
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                        <li><b>— Haptic Integration:</b> Feel materials before buying.</li>
+                        <li><b>— Crypto-Native:</b> Sol and Eth payment rails.</li>
+                        <li><b>— DAO Sourcing:</b> Community-curated artisans.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12: CONCLUSION -->
+    <section class="slide">
+        <div class="slide-content" style="text-align: center; align-items: center;">
+            <h1 class="reveal">THANK YOU.</h1>
+            <p class="reveal stagger-1" style="font-size: 1.5rem;">Let's build the future of generosity.</p>
+            <div class="reveal stagger-2" style="margin-top: 4rem;">
+                <p class="mono">LIVE AT: <span class="blue-accent">ALLBLUE.GIFT</span></p>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+
+        function updateProgress() {
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function navigate(direction) {
+            currentSlide = Math.max(0, Math.min(slides.length - 1, currentSlide + direction));
+            slides[currentSlide].scrollIntoView({ behavior: 'smooth' });
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    currentSlide = Array.from(slides).indexOf(entry.target);
+                    updateProgress();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        slides.forEach(slide => observer.observe(slide));
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') navigate(1);
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') navigate(-1);
+        });
+    </script>
+</body>
+</html>
