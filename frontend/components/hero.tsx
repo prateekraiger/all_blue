@@ -14,25 +14,18 @@ export function Hero() {
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
-    <InteractiveHero 
-      className="bg-white text-[#111111] selection:bg-black selection:text-white h-[100svh]"
-      ballpitConfig={{
-        count: 120,
-        minSize: 0.4,
-        maxSize: 1.0,
-        gravity: 0.15,
-        friction: 0.99,
-        wallBounce: 0.5,
-      }}
+    <section 
+      ref={containerRef}
+      className="relative w-full h-[100svh] overflow-hidden bg-white text-[#111111] selection:bg-black selection:text-white"
     >
       <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
       {/* Dynamic 2D/3D Background Elements using CSS and Framer Motion */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Soft elegant gradients */}
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-gray-200/50 to-transparent blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] rounded-full bg-gradient-to-tl from-gray-300/40 to-transparent blur-[120px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-blue-50/50 to-transparent blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] rounded-full bg-gradient-to-tl from-gray-100/40 to-transparent blur-[120px]" />
 
-        {/* Abstract floating shapes for that "sexy" premium vibe */}
+        {/* Abstract floating shapes */}
         <motion.div
           animate={{
             y: [0, -20, 0],
@@ -56,10 +49,10 @@ export function Hero() {
       {/* Massive Background Typography */}
       <motion.div
         style={{ y: y1, opacity }}
-        className="absolute top-[15%] w-full text-center z-20 select-none pointer-events-none mix-blend-multiply"
+        className="absolute top-[15%] w-full text-center z-10 select-none pointer-events-none mix-blend-multiply"
       >
         <h1
-          className="text-[18vw] leading-[0.8] tracking-tighter text-[#003366]/10 font-serif italic whitespace-nowrap"
+          className="text-[18vw] leading-[0.8] tracking-tighter text-[#0066FF]/20 font-serif italic font-bold whitespace-nowrap"
           style={{ fontFamily: '"Playfair Display", "Times New Roman", Times, serif' }}
         >
           ALL BLUE
@@ -121,6 +114,6 @@ export function Hero() {
       >
         <ArrowDown className="w-4 h-4 text-black/30" />
       </motion.div>
-    </InteractiveHero>
+    </section>
   );
 }

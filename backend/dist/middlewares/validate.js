@@ -73,7 +73,14 @@ exports.preferencesSchema = zod_1.z.object({
     last_search: zod_1.z.string().optional(),
 });
 exports.chatSchema = zod_1.z.object({
-    message: zod_1.z.string().min(1).max(500),
+    message: zod_1.z.string().min(1).max(1000),
+    history: zod_1.z
+        .array(zod_1.z.object({
+        role: zod_1.z.enum(['user', 'assistant']),
+        content: zod_1.z.string(),
+    }))
+        .optional()
+        .default([]),
 });
 exports.paymentCreateSchema = zod_1.z.object({
     order_id: zod_1.z.string().uuid('Invalid order ID'),

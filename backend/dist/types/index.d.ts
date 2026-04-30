@@ -123,6 +123,10 @@ export interface PaginatedResult<T> {
     limit: number;
     totalPages: number;
 }
+export interface ChatHistoryItem {
+    role: 'user' | 'assistant';
+    content: string;
+}
 export interface ChatbotResponse {
     reply: string;
     products: Product[];

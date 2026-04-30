@@ -1,4 +1,4 @@
-import type { Product, UserPreferences, ChatbotResponse, GiftFinderInput, GiftFinderResult } from '../types';
+import type { Product, UserPreferences, ChatbotResponse, ChatHistoryItem, GiftFinderInput, GiftFinderResult } from "../types";
 /**
  * Return personalised product recommendations for a user.
  */
@@ -16,11 +16,33 @@ export declare const updatePreferences: (userId: string, { viewed_category, view
     last_search?: string;
 }) => Promise<UserPreferences>;
 /**
- * Enhanced chatbot with Gemini 1.5 Flash AI + rule-based fallback.
+ * Get a summarized product catalog for AI context.
  */
-export declare const chatbotResponse: (message: string, userId: string | null) => Promise<ChatbotResponse>;
+export declare const getProductCatalogContext: () => Promise<string>;
 /**
- * Gift Finder — rule-based recommendation engine.
+ * Enhanced chatbot with Gemini 2.5 Flash AI + rule-based fallback.
+ */
+export declare const chatbotResponse: (message: string, userId: string | null, history?: ChatHistoryItem[], userName?: string) => Promise<ChatbotResponse>;
+/**
+ * Get dynamic personas and occasions from current product tags/categories.
+ */
+export declare const getGiftFinderMetadata: () => Promise<{
+    personas: {
+        name: string;
+        description: string;
+        icon: string;
+    }[];
+    occasions: {
+        name: string;
+        emoji: string;
+    }[];
+    budgetRange: {
+        min: number;
+        max: number;
+    };
+}>;
+/**
+ * Gift Finder — Intelligent AI recommendation engine.
  */
 export declare const giftFinderRecommendations: (input: GiftFinderInput) => Promise<GiftFinderResult>;
 //# sourceMappingURL=aiService.d.ts.map

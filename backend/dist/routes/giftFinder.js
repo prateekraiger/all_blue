@@ -37,6 +37,11 @@ const express_1 = require("express");
 const validate_1 = require("../middlewares/validate");
 const aiService = __importStar(require("../services/aiService"));
 const router = (0, express_1.Router)();
+// ─── GET /api/gift-finder/metadata — Get dynamic personas and occasions ───────
+router.get('/metadata', async (_req, res) => {
+    const metadata = await aiService.getGiftFinderMetadata();
+    res.json({ success: true, data: metadata });
+});
 // ─── POST /api/gift-finder — AI-powered gift recommendations ──────────────────
 router.post('/', (0, validate_1.validate)(validate_1.schemas.giftFinder), async (req, res) => {
     const input = req.body;

@@ -70,6 +70,13 @@ export declare const preferencesSchema: z.ZodObject<{
 }, z.core.$strip>;
 export declare const chatSchema: z.ZodObject<{
     message: z.ZodString;
+    history: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodObject<{
+        role: z.ZodEnum<{
+            user: "user";
+            assistant: "assistant";
+        }>;
+        content: z.ZodString;
+    }, z.core.$strip>>>>;
 }, z.core.$strip>;
 export declare const paymentCreateSchema: z.ZodObject<{
     order_id: z.ZodString;
@@ -157,6 +164,13 @@ export declare const schemas: {
     }, z.core.$strip>;
     readonly chat: z.ZodObject<{
         message: z.ZodString;
+        history: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodObject<{
+            role: z.ZodEnum<{
+                user: "user";
+                assistant: "assistant";
+            }>;
+            content: z.ZodString;
+        }, z.core.$strip>>>>;
     }, z.core.$strip>;
     readonly orderStatus: z.ZodObject<{
         status: z.ZodEnum<{

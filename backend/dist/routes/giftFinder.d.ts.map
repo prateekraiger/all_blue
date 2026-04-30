@@ -1,1 +1,1 @@
-{"version":3,"file":"giftFinder.d.ts","sourceRoot":"","sources":["../../src/routes/giftFinder.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAMjC,QAAA,MAAM,MAAM,EAAE,MAAiB,CAAC;AAiBhC,eAAe,MAAM,CAAC"}
+{"version":3,"file":"giftFinder.d.ts","sourceRoot":"","sources":["../../src/routes/giftFinder.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAMjC,QAAA,MAAM,MAAM,EAAE,MAAiB,CAAC;AAuBhC,eAAe,MAAM,CAAC"}

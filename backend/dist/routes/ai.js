@@ -61,8 +61,9 @@ router.post('/preferences', auth_1.requireAuth, (0, validate_1.validate)(validat
 });
 // ─── POST /api/ai/chat — Rule-based chatbot endpoint ─────────────────────────
 router.post('/chat', auth_1.optionalAuth, (0, validate_1.validate)(validate_1.schemas.chat), async (req, res) => {
-    const { message } = req.body;
-    const response = await aiService.chatbotResponse(message, req.user?.id ?? null);
+    const { message, history } = req.body;
+    const userName = req.user?.user_metadata?.full_name || undefined;
+    const response = await aiService.chatbotResponse(message, req.user?.id ?? null, history, userName);
     res.json({ success: true, data: response });
 });
 exports.default = router;
