@@ -1,197 +1,128 @@
--- ================================================================
--- GiftShop AI — Supabase Database Schema
--- Run this in the Supabase SQL Editor
--- ================================================================
+-- AI Gift Finder - Supabase Database Schema
+-- Run this in your Supabase SQL Editor to set up the necessary tables and seed data.
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
--- ─── Products ────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS products (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name       TEXT NOT NULL,
-  description TEXT,
-  price      NUMERIC NOT NULL CHECK (price >= 0),
-  category   TEXT,
-  tags       TEXT[] DEFAULT '{}',
-  images     TEXT[] DEFAULT '{}',
-  stock      INT DEFAULT 0 CHECK (stock >= 0),
-  is_active  BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+-- 1. Create Products Table
+CREATE TABLE IF NOT EXISTS public.products (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    price INTEGER NOT NULL, -- Price in cents/paise
+    category TEXT,
+    tags TEXT[] DEFAULT '{}',
+    images TEXT[] DEFAULT '{}',
+    stock INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Index for faster category + tag filtering
-CREATE INDEX IF NOT EXISTS idx_products_category  ON products(category);
-CREATE INDEX IF NOT EXISTS idx_products_is_active ON products(is_active);
-CREATE INDEX IF NOT EXISTS idx_products_tags      ON products USING GIN(tags);
-
--- ─── Orders ──────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS orders (
-  id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id            UUID NOT NULL,
-  items              JSONB NOT NULL DEFAULT '[]',
-  total_amount       NUMERIC NOT NULL CHECK (total_amount >= 0),
-  status             TEXT DEFAULT 'pending'
-                       CHECK (status IN ('pending', 'paid', 'shipped', 'delivered', 'cancelled')),
-  payment_id         TEXT,
-  stripe_session_id  TEXT,
-  address            JSONB,
-  created_at         TIMESTAMPTZ DEFAULT NOW(),
-  updated_at         TIMESTAMPTZ DEFAULT NOW()
+-- 2. Create Cart Table
+CREATE TABLE IF NOT EXISTS public.cart (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL, -- Corresponds to Auth User ID
+    product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(user_id, product_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_orders_user_id    ON orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status     ON orders(status);
-CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
-
--- ─── Cart ────────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS cart (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID NOT NULL,
-  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
-  quantity   INT DEFAULT 1 CHECK (quantity > 0),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE (user_id, product_id)
+-- 3. Create Orders Table
+CREATE TABLE IF NOT EXISTS public.orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    items JSONB NOT NULL, -- Array of objects: { product_id, qty, price }
+    total_amount INTEGER NOT NULL,
+    status TEXT DEFAULT 'pending', -- pending, paid, shipped, delivered, cancelled
+    payment_id TEXT,
+    stripe_session_id TEXT,
+    address JSONB NOT NULL, -- { name, phone, line1, line2, city, state, pincode, country }
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_cart_user_id ON cart(user_id);
+-- Ensure these columns exist if the table was created previously
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_id TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS stripe_session_id TEXT;
 
--- ─── Reviews ─────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS reviews (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID NOT NULL,
-  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
-  rating     INT CHECK (rating BETWEEN 1 AND 5) NOT NULL,
-  comment    TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE (user_id, product_id)
+-- 4. Enable Row Level Security (RLS) - Basic Setup
+-- NOTE: For production, refine these policies to restrict access appropriately.
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cart ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+
+-- Allow everyone to read active products
+DROP POLICY IF EXISTS "Allow public read active products" ON public.products;
+CREATE POLICY "Allow public read active products" ON public.products
+    FOR SELECT USING (is_active = true);
+
+-- Allow users to manage their own cart
+DROP POLICY IF EXISTS "Users can manage their own cart" ON public.cart;
+CREATE POLICY "Users can manage their own cart" ON public.cart
+    USING (auth.uid() = user_id);
+
+-- Allow users to view their own orders
+DROP POLICY IF EXISTS "Users can view their own orders" ON public.orders;
+CREATE POLICY "Users can view their own orders" ON public.orders
+    FOR SELECT USING (auth.uid() = user_id);
+
+-- 5. Seed Initial Data (from products.json)
+INSERT INTO public.products (name, category, price, tags, images, stock, description)
+VALUES
+('Modern Chair', 'Living Room', 29900, ARRAY['furniture', 'minimalist'], ARRAY['/modern-minimalist-chair.jpg'], 10, 'A sleek, modern chair for your living room.'),
+('Ceramic Vase', 'Decor', 8900, ARRAY['decor', 'minimalist', 'ceramic'], ARRAY['/minimalist-ceramic-vase.png'], 10, 'Handcrafted ceramic vase with a minimalist touch.'),
+('Wood Table', 'Living Room', 59900, ARRAY['furniture', 'minimalist', 'wood'], ARRAY['/minimalist-wood-table.jpg'], 10, 'Solid wood table with a light finish.'),
+('Pendant Lamp', 'Lighting', 15900, ARRAY['lighting', 'minimalist'], ARRAY['/minimalist-pendant-lamp.jpg'], 10, 'Elegant pendant lamp for a soft ambiance.'),
+('Storage Unit', 'Bedroom', 44900, ARRAY['furniture', 'minimalist'], ARRAY['/minimalist-storage-cabinet.jpg'], 10, 'Versatile storage unit for any room.'),
+('Wall Mirror', 'Decor', 19900, ARRAY['decor', 'minimalist'], ARRAY['/minimalist-round-mirror.jpg'], 10, 'Minimalist round mirror for your wall.'),
+('Minimalist Bed', 'Bedroom', 89900, ARRAY['furniture', 'bedroom'], ARRAY['/modern-minimalist-bedroom.png'], 5, 'A comfortable and stylish bed for the modern bedroom.');
+
+-- 6. Create Reviews Table
+CREATE TABLE IF NOT EXISTS public.reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON reviews(product_id);
-
--- ─── User Preferences ────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS user_preferences (
-  user_id             UUID PRIMARY KEY,
-  viewed_categories   TEXT[] DEFAULT '{}',
-  purchased_tags      TEXT[] DEFAULT '{}',
-  last_search         TEXT,
-  updated_at          TIMESTAMPTZ DEFAULT NOW()
+-- 7. Create User Preferences Table
+CREATE TABLE IF NOT EXISTS public.user_preferences (
+    user_id UUID PRIMARY KEY,
+    viewed_categories TEXT[] DEFAULT '{}',
+    purchased_tags TEXT[] DEFAULT '{}',
+    gift_interests TEXT[] DEFAULT '{}',
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ─── Helper Functions ────────────────────────────────────────────────────────
-
--- Decrement stock (used after payment)
-CREATE OR REPLACE FUNCTION decrement_stock(product_id UUID, qty INT)
+-- 8. RPC Functions for Stock Management
+CREATE OR REPLACE FUNCTION decrement_stock(product_id UUID, qty INTEGER)
 RETURNS VOID AS $$
 BEGIN
-  UPDATE products
-  SET    stock      = GREATEST(stock - qty, 0),
-         updated_at = NOW()
-  WHERE  id = product_id;
+    UPDATE public.products
+    SET stock = stock - qty
+    WHERE id = product_id AND stock >= qty;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Insufficient stock or product not found';
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
--- Increment stock (used on order cancellation)
-CREATE OR REPLACE FUNCTION increment_stock(product_id UUID, qty INT)
+CREATE OR REPLACE FUNCTION increment_stock(product_id UUID, qty INTEGER)
 RETURNS VOID AS $$
 BEGIN
-  UPDATE products
-  SET    stock      = stock + qty,
-         updated_at = NOW()
-  WHERE  id = product_id;
+    UPDATE public.products
+    SET stock = stock + qty
+    WHERE id = product_id;
 END;
 $$ LANGUAGE plpgsql;
 
--- Auto-update updated_at timestamps
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- 9. Add Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_cart_user_id ON public.cart(user_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON public.reviews(product_id);
 
-CREATE TRIGGER update_products_updated_at
-  BEFORE UPDATE ON products
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_orders_updated_at
-  BEFORE UPDATE ON orders
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- ─── Row Level Security ──────────────────────────────────────────────────────
-
--- Enable RLS on all tables
-ALTER TABLE products         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cart             ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reviews          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
-
--- Products: public read, admin write (backend uses service role — bypasses RLS)
-CREATE POLICY "Public can view active products"
-  ON products FOR SELECT
-  USING (is_active = TRUE);
-
--- Orders: users can only see their own (backend service role bypasses)
-CREATE POLICY "Users see own orders"
-  ON orders FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users create own orders"
-  ON orders FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
--- Cart: users can only manage their own cart
-CREATE POLICY "Users manage own cart"
-  ON cart FOR ALL
-  USING (auth.uid() = user_id);
-
--- Reviews: public read, authenticated write own
-CREATE POLICY "Public can view reviews"
-  ON reviews FOR SELECT
-  USING (TRUE);
-
-CREATE POLICY "Users create own reviews"
-  ON reviews FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users delete own reviews"
-  ON reviews FOR DELETE
-  USING (auth.uid() = user_id);
-
--- User preferences: users manage own
-CREATE POLICY "Users manage own preferences"
-  ON user_preferences FOR ALL
-  USING (auth.uid() = user_id);
-
--- ─── Sample Seed Data (Optional) ─────────────────────────────────────────────
--- Uncomment and run to seed sample products
-
-/*
-INSERT INTO products (name, description, price, category, tags, images, stock) VALUES
-  ('Birthday Gift Box', 'A curated box of birthday surprises', 999, 'Gift Sets',
-   ARRAY['birthday', 'celebration', 'surprise'],
-   ARRAY['https://your-supabase.co/storage/v1/object/public/products/birthday-box.jpg'], 50),
-
-  ('Anniversary Candle Set', 'Luxury scented candles for couples', 1299, 'Home Decor',
-   ARRAY['anniversary', 'love', 'romantic', 'candle'],
-   ARRAY['https://your-supabase.co/storage/v1/object/public/products/candle-set.jpg'], 30),
-
-  ('Corporate Gift Hamper', 'Premium hamper for corporate gifting', 2499, 'Corporate',
-   ARRAY['corporate', 'premium', 'hamper'],
-   ARRAY['https://your-supabase.co/storage/v1/object/public/products/corporate-hamper.jpg'], 20),
-
-  ('Personalized Photo Mug', 'Custom printed ceramic mug', 499, 'Personalized',
-   ARRAY['personalized', 'photo', 'mug', 'birthday'],
-   ARRAY['https://your-supabase.co/storage/v1/object/public/products/photo-mug.jpg'], 100),
-
-  ('Luxury Perfume Gift', 'Imported fragrance in gift packaging', 3999, 'Luxury',
-   ARRAY['luxury', 'perfume', 'premium', 'anniversary'],
-   ARRAY['https://your-supabase.co/storage/v1/object/public/products/perfume.jpg'], 15),
-
-  ('Baby Welcome Kit', 'Everything for the new arrival', 1799, 'Baby',
-   ARRAY['baby', 'newborn', 'kids'],
-   ARRAY['https://your-supabase.co/storage/v1/object/public/products/baby-kit.jpg'], 25);
-*/
+-- 10. Reload PostgREST schema cache
+NOTIFY pgrst, 'reload schema';

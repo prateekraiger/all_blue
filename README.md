@@ -121,31 +121,10 @@ pnpm build
 vercel --prod
 ```
 
-### Backend (Railway/Heroku)
+### Backend (Railway/
 ```bash
 cd backend
 pnpm build
 # Deploy to your preferred platform
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the ISC License.
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Contact the development team
-
----
-
-Built with passion for the Smart India Hackathon 2025.
