@@ -4,6 +4,7 @@ import {
   geminiChatResponse,
   geminiGiftReason,
   geminiGiftFinderIntro,
+  geminiGiftFinderSelection,
   isGeminiAvailable,
 } from "./geminiService";
 import type {
@@ -432,7 +433,7 @@ export const chatbotResponse = async (
       for (const [keyword, tags] of Object.entries(KEYWORD_TAG_MAP)) {
         if (message.toLowerCase().includes(keyword)) matchedTags.push(...tags);
       }
-      reply = ""; 
+      reply = "";
     }
 
     // ── Fetch products from database ──────────────────────────────────────
@@ -667,7 +668,7 @@ function generateReason(
 }
 
 /**
- * Gift Finder — rule-based recommendation engine.
+ * Gift Finder — Intelligent AI recommendation engine.
  */
 export const giftFinderRecommendations = async (
   input: GiftFinderInput,
@@ -675,102 +676,92 @@ export const giftFinderRecommendations = async (
   const { persona, occasion, budget } = input;
   const RESULT_LIMIT = 6;
 
-  const personaTags = PERSONA_TAG_MAP[persona] ?? [];
-  const occasionTags = OCCASION_TAG_MAP[occasion] ?? [];
-  const targetTags = [...new Set([...personaTags, ...occasionTags])];
-
   let allProducts: Product[] = [];
 
-  try {
-    // 2. Tag-based query
-    if (targetTags.length > 0) {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .gt("stock", 0)
-        .lte("price", budget)
-        .overlaps("tags", targetTags)
-        .order("price", { ascending: false })
-        .limit(RESULT_LIMIT * 2);
+  // 1. Try Intelligent AI Selection first
+  if (isGeminiAvailable()) {
+    try {
+      const catalogContext = await getProductCatalogContext();
+      const selection = await geminiGiftFinderSelection(
+        persona,
+        occasion,
+        budget,
+        catalogContext,
+      );
 
-      if (!error) allProducts = (data ?? []) as Product[];
+      if (selection && selection.productNames.length > 0) {
+        const { data } = await supabase
+          .from("products")
+          .select("*")
+          .in("name", selection.productNames)
+          .eq("is_active", true)
+          .gt("stock", 0);
+
+        if (data && data.length > 0) {
+          allProducts = data as Product[];
+        }
+      }
+    } catch (error) {
+      console.error("[AI Service] Gemini gift selection failed:", error);
     }
+  }
 
-    // 3. Category-based fallback
-    if (allProducts.length < RESULT_LIMIT) {
-      const existingIds = allProducts.map((p) => p.id);
-      const categories = PERSONA_CATEGORY_MAP[persona] ?? [];
-      const needed = RESULT_LIMIT * 2 - allProducts.length;
+  // 2. Fallback to rule-based tag matching if AI selection failed or returned no products
+  if (allProducts.length === 0) {
+    const personaTags = PERSONA_TAG_MAP[persona] ?? [];
+    const occasionTags = OCCASION_TAG_MAP[occasion] ?? [];
+    const targetTags = [...new Set([...personaTags, ...occasionTags])];
 
-      if (categories.length > 0) {
-        let catQuery = supabase
+    try {
+      if (targetTags.length > 0) {
+        const { data } = await supabase
           .from("products")
           .select("*")
           .eq("is_active", true)
           .gt("stock", 0)
           .lte("price", budget)
-          .in("category", categories)
+          .overlaps("tags", targetTags)
           .order("price", { ascending: false })
-          .limit(needed);
+          .limit(RESULT_LIMIT);
 
-        if (existingIds.length > 0)
-          catQuery = catQuery.not("id", "in", existingIds);
-
-        const { data } = await catQuery;
-        allProducts = [...allProducts, ...((data ?? []) as Product[])];
+        if (data) allProducts = data as Product[];
       }
+    } catch {
+      allProducts = await fetchFallbackProducts(RESULT_LIMIT);
     }
-
-    // 4. Final fallback
-    if (allProducts.length < 3) {
-      const existingIds = allProducts.map((p) => p.id);
-      const needed = RESULT_LIMIT - allProducts.length;
-
-      let fallbackQuery = supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .gt("stock", 0)
-        .lte("price", budget)
-        .order("price", { ascending: false })
-        .limit(needed);
-
-      if (existingIds.length > 0)
-        fallbackQuery = fallbackQuery.not("id", "in", existingIds);
-
-      const { data } = await fallbackQuery;
-      allProducts = [...allProducts, ...((data ?? []) as Product[])];
-    }
-  } catch {
-    console.error("[AI Service] GiftFinder error, using database fallback");
-    allProducts = await fetchFallbackProducts(RESULT_LIMIT);
   }
 
-  // 5. Score, sort, and build response — use Gemini when available
+  // 3. Score, sort, and build response — use Gemini when available
   const scored: GiftFinderProduct[] = [];
+  const targetTags = [
+    ...new Set([
+      ...(PERSONA_TAG_MAP[persona] ?? []),
+      ...(OCCASION_TAG_MAP[occasion] ?? []),
+    ]),
+  ];
 
   for (const product of allProducts) {
     let matchScore = calculateMatchScore(product, targetTags);
     let reason = generateReason(product, persona, occasion, budget);
 
-    // Try Gemini for smarter personalised reasons (non-blocking)
-    try {
-      const geminiReason = await geminiGiftReason(
-        product.name,
-        product.category ?? "Gifts",
-        product.tags ?? [],
-        product.price,
-        persona,
-        occasion,
-        budget,
-      );
-      if (geminiReason) {
-        reason = geminiReason.reason;
-        matchScore = geminiReason.matchScore;
+    if (isGeminiAvailable()) {
+      try {
+        const geminiReason = await geminiGiftReason(
+          product.name,
+          product.category ?? "Gifts",
+          product.tags ?? [],
+          product.price,
+          persona,
+          occasion,
+          budget,
+        );
+        if (geminiReason) {
+          reason = geminiReason.reason;
+          matchScore = geminiReason.matchScore;
+        }
+      } catch {
+        // Fallback already set
       }
-    } catch {
-      // Fallback to rule-based — already set above
     }
 
     scored.push({ ...product, matchScore, reason });
@@ -783,10 +774,24 @@ export const giftFinderRecommendations = async (
 
   const finalProducts = scored.slice(0, RESULT_LIMIT);
 
-  const message =
+  let message =
     finalProducts.length > 0
       ? `Found ${finalProducts.length} perfect gift${finalProducts.length > 1 ? "s" : ""} for your ${persona.toLowerCase()}'s ${occasion.toLowerCase()}!`
       : `We couldn't find products matching your criteria right now. Try adjusting your budget or browsing our full catalog.`;
+
+  if (isGeminiAvailable() && finalProducts.length > 0) {
+    try {
+      const aiIntro = await geminiGiftFinderIntro(
+        persona,
+        occasion,
+        budget,
+        finalProducts.length,
+      );
+      if (aiIntro) message = aiIntro;
+    } catch {
+      // Fallback message already set
+    }
+  }
 
   return {
     products: finalProducts,
