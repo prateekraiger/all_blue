@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState, useCallback, memo } from "react"
 import { ShoppingBag, ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, useMotionValue, useTransform } from "framer-motion"
 import { productsApi, type Product } from "@/lib/api"
 import { prefetch } from "@/lib/cache"
 import { useCart } from "@/context/CartContext"
@@ -27,11 +27,36 @@ interface ProductGridProps {
   showViewAll?: boolean
 }
 
-/** Memoized product card to prevent unnecessary re-renders in grids */
+/** Memoized product card with 3D tilt effect */
 const ProductCard = memo(function ProductCard({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
   const [imgError, setImgError] = useState(false)
+
+  // 3D Tilt effect values
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  
+  const rotateX = useTransform(y, [-100, 100], [10, -10])
+  const rotateY = useTransform(x, [-100, 100], [-10, 10])
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    
+    // Calculate mouse position relative to center of card
+    const mouseX = event.clientX - rect.left - width / 2
+    const mouseY = event.clientY - rect.top - height / 2
+    
+    x.set(mouseX)
+    y.set(mouseY)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
 
   const handleAddToCart = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -59,65 +84,73 @@ const ProductCard = memo(function ProductCard({ product, index }: { product: Pro
   const imageUrl = imgError ? "/placeholder.svg" : (product.images?.[0] || "/placeholder.svg")
   const priceDisplay = `₹${(product.price).toLocaleString("en-IN")}`
 
+  const isEven = index % 2 === 0
+  const staggeredClass = !isEven ? "md:mt-16 lg:mt-24" : ""
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "100px" }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: (index % 4) * 0.1 }}
+      className={`${staggeredClass} perspective-1000`}
     >
       <Link
         href={`/shop/${product.id}`}
         className="text-[#111111] no-underline group block"
         onMouseEnter={handlePrefetch}
         onFocus={handlePrefetch}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         prefetch={false}
       >
-        {/* Product Image — square, no border radius, edge-to-edge */}
-        <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden contain-layout">
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            loading="lazy"
-            className="object-contain p-6 transition-opacity duration-200"
-            onError={() => setImgError(true)}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            unoptimized={imageUrl.startsWith('http')}
-          />
+        <motion.div
+          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="relative aspect-[3/4] bg-[#F5F5F5] overflow-hidden contain-layout transition-transform duration-500 shadow-sm group-hover:shadow-2xl"
+        >
+          <motion.div style={{ translateZ: 50 }} className="w-full h-full relative">
+            <Image
+              src={imageUrl}
+              alt={product.name}
+              fill
+              loading="lazy"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 mix-blend-multiply"
+              onError={() => setImgError(true)}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              unoptimized={imageUrl.startsWith('http')}
+            />
+          </motion.div>
 
           {/* Sold Out badge */}
           {product.stock === 0 && (
-            <div className="absolute top-3 left-3 bg-[#111111] text-white text-[12px] font-medium px-3 py-1 z-10">
+            <div className="absolute top-4 left-4 bg-black text-white text-[10px] tracking-widest uppercase font-medium px-4 py-2 z-10" style={{ transform: "translateZ(80px)" }}>
               Sold Out
             </div>
           )}
 
-          {/* Quick Add — appears on hover (desktop), always visible (mobile) */}
-          <div className="absolute inset-x-0 bottom-0 p-3 opacity-100 md:opacity-0 md:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 z-20">
+          {/* Quick Add — minimal slide up */}
+          <div className="absolute inset-x-0 bottom-0 p-4 opacity-100 md:opacity-0 md:translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-20 flex justify-center" style={{ transform: "translateZ(80px)" }}>
             <button
               onClick={handleAddToCart}
               disabled={adding || product.stock === 0}
-              className="nike-btn-primary w-full text-[14px] py-3"
+              className="bg-black/90 backdrop-blur-md text-white text-[12px] uppercase tracking-widest px-8 py-4 hover:bg-black transition-colors w-full sm:w-auto"
             >
-              <ShoppingBag className="w-4 h-4" />
               {product.stock === 0 ? "Unavailable" : adding ? "Adding..." : "Add to Cart"}
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Product Info — below image, tight spacing */}
-        <div className="pt-3 space-y-1">
-          <div className="flex justify-between items-start gap-2">
-            <h3 className="text-[16px] font-medium text-[#111111] leading-tight line-clamp-1 group-hover:underline" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {product.name}
-            </h3>
-            <span className="text-[16px] font-medium text-[#111111] whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              {priceDisplay}
-            </span>
-          </div>
-          <p className="text-[14px] text-[#707072] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+        {/* Product Info — separated, elegant typography */}
+        <div className="pt-8 space-y-2 text-center">
+          <p className="text-[11px] text-[#707072] font-medium uppercase tracking-[0.2em]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             {product.category}
+          </p>
+          <h3 className="text-[18px] md:text-[20px] font-serif italic text-[#111111] leading-tight line-clamp-1 group-hover:text-gray-600 transition-colors" style={{ fontFamily: '"Playfair Display", "Times New Roman", Times, serif' }}>
+            {product.name}
+          </h3>
+          <p className="text-[14px] font-light text-[#111111] tracking-wide" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            {priceDisplay}
           </p>
         </div>
       </Link>
@@ -126,7 +159,7 @@ const ProductCard = memo(function ProductCard({ product, index }: { product: Pro
 })
 
 export function ProductGrid({
-  title = "Featured Products",
+  title = "Curated Selection",
   products: propProducts,
   loading: propLoading,
   category,
@@ -159,36 +192,41 @@ export function ProductGrid({
   }, [category, limit, propProducts, propLoading])
 
   return (
-    <section className="w-full">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-16">
+    <section className="w-full bg-[#FAFAFA]">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-24 md:py-32">
         {/* Section Header */}
-        <div className="flex items-end justify-between mb-8 md:mb-10">
-          <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111]">
+        <div className="flex flex-col items-center text-center mb-16 md:mb-24">
+          <span className="text-[11px] text-gray-500 font-medium uppercase tracking-[0.3em] mb-4">Discover</span>
+          <h2 className="text-[32px] md:text-[48px] font-serif italic text-[#111111] mb-6" style={{ fontFamily: '"Playfair Display", "Times New Roman", Times, serif' }}>
             {title}
           </h2>
           {showViewAll && (
             <Link
               href="/shop"
-              className="text-[14px] font-medium text-[#111111] hover:text-[#707072] transition-colors flex items-center gap-1"
+              className="group flex items-center gap-2 text-[12px] uppercase tracking-widest font-medium text-[#111111] hover:text-gray-500 transition-colors"
               style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
-              View All <ArrowRight className="w-4 h-4" />
+              <span className="border-b border-black group-hover:border-gray-500 pb-1 transition-colors">Explore All</span>
+              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
             </Link>
           )}
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-0">
             {Array.from({ length: limit > 4 ? 4 : limit }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-[#F5F5F5] aspect-square mb-3" />
-                <div className="h-4 bg-[#F5F5F5] w-3/4 mb-2" />
-                <div className="h-3 bg-[#F5F5F5] w-1/2" />
+              <div key={i} className={`animate-pulse ${i % 2 !== 0 ? 'md:mt-16 lg:mt-24' : ''}`}>
+                <div className="bg-[#E5E5E5] aspect-[3/4] mb-6" />
+                <div className="flex flex-col items-center">
+                  <div className="h-3 bg-[#E5E5E5] w-1/4 mb-3" />
+                  <div className="h-5 bg-[#E5E5E5] w-3/4 mb-3" />
+                  <div className="h-4 bg-[#E5E5E5] w-1/3" />
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-0">
             {products.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}
@@ -198,3 +236,4 @@ export function ProductGrid({
     </section>
   )
 }
+

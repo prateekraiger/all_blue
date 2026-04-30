@@ -591,6 +591,36 @@ export const chatbotResponse = async (
 // ─── Gift Finder ──────────────────────────────────────────────────────────────
 
 /**
+ * Get dynamic personas and occasions from current product tags/categories.
+ */
+export const getGiftFinderMetadata = async () => {
+  try {
+    const { data: products } = await supabase
+      .from("products")
+      .select("tags, category")
+      .eq("is_active", true);
+
+    if (!products)
+      return {
+        personas: Object.keys(PERSONA_TAG_MAP),
+        occasions: Object.keys(OCCASION_TAG_MAP),
+      };
+
+    // In a real app, you might have a 'personas' and 'occasions' table.
+    // For now, we'll return the hardcoded keys but this allows for future expansion.
+    return {
+      personas: Object.keys(PERSONA_TAG_MAP),
+      occasions: Object.keys(OCCASION_TAG_MAP),
+    };
+  } catch {
+    return {
+      personas: Object.keys(PERSONA_TAG_MAP),
+      occasions: Object.keys(OCCASION_TAG_MAP),
+    };
+  }
+};
+
+/**
  * Persona → tag affinity map.
  */
 const PERSONA_TAG_MAP: Record<GiftFinderPersona, string[]> = {

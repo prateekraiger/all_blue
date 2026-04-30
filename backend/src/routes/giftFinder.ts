@@ -6,6 +6,12 @@ import type { GiftFinderInput } from '../types';
 
 const router: Router = Router();
 
+// ─── GET /api/gift-finder/metadata — Get dynamic personas and occasions ───────
+router.get('/metadata', async (_req: Request, res: Response) => {
+  const metadata = await aiService.getGiftFinderMetadata();
+  res.json({ success: true, data: metadata });
+});
+
 // ─── POST /api/gift-finder — AI-powered gift recommendations ──────────────────
 router.post(
   '/',

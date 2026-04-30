@@ -4,14 +4,46 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-// Use gemini-2.5-flash as requested by user
-const model = genAI
-  ? genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-  : null;
+// Primary and Secondary models for high-availability
+const PRIMARY_MODEL = "gemini-2.5-flash";
+const SECONDARY_MODEL = "gemini-2.5-flash-lite-preview";
 
 export const isGeminiAvailable = (): boolean => {
-  return !!genAI && !!model;
+  return !!genAI;
 };
+
+/**
+ * Helper to generate content with automatic fallback
+ */
+async function generateWithFallback(prompt: string) {
+  if (!genAI) return null;
+
+  try {
+    // Try primary model first
+    const model = genAI.getGenerativeModel({ model: PRIMARY_MODEL });
+    return await model.generateContent(prompt);
+  } catch (error: any) {
+    // If 503 Service Unavailable, try secondary model
+    if (error?.status === 503 || error?.message?.includes("503")) {
+      console.warn(
+        `[Gemini Service] ${PRIMARY_MODEL} busy, falling back to ${SECONDARY_MODEL}`,
+      );
+      try {
+        const fallbackModel = genAI.getGenerativeModel({
+          model: SECONDARY_MODEL,
+        });
+        return await fallbackModel.generateContent(prompt);
+      } catch (fallbackError) {
+        console.error(
+          `[Gemini Service] Fallback to ${SECONDARY_MODEL} also failed:`,
+          fallbackError,
+        );
+        throw fallbackError;
+      }
+    }
+    throw error;
+  }
+}
 
 interface GeminiChatResult {
   reply: string;
@@ -68,7 +100,9 @@ export const geminiChatResponse = async (
       - ALWAYS respond with ONLY the valid JSON object.
     `;
 
-    const result = await model!.generateContent(prompt);
+    const result = await generateWithFallback(prompt);
+    if (!result) return null;
+
     const response = await result.response;
     const text = response.text();
 
@@ -119,7 +153,9 @@ export const geminiGiftReason = async (
       }
     `;
 
-    const result = await model!.generateContent(prompt);
+    const result = await generateWithFallback(prompt);
+    if (!result) return null;
+
     const response = await result.response;
     const text = response.text();
 
@@ -153,16 +189,21 @@ export const geminiGiftFinderIntro = async (
       Budget: ₹${budget}
       We found ${productCount} matching products.
 
-      Generate a short, premium, and sophisticated introductory sentence (max 20 words) 
+      Generate a short, premium, and sophisticated introductory sentence (max 20 words)
       to present these recommendations. Be conversational and elegant.
       Do not use markdown, just plain text.
     `;
 
-    const result = await model!.generateContent(prompt);
+    const result = await generateWithFallback(prompt);
+    if (!result) return null;
+
     const response = await result.response;
     return response.text().trim();
   } catch (error) {
-    console.error("[Gemini Service] GiftFinder intro generation failed:", error);
+    console.error(
+      "[Gemini Service] GiftFinder intro generation failed:",
+      error,
+    );
     return null;
   }
 };

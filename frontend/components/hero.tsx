@@ -1,118 +1,119 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowDown, Sparkles } from "lucide-react";
+import { Sparkles, ArrowDown } from "lucide-react";
 import { useRef } from "react";
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const y1 = useTransform(scrollY, [0, 800], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 800], [0, -100]);
+  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
     <section
       ref={containerRef}
-      className="w-full relative overflow-hidden bg-white"
+      className="w-full relative overflow-hidden bg-[#FAFAFA] text-[#111111] h-[100svh] flex items-center justify-center selection:bg-black selection:text-white"
     >
-      {/* Full-bleed hero image — edge-to-edge, no border radius */}
-      <div className="relative w-full h-[75vh] min-h-[600px] md:h-[90vh] lg:h-[95vh]">
+      {/* Dynamic 2D/3D Background Elements using CSS and Framer Motion */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Soft elegant gradients */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-gray-200/50 to-transparent blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] rounded-full bg-gradient-to-tl from-gray-300/40 to-transparent blur-[120px]" />
+        
+        {/* Abstract floating shapes for that "sexy" premium vibe */}
         <motion.div
-          style={{ y: y1 }}
-          className="absolute inset-0 w-full h-full"
-        >
-          <Image
-            src="/images/hero.png"
-            alt="Hero — curated luxury gifts collection"
-            fill
-            priority
-            className="object-cover scale-105"
-            sizes="100vw"
-          />
-        </motion.div>
-
-        {/* Dark gradient scrim for text readability */}
-        <div className="absolute inset-0 nike-hero-scrim" />
-
-        {/* Floating Badge */}
+          animate={{ 
+            y: [0, -20, 0],
+            rotate: [0, 5, 0]
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[20%] right-[15%] w-64 h-64 border-[1px] border-black/5 rounded-full"
+        />
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, x: 20 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="absolute top-24 right-4 md:right-12 z-20 hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full"
+          animate={{ 
+            y: [0, 30, 0],
+            rotate: [0, -10, 0]
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-[20%] left-[10%] w-96 h-96 border-[1px] border-black/5 rounded-full"
+        />
+      </div>
+
+      <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#FAFAFA] via-transparent to-transparent pointer-events-none" />
+
+      {/* Massive Background Typography */}
+      <motion.div 
+        style={{ y: y1, opacity }}
+        className="absolute top-[15%] w-full text-center z-10 select-none pointer-events-none mix-blend-multiply"
+      >
+        <h1 
+          className="text-[18vw] leading-[0.8] tracking-tighter text-black/5 font-serif italic whitespace-nowrap"
+          style={{ fontFamily: '"Playfair Display", "Times New Roman", Times, serif' }}
         >
-          <Sparkles className="w-4 h-4 text-white" />
-          <span className="text-white text-[12px] font-medium tracking-wide uppercase">
-            Limited Edition 2026
-          </span>
-        </motion.div>
+          ALL BLUE
+        </h1>
+      </motion.div>
 
-        {/* Content overlay */}
-        <div className="absolute inset-0 flex flex-col justify-end">
-          <div className="max-w-[1920px] mx-auto w-full px-4 sm:px-6 lg:px-12 pb-16 md:pb-24 lg:pb-32">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <motion.p
-                className="text-white/70 text-[14px] md:text-[16px] font-medium mb-4 md:mb-6 uppercase tracking-[0.2em]"
-                style={{
-                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                }}
-              >
-                Spring Summer 2026
-              </motion.p>
-
-              <motion.h1 className="nike-display text-white text-[56px] sm:text-[72px] md:text-[96px] lg:text-[120px] mb-6 md:mb-8 max-w-5xl leading-[0.85] tracking-tighter">
-                THE ART OF
-                <br />
-                <span className="text-white/40">PERFECT</span> GIFTING
-              </motion.h1>
-
-              <motion.p
-                className="text-white/80 text-[18px] md:text-[20px] font-normal mb-10 md:mb-12 max-w-xl leading-relaxed"
-                style={{
-                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                }}
-              >
-                Curated elegance for every occasion. Experience the next
-                generation of personalized luxury.
-              </motion.p>
-
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/shop"
-                  className="nike-btn-primary-inverted text-[16px] px-10 py-4 min-w-[180px]"
-                >
-                  Shop Collection
-                </Link>
-                <Link
-                  href="/gift-finder"
-                  className="nike-btn-secondary text-[16px] px-10 py-4 text-white border-white/30 hover:bg-white/10 hover:border-white/60 min-w-[180px] backdrop-blur-sm"
-                >
-                  AI Gift Finder
-                </Link>
-              </div>
-            </motion.div>
+      {/* Foreground Content */}
+      <div className="absolute inset-x-0 bottom-0 z-20 pb-16 px-6 md:px-12 flex flex-col items-center text-center max-w-[1920px] mx-auto w-full gap-8 pointer-events-none">
+        <motion.div
+          style={{ y: y2 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center"
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-black/50 text-[11px] uppercase tracking-[0.4em] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              The Luxury Experience
+            </span>
           </div>
-        </div>
+          
+          <h2 
+            className="text-[48px] sm:text-[64px] md:text-[80px] leading-[1] tracking-tight mb-6 font-serif text-[#111111]"
+            style={{ fontFamily: '"Playfair Display", "Times New Roman", Times, serif' }}
+          >
+            Curated <i className="italic text-black/70">Elegance.</i>
+          </h2>
 
-        {/* Scroll Indicator */}
-        <motion.div
-          style={{ opacity }}
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
-        >
-          <span className="text-white/40 text-[10px] uppercase tracking-widest font-medium">
-            Scroll
-          </span>
-          <ArrowDown className="w-4 h-4 text-white/40" />
+          <p className="text-black/60 text-[16px] md:text-[18px] max-w-lg font-light leading-relaxed mb-10" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            Elevating the art of gifting through immersive design and AI curation. 
+            Discover a collection tailored to sophistication.
+          </p>
+
+          <div className="flex flex-wrap gap-4 justify-center pointer-events-auto">
+            <Link
+              href="/shop"
+              className="bg-[#111111] text-white font-medium text-[13px] uppercase tracking-widest px-10 py-5 hover:bg-black transition-transform hover:scale-105 active:scale-95 duration-300 shadow-xl shadow-black/10"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            >
+              Shop Collection
+            </Link>
+            <Link
+              href="/gift-finder"
+              className="bg-white text-[#111111] border border-black/10 font-medium text-[13px] uppercase tracking-widest px-10 py-5 hover:bg-gray-50 hover:border-black/20 transition-all flex items-center gap-3 shadow-lg shadow-black/5"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            >
+              <Sparkles className="w-4 h-4" /> AI Finder
+            </Link>
+          </div>
         </motion.div>
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        style={{ opacity }}
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 pointer-events-none"
+      >
+        <ArrowDown className="w-4 h-4 text-black/30" />
+      </motion.div>
     </section>
   );
 }
+
+

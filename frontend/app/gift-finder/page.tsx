@@ -1,95 +1,125 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowRight, ArrowLeft, Gift, Target, User, Heart, Briefcase, Zap, RotateCcw } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { aiApi, type Product } from "@/lib/api"
+import { useState } from "react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  Gift,
+  Target,
+  User,
+  Heart,
+  Briefcase,
+  Zap,
+  RotateCcw,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { aiApi, type Product } from "@/lib/api";
+import { useEffect } from "react";
 
-type Persona = "Partner" | "Colleague" | "Friend" | "Parent" | "Client"
-type Occasion = "Birthday" | "Anniversary" | "Thank You" | "Corporate" | "Just Because"
+type Persona = string;
+type Occasion = string;
 
 interface GiftResult extends Product {
-  matchScore: number
-  reason: string
+  matchScore: number;
+  reason: string;
 }
 
-const PERSONA_ICONS: Record<Persona, React.ReactNode> = {
+const PERSONA_ICONS: Record<string, React.ReactNode> = {
   Partner: <Heart className="w-5 h-5" />,
   Colleague: <Briefcase className="w-5 h-5" />,
   Friend: <Gift className="w-5 h-5" />,
   Parent: <User className="w-5 h-5" />,
   Client: <Target className="w-5 h-5" />,
-}
+};
 
-const PERSONA_DESCRIPTIONS: Record<Persona, string> = {
+const PERSONA_DESCRIPTIONS: Record<string, string> = {
   Partner: "Romantic & thoughtful",
   Colleague: "Professional & classy",
   Friend: "Fun & memorable",
   Parent: "Warm & heartfelt",
   Client: "Premium & impressive",
-}
+};
 
-const OCCASION_EMOJIS: Record<Occasion, string> = {
+const OCCASION_EMOJIS: Record<string, string> = {
   Birthday: "🎂",
   Anniversary: "💕",
   "Thank You": "🙏",
   Corporate: "🏢",
   "Just Because": "✨",
-}
+};
 
 export default function GiftFinderPage() {
-  const [step, setStep] = useState(1)
-  const [persona, setPersona] = useState<Persona | null>(null)
-  const [occasion, setOccasion] = useState<Occasion | null>(null)
-  const [budget, setBudget] = useState(5000)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [results, setResults] = useState<GiftResult[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [step, setStep] = useState(1);
+  const [persona, setPersona] = useState<Persona | null>(null);
+  const [occasion, setOccasion] = useState<Occasion | null>(null);
+  const [budget, setBudget] = useState(5000);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [results, setResults] = useState<GiftResult[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [metadata, setMetadata] = useState<{
+    personas: string[];
+    occasions: string[];
+  }>({
+    personas: ["Partner", "Colleague", "Friend", "Parent", "Client"],
+    occasions: [
+      "Birthday",
+      "Anniversary",
+      "Thank You",
+      "Corporate",
+      "Just Because",
+    ],
+  });
+
+  useEffect(() => {
+    aiApi
+      .getGiftFinderMetadata()
+      .then((res) => {
+        setMetadata(res);
+      })
+      .catch((err) => {
+        console.error("[GiftFinder] Failed to fetch metadata:", err);
+      });
+  }, []);
 
   const handleGenerate = async () => {
-    if (!persona || !occasion) return
-    setIsGenerating(true)
-    setError(null)
+    if (!persona || !occasion) return;
+    setIsGenerating(true);
+    setError(null);
     try {
-      const response = await aiApi.generateGiftSuggestions({ persona, occasion, budget })
-      setResults(response.products as GiftResult[])
-      setStep(4)
+      const response = await aiApi.generateGiftSuggestions({
+        persona,
+        occasion,
+        budget,
+      });
+      setResults(response.products as GiftResult[]);
+      setStep(4);
     } catch (err: any) {
-      console.error("[GiftFinder] API error:", err)
-      setError(err?.message || "Something went wrong. Please try again.")
+      console.error("[GiftFinder] API error:", err);
+      setError(err?.message || "Something went wrong. Please try again.");
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const resetWizard = () => {
-    setStep(1)
-    setPersona(null)
-    setOccasion(null)
-    setBudget(5000)
-    setResults(null)
-    setError(null)
-  }
+    setStep(1);
+    setPersona(null);
+    setOccasion(null);
+    setBudget(5000);
+    setResults(null);
+    setError(null);
+  };
 
-  const budgetPresets = [1000, 2500, 5000, 10000, 25000]
+  const budgetPresets = [1000, 2500, 5000, 10000, 25000];
 
   return (
     <div className="min-h-screen bg-white py-12 md:py-20">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-[#F5F5F5] px-4 py-2 rounded-full mb-6"
-          >
-            <Zap className="w-4 h-4 text-[#111111]" />
-            <span className="text-[12px] font-medium uppercase tracking-wider text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Powered by Gemini AI
-            </span>
-          </motion.div>
+          {" "}
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -102,9 +132,13 @@ export default function GiftFinderPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-[16px] md:text-[18px] text-[#707072] max-w-2xl mx-auto" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            className="text-[16px] md:text-[18px] text-[#707072] max-w-2xl mx-auto"
+            style={{
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            }}
           >
-            Our intelligent recommendation engine finds the perfect gift based on personality, occasion, and your budget.
+            Our intelligent recommendation engine finds the perfect gift based
+            on personality, occasion, and your budget.
           </motion.p>
         </div>
 
@@ -128,7 +162,9 @@ export default function GiftFinderPage() {
                 className={`text-[11px] font-medium uppercase tracking-wider transition-colors ${
                   step === i + 1 ? "text-[#111111]" : "text-[#CACACB]"
                 }`}
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                style={{
+                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                }}
               >
                 {label}
               </span>
@@ -141,7 +177,10 @@ export default function GiftFinderPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-[800px] mx-auto mb-6 px-6 py-4 bg-[#D30005]/5 text-[#D30005] text-[14px] text-center" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            className="max-w-[800px] mx-auto mb-6 px-6 py-4 bg-[#D30005]/5 text-[#D30005] text-[14px] text-center"
+            style={{
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            }}
           >
             {error}
           </motion.div>
@@ -167,13 +206,19 @@ export default function GiftFinderPage() {
                   <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-2">
                     Who is the Recipient?
                   </h2>
-                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  <p
+                    className="text-[14px] text-[#707072]"
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
+                  >
                     Every great gift starts with understanding the person.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {(["Partner", "Colleague", "Friend", "Parent", "Client"] as Persona[]).map((p) => (
+                  {metadata.personas.map((p) => (
                     <button
                       key={p}
                       onClick={() => setPersona(p)}
@@ -183,13 +228,29 @@ export default function GiftFinderPage() {
                           : "bg-white text-[#111111] border border-[#CACACB] hover:border-[#111111]"
                       }`}
                     >
-                      <div className={`p-2.5 ${persona === p ? "bg-white/10" : "bg-[#F5F5F5]"}`}>
-                        {PERSONA_ICONS[p]}
+                      <div
+                        className={`p-2.5 ${persona === p ? "bg-white/10" : "bg-[#F5F5F5]"}`}
+                      >
+                        {PERSONA_ICONS[p] || <User className="w-5 h-5" />}
                       </div>
                       <div className="text-center">
-                        <span className="text-[14px] font-medium block" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{p}</span>
-                        <span className={`text-[11px] block mt-0.5 ${persona === p ? "text-white/60" : "text-[#707072]"}`} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                          {PERSONA_DESCRIPTIONS[p]}
+                        <span
+                          className="text-[14px] font-medium block"
+                          style={{
+                            fontFamily:
+                              '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                          }}
+                        >
+                          {p}
+                        </span>
+                        <span
+                          className={`text-[11px] block mt-0.5 ${persona === p ? "text-white/60" : "text-[#707072]"}`}
+                          style={{
+                            fontFamily:
+                              '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                          }}
+                        >
+                          {PERSONA_DESCRIPTIONS[p] || "Unique & Special"}
                         </span>
                       </div>
                     </button>
@@ -225,13 +286,19 @@ export default function GiftFinderPage() {
                   <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-2">
                     The Occasion?
                   </h2>
-                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  <p
+                    className="text-[14px] text-[#707072]"
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
+                  >
                     Timing is everything in the art of gifting.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {(["Birthday", "Anniversary", "Thank You", "Corporate", "Just Because"] as Occasion[]).map((o) => (
+                  {metadata.occasions.map((o) => (
                     <button
                       key={o}
                       onClick={() => setOccasion(o)}
@@ -242,13 +309,25 @@ export default function GiftFinderPage() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{OCCASION_EMOJIS[o]}</span>
-                        <span className="text-[14px] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{o}</span>
+                        <span className="text-xl">{OCCASION_EMOJIS[o] || "✨"}</span>
+                        <span
+                          className="text-[14px] font-medium"
+                          style={{
+                            fontFamily:
+                              '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                          }}
+                        >
+                          {o}
+                        </span>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        occasion === o ? "border-white" : "border-[#CACACB]"
-                      }`}>
-                        {occasion === o && <div className="w-2 h-2 bg-white rounded-full" />}
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          occasion === o ? "border-white" : "border-[#CACACB]"
+                        }`}
+                      >
+                        {occasion === o && (
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        )}
                       </div>
                     </button>
                   ))}
@@ -258,7 +337,10 @@ export default function GiftFinderPage() {
                   <button
                     onClick={() => setStep(1)}
                     className="flex items-center gap-2 text-[14px] font-medium text-[#707072] hover:text-[#111111] transition-colors"
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
                   >
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
@@ -290,7 +372,13 @@ export default function GiftFinderPage() {
                   <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-2">
                     Investment Range
                   </h2>
-                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  <p
+                    className="text-[14px] text-[#707072]"
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
+                  >
                     Quality has no price, but planning helps.
                   </p>
                 </div>
@@ -310,7 +398,10 @@ export default function GiftFinderPage() {
                             ? "bg-[#111111] text-white"
                             : "bg-[#F5F5F5] text-[#707072] hover:bg-[#E5E5E5] hover:text-[#111111]"
                         }`}
-                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                        style={{
+                          fontFamily:
+                            '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                        }}
                       >
                         ₹{preset.toLocaleString("en-IN")}
                       </button>
@@ -327,7 +418,13 @@ export default function GiftFinderPage() {
                       onChange={(e) => setBudget(Number(e.target.value))}
                       className="w-full h-1 bg-[#E5E5E5] appearance-none cursor-pointer accent-[#111111]"
                     />
-                    <div className="flex justify-between mt-3 text-[11px] font-medium text-[#CACACB]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <div
+                      className="flex justify-between mt-3 text-[11px] font-medium text-[#CACACB]"
+                      style={{
+                        fontFamily:
+                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      }}
+                    >
                       <span>₹500</span>
                       <span>₹12,500</span>
                       <span>₹25,000</span>
@@ -339,7 +436,10 @@ export default function GiftFinderPage() {
                   <button
                     onClick={() => setStep(2)}
                     className="flex items-center gap-2 text-[14px] font-medium text-[#707072] hover:text-[#111111] transition-colors"
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
                   >
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
@@ -350,13 +450,22 @@ export default function GiftFinderPage() {
                   >
                     {isGenerating ? (
                       <>
-                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 2,
+                            ease: "linear",
+                          }}
+                        >
                           <Gift className="w-4 h-4" />
                         </motion.div>
                         AI is Analysing...
                       </>
                     ) : (
-                      <>Find Perfection <Gift className="w-4 h-4" /></>
+                      <>
+                        Find Perfection <Gift className="w-4 h-4" />
+                      </>
                     )}
                   </button>
                 </div>
@@ -375,20 +484,44 @@ export default function GiftFinderPage() {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 20,
+                      delay: 0.2,
+                    }}
                     className="inline-flex items-center gap-2 bg-[#007D48]/10 px-4 py-2 rounded-full mb-4"
                   >
                     <Gift className="w-4 h-4 text-[#007D48]" />
-                    <span className="text-[12px] font-medium text-[#007D48] uppercase tracking-wider" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <span
+                      className="text-[12px] font-medium text-[#007D48] uppercase tracking-wider"
+                      style={{
+                        fontFamily:
+                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      }}
+                    >
                       Curated by Gemini AI
                     </span>
                   </motion.div>
                   <h2 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-3">
                     YOUR PERFECT MATCHES
                   </h2>
-                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                    Selected for a <span className="text-[#111111] font-medium">{persona}</span> celebrating{" "}
-                    <span className="text-[#111111] font-medium">{occasion}</span>.
+                  <p
+                    className="text-[14px] text-[#707072]"
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
+                  >
+                    Selected for a{" "}
+                    <span className="text-[#111111] font-medium">
+                      {persona}
+                    </span>{" "}
+                    celebrating{" "}
+                    <span className="text-[#111111] font-medium">
+                      {occasion}
+                    </span>
+                    .
                   </p>
                 </div>
 
@@ -413,7 +546,13 @@ export default function GiftFinderPage() {
                             className="object-contain p-6 group-hover:scale-105 transition-transform duration-500"
                           />
                           <div className="absolute top-3 right-3 bg-[#111111] text-white px-3 py-1">
-                            <span className="text-[11px] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                            <span
+                              className="text-[11px] font-medium"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
                               {product.matchScore}% Match
                             </span>
                           </div>
@@ -422,11 +561,24 @@ export default function GiftFinderPage() {
                         {/* Product Info */}
                         <div className="flex-1 flex flex-col justify-center">
                           <div className="flex flex-wrap gap-2 mb-2">
-                            <span className="text-[12px] font-medium text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                            <span
+                              className="text-[12px] font-medium text-[#707072]"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
                               {product.category}
                             </span>
                             {product.tags?.slice(0, 3).map((tag) => (
-                              <span key={tag} className="text-[11px] font-medium text-[#707072] bg-white px-2 py-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                              <span
+                                key={tag}
+                                className="text-[11px] font-medium text-[#707072] bg-white px-2 py-0.5"
+                                style={{
+                                  fontFamily:
+                                    '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                                }}
+                              >
                                 {tag}
                               </span>
                             ))}
@@ -438,19 +590,46 @@ export default function GiftFinderPage() {
 
                           {/* AI Reason */}
                           <div className="bg-white p-4 mb-4">
-                            <span className="text-[11px] font-medium text-[#111111] mb-1 flex items-center gap-1.5 uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                            <span
+                              className="text-[11px] font-medium text-[#111111] mb-1 flex items-center gap-1.5 uppercase"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
                               <Zap className="w-3 h-3" /> AI Insight
                             </span>
-                            <p className="text-[14px] text-[#707072] leading-relaxed italic" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                            <p
+                              className="text-[14px] text-[#707072] leading-relaxed italic"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
                               &ldquo;{product.reason}&rdquo;
                             </p>
                           </div>
 
-                          <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid #E5E5E5' }}>
-                            <span className="text-[20px] md:text-[24px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          <div
+                            className="flex items-center justify-between pt-3"
+                            style={{ borderTop: "1px solid #E5E5E5" }}
+                          >
+                            <span
+                              className="text-[20px] md:text-[24px] font-medium text-[#111111]"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
                               ₹{product.price.toLocaleString("en-IN")}
                             </span>
-                            <span className="text-[14px] font-medium text-[#707072] group-hover:text-[#111111] flex items-center gap-1 transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                            <span
+                              className="text-[14px] font-medium text-[#707072] group-hover:text-[#111111] flex items-center gap-1 transition-colors"
+                              style={{
+                                fontFamily:
+                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                              }}
+                            >
                               View Product <ArrowRight className="w-4 h-4" />
                             </span>
                           </div>
@@ -463,8 +642,22 @@ export default function GiftFinderPage() {
                 {results.length === 0 && (
                   <div className="text-center py-16">
                     <Gift className="w-10 h-10 text-[#CACACB] mx-auto mb-4" />
-                    <p className="text-[16px] text-[#707072] mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No matches found</p>
-                    <p className="text-[14px] text-[#CACACB]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <p
+                      className="text-[16px] text-[#707072] mb-2"
+                      style={{
+                        fontFamily:
+                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      }}
+                    >
+                      No matches found
+                    </p>
+                    <p
+                      className="text-[14px] text-[#CACACB]"
+                      style={{
+                        fontFamily:
+                          '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                      }}
+                    >
                       Try adjusting your budget or choosing different options.
                     </p>
                   </div>
@@ -479,7 +672,10 @@ export default function GiftFinderPage() {
                   <button
                     onClick={resetWizard}
                     className="inline-flex items-center gap-2 text-[14px] font-medium text-[#707072] hover:text-[#111111] transition-colors group"
-                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{
+                      fontFamily:
+                        '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                    }}
                   >
                     <RotateCcw className="w-4 h-4 group-hover:-rotate-180 transition-transform duration-500" />
                     Start New Search
@@ -491,5 +687,5 @@ export default function GiftFinderPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
