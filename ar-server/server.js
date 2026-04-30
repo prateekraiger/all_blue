@@ -168,27 +168,52 @@ app.get('/proxy', async (req, res) => {
   if (!url) return res.status(400).send('URL is required');
   
   try {
+    console.log(`[Proxy] Fetching: ${url}`);
+    
+    // Some sites like Pinterest are very picky about headers
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-        'Referer': 'https://www.pinterest.com/'
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Referer': 'https://www.pinterest.com/',
+        'Sec-Ch-Ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'image',
+        'Sec-Fetch-Mode': 'no-cors',
+        'Sec-Fetch-Site': 'cross-site'
       }
     });
-    if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+
+    if (!response.ok) {
+      console.error(`[Proxy] Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+      // Return a 404 or original status instead of 500 to help debugging
+      return res.status(response.status).send(`Failed to fetch image: ${response.statusText}`);
+    }
     
     const contentType = response.headers.get('content-type');
-    if (contentType) res.setHeader('Content-Type', contentType);
+    if (contentType) {
+      res.setHeader('Content-Type', contentType);
+    } else {
+      // Fallback if no content type
+      res.setHeader('Content-Type', 'image/png');
+    }
     
-    // Ensure CORS headers are set for the proxied image
+    // Essential CORS and security headers for cross-origin canvas usage
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     res.send(buffer);
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('[Proxy] Fatal error:', error);
     res.status(500).send('Error fetching image through proxy');
   }
 });
