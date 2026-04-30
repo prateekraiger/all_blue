@@ -51,14 +51,24 @@ pnpm install
 3. Set up environment variables:
 ```bash
 # Frontend (.env.local)
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_AR_SERVER_URL=http://localhost:4000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_key
 
 # Backend (.env)
+PORT=5000
+FRONTEND_URL=http://localhost:3000
 DATABASE_URL=your_database_url
 STRIPE_SECRET_KEY=your_stripe_secret_key
 STACK_API_KEY=your_stack_api_key
+
+# AR server (.env)
+AR_PORT=4000
+FRONTEND_URL=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5000
 ```
 
 4. Run the application:
@@ -102,15 +112,25 @@ backend/
 ## Environment Variables
 
 ### Frontend
+- `NEXT_PUBLIC_API_URL` - backend API base URL (e.g. `http://localhost:5000`)
+- `NEXT_PUBLIC_AR_SERVER_URL` - AR preview server URL (e.g. `http://localhost:4000`)
+- `NEXT_PUBLIC_SITE_URL` - frontend application URL (e.g. `http://localhost:3000`)
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
 
 ### Backend
+- `PORT` - backend server port (default `5000`)
+- `FRONTEND_URL` - frontend application URL used for CORS and redirect links
 - `DATABASE_URL` - PostgreSQL connection string
 - `STRIPE_SECRET_KEY` - Stripe secret key
 - `STACK_API_KEY` - Stack authentication key
 - `NODE_ENV` - Environment (development/production)
+
+### AR Server
+- `AR_PORT` - AR server port (default `4000`)
+- `FRONTEND_URL` - frontend application URL used by the AR preview server
+- `ALLOWED_ORIGINS` - comma-separated list of allowed origins for AR server CORS
 
 ## Deployment
 
