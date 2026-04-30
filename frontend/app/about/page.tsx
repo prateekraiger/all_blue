@@ -1,6 +1,18 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Gem, Globe } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "Learn about ALL BLUE — our mission to revolutionize gifting with AI-powered recommendations, curated excellence, and global artisan partnerships.",
+  openGraph: {
+    title: "About Us | ALL BLUE",
+    description:
+      "Learn about ALL BLUE — our mission to revolutionize gifting with AI-powered recommendations.",
+  },
+}
 
 export default function AboutPage() {
   return (

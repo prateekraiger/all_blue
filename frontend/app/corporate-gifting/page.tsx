@@ -1,6 +1,18 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Briefcase, Gem, Clock } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Corporate Gifting",
+  description:
+    "Elevate your corporate relationships with premium curated gift collections. White-glove delivery, branded elegance, and superior curation for businesses.",
+  openGraph: {
+    title: "Corporate Gifting | ALL BLUE",
+    description:
+      "Premium curated gift collections for businesses. White-glove delivery and branded elegance.",
+  },
+}
 
 export default function CorporateGiftingPage() {
   return (

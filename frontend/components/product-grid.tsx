@@ -2,10 +2,11 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, memo } from "react"
 import { ShoppingBag, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 import { productsApi, type Product } from "@/lib/api"
+import { prefetch } from "@/lib/cache"
 import { useCart } from "@/context/CartContext"
 import { toast } from "sonner"
 
@@ -26,24 +27,34 @@ interface ProductGridProps {
   showViewAll?: boolean
 }
 
-function ProductCard({ product, index }: { product: Product; index: number }) {
+/** Memoized product card to prevent unnecessary re-renders in grids */
+const ProductCard = memo(function ProductCard({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
   const [imgError, setImgError] = useState(false)
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     try {
       setAdding(true)
       await addItem(product, 1)
       toast.success(`${product.name} added to cart`)
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add to cart")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to add to cart"
+      toast.error(message)
     } finally {
       setAdding(false)
     }
-  }
+  }, [addItem, product])
+
+  /** Prefetch product detail data on hover for instant page loads */
+  const handlePrefetch = useCallback(() => {
+    prefetch(
+      `products:detail:${product.id}`,
+      () => productsApi.get(product.id),
+    )
+  }, [product.id])
 
   const imageUrl = imgError ? "/placeholder.svg" : (product.images?.[0] || "/placeholder.svg")
   const priceDisplay = `₹${(product.price).toLocaleString("en-IN")}`
@@ -52,16 +63,23 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: "100px" }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <Link href={`/shop/${product.id}`} className="text-[#111111] no-underline group block">
+      <Link
+        href={`/shop/${product.id}`}
+        className="text-[#111111] no-underline group block"
+        onMouseEnter={handlePrefetch}
+        onFocus={handlePrefetch}
+        prefetch={false}
+      >
         {/* Product Image — square, no border radius, edge-to-edge */}
-        <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden">
+        <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden contain-layout">
           <Image
             src={imageUrl}
             alt={product.name}
             fill
+            loading="lazy"
             className="object-contain p-6 transition-opacity duration-200"
             onError={() => setImgError(true)}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -105,7 +123,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       </Link>
     </motion.div>
   )
-}
+})
 
 export function ProductGrid({
   title = "Featured Products",
