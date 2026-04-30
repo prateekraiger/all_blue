@@ -315,7 +315,7 @@ function getIntentReply(intent: string): string | null {
 }
 
 /**
- * Enhanced chatbot with Gemini 1.5 Flash AI + rule-based fallback.
+ * Enhanced chatbot with Gemini 2.5 Flash AI + rule-based fallback.
  */
 export const chatbotResponse = async (
   message: string,

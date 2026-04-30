@@ -92,7 +92,7 @@ app.get('/health', (_req, res) => {
       'Voice Search',
       'AR Product Preview',
       'Personalized Feed',
-      'AI Shopping Chatbot (Gemini 1.5 Flash)',
+      'AI Shopping Chatbot (Gemini 2.5 Flash)',
       'Razorpay / Stripe Payments',
       'Order Tracking',
       'Admin Dashboard',
@@ -130,7 +130,7 @@ app.listen(PORT, () => {
   console.log(`🌐 CORS allowed: ${process.env.FRONTEND_URL ?? 'http://localhost:3000'}`);
   console.log(`✅ Health check: http://localhost:${PORT}/health`);
   console.log(`🤖 AI features : recommendations, chatbot, gift finder`);
-  console.log(`🧠 Gemini 1.5  : ${process.env.GEMINI_API_KEY ? 'ENABLED (Flash)' : 'DISABLED — using rule-based fallback'}`);
+  console.log(`🧠 Gemini 2.5  : ${process.env.GEMINI_API_KEY ? 'ENABLED (Flash)' : 'DISABLED — using rule-based fallback'}`);
   console.log(`🔒 Rate limiting: enabled`);
 });
 
