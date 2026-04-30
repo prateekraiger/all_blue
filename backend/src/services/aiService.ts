@@ -5,6 +5,7 @@ import {
   geminiGiftReason,
   geminiGiftFinderIntro,
   geminiGiftFinderSelection,
+  geminiCategorizeTags,
   isGeminiAvailable,
 } from "./geminiService";
 import type {
@@ -553,8 +554,8 @@ export const getGiftFinderMetadata = async () => {
 
     if (!products || products.length === 0) {
       return {
-        personas: Object.keys(PERSONA_TAG_MAP),
-        occasions: Object.keys(OCCASION_TAG_MAP),
+        personas: DEFAULT_PERSONAS,
+        occasions: DEFAULT_OCCASIONS,
         budgetRange: { min: 500, max: 25000 },
       };
     }
@@ -564,8 +565,8 @@ export const getGiftFinderMetadata = async () => {
     const maxPrice = Math.ceil(Math.max(...prices) / 500) * 500;
 
     return {
-      personas: Object.keys(PERSONA_TAG_MAP),
-      occasions: Object.keys(OCCASION_TAG_MAP),
+      personas: DEFAULT_PERSONAS,
+      occasions: DEFAULT_OCCASIONS,
       budgetRange: {
         min: Math.max(100, minPrice),
         max: Math.max(minPrice + 1000, maxPrice),
@@ -573,12 +574,32 @@ export const getGiftFinderMetadata = async () => {
     };
   } catch {
     return {
-      personas: Object.keys(PERSONA_TAG_MAP),
-      occasions: Object.keys(OCCASION_TAG_MAP),
+      personas: DEFAULT_PERSONAS,
+      occasions: DEFAULT_OCCASIONS,
       budgetRange: { min: 500, max: 25000 },
     };
   }
 };
+
+const DEFAULT_PERSONAS = [
+  { name: "Partner", description: "Romantic & thoughtful", icon: "Heart" },
+  {
+    name: "Colleague",
+    description: "Professional & classy",
+    icon: "Briefcase",
+  },
+  { name: "Friend", description: "Fun & memorable", icon: "Gift" },
+  { name: "Parent", description: "Warm & heartfelt", icon: "User" },
+  { name: "Client", description: "Premium & impressive", icon: "Target" },
+];
+
+const DEFAULT_OCCASIONS = [
+  { name: "Birthday", emoji: "🎂" },
+  { name: "Anniversary", emoji: "💕" },
+  { name: "Thank You", emoji: "🙏" },
+  { name: "Corporate", emoji: "🏢" },
+  { name: "Just Because", emoji: "✨" },
+];
 
 /**
  * Persona → tag affinity map.

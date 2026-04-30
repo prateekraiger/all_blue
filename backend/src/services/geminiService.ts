@@ -12,10 +12,13 @@ export const isGeminiAvailable = (): boolean => {
   return !!genAI;
 };
 
+// Helper for sleeping
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
- * Helper to generate content with automatic fallback
+ * Helper to generate content with automatic fallback and retry
  */
-async function generateWithFallback(prompt: string) {
+async function generateWithFallback(prompt: string, attempt = 1) {
   if (!genAI) return null;
 
   try {
@@ -23,16 +26,30 @@ async function generateWithFallback(prompt: string) {
     const model = genAI.getGenerativeModel({ model: PRIMARY_MODEL });
     return await model.generateContent(prompt);
   } catch (error: any) {
-    const isRateLimitedOrBusy =
-      error?.status === 503 ||
-      error?.message?.includes("503") ||
-      error?.status === 429 ||
-      error?.message?.includes("429") ||
-      error?.message?.includes("quota");
+    const status = error?.status || error?.response?.status;
+    const message = error?.message?.toLowerCase() || "";
 
-    if (isRateLimitedOrBusy) {
+    const isRateLimited =
+      status === 429 || message.includes("429") || message.includes("quota");
+    const isBusy =
+      status === 503 ||
+      message.includes("503") ||
+      message.includes("overloaded");
+
+    // If rate limited or busy, and we have attempts left, retry with backoff
+    if ((isRateLimited || isBusy) && attempt <= 2) {
+      const delay = attempt * 2000; // 2s, 4s
       console.warn(
-        `[Gemini Service] ${PRIMARY_MODEL} busy or rate-limited, falling back to ${SECONDARY_MODEL}`,
+        `[Gemini Service] ${PRIMARY_MODEL} ${isRateLimited ? "rate limited" : "busy"}, retrying in ${delay}ms (attempt ${attempt})...`,
+      );
+      await sleep(delay);
+      return generateWithFallback(prompt, attempt + 1);
+    }
+
+    // If still failing after retries, try secondary model
+    if (isRateLimited || isBusy) {
+      console.warn(
+        `[Gemini Service] ${PRIMARY_MODEL} failed, falling back to ${SECONDARY_MODEL}`,
       );
       try {
         const fallbackModel = genAI.getGenerativeModel({
@@ -240,6 +257,54 @@ export const geminiGiftFinderSelection = async (
     return JSON.parse(jsonMatch[0]);
   } catch (error) {
     console.error("[Gemini Service] Gift selection failed:", error);
+    return null;
+  }
+};
+
+/**
+ * Categorize product tags into Personas and Occasions for the Gift Finder.
+ */
+export const geminiCategorizeTags = async (
+  tags: string[],
+): Promise<{
+  personas: Array<{ name: string; description: string; icon: string }>;
+  occasions: Array<{ name: string; emoji: string }>;
+} | null> => {
+  if (!isGeminiAvailable()) return null;
+
+  try {
+    const prompt = `
+      Given these product tags from our luxury gift shop:
+      ${tags.join(", ")}
+
+      TASK:
+      1. Identify 5 distinct "Personas" (recipient types) that these tags would appeal to.
+      2. Identify 5 distinct "Occasions" that these tags would be suitable for.
+
+      For each Persona, provide a name, a short description, and a Lucide icon name (e.g., 'Heart', 'Briefcase', 'User', 'Target', 'Gift', 'Coffee', 'Watch').
+      For each Occasion, provide a name and a relevant emoji.
+
+      Return JSON:
+      {
+        "personas": [{"name": "...", "description": "...", "icon": "..."}],
+        "occasions": [{"name": "...", "emoji": "..."}]
+      }
+
+      Respond ONLY with the JSON object.
+    `;
+
+    const result = await generateWithFallback(prompt);
+    if (!result) return null;
+
+    const response = await result.response;
+    const text = response.text();
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+
+    return JSON.parse(jsonMatch[0]);
+  } catch (error) {
+    console.error("[Gemini Service] Tag categorization failed:", error);
     return null;
   }
 };

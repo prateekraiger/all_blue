@@ -11,6 +11,11 @@ import {
   Briefcase,
   Zap,
   RotateCcw,
+  Coffee,
+  Watch,
+  Smartphone,
+  Sparkles,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,36 +23,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { aiApi, type Product } from "@/lib/api";
 import { useEffect } from "react";
 
-type Persona = string;
-type Occasion = string;
+type Persona = { name: string; description: string; icon: string };
+type Occasion = { name: string; emoji: string };
 
 interface GiftResult extends Product {
   matchScore: number;
   reason: string;
 }
 
-const PERSONA_ICONS: Record<string, React.ReactNode> = {
-  Partner: <Heart className="w-5 h-5" />,
-  Colleague: <Briefcase className="w-5 h-5" />,
-  Friend: <Gift className="w-5 h-5" />,
-  Parent: <User className="w-5 h-5" />,
-  Client: <Target className="w-5 h-5" />,
-};
-
-const PERSONA_DESCRIPTIONS: Record<string, string> = {
-  Partner: "Romantic & thoughtful",
-  Colleague: "Professional & classy",
-  Friend: "Fun & memorable",
-  Parent: "Warm & heartfelt",
-  Client: "Premium & impressive",
-};
-
-const OCCASION_EMOJIS: Record<string, string> = {
-  Birthday: "🎂",
-  Anniversary: "💕",
-  "Thank You": "🙏",
-  Corporate: "🏢",
-  "Just Because": "✨",
+const ICON_MAP: Record<string, React.ReactNode> = {
+  Heart: <Heart className="w-5 h-5" />,
+  Briefcase: <Briefcase className="w-5 h-5" />,
+  User: <User className="w-5 h-5" />,
+  Target: <Target className="w-5 h-5" />,
+  Gift: <Gift className="w-5 h-5" />,
+  Coffee: <Coffee className="w-5 h-5" />,
+  Watch: <Watch className="w-5 h-5" />,
+  Smartphone: <Smartphone className="w-5 h-5" />,
+  Sparkles: <Sparkles className="w-5 h-5" />,
+  Search: <Search className="w-5 h-5" />,
 };
 
 export default function GiftFinderPage() {
@@ -59,18 +53,12 @@ export default function GiftFinderPage() {
   const [results, setResults] = useState<GiftResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<{
-    personas: string[];
-    occasions: string[];
+    personas: Persona[];
+    occasions: Occasion[];
     budgetRange: { min: number; max: number };
   }>({
-    personas: ["Partner", "Colleague", "Friend", "Parent", "Client"],
-    occasions: [
-      "Birthday",
-      "Anniversary",
-      "Thank You",
-      "Corporate",
-      "Just Because",
-    ],
+    personas: [],
+    occasions: [],
     budgetRange: { min: 500, max: 25000 },
   });
 
@@ -98,8 +86,8 @@ export default function GiftFinderPage() {
     setError(null);
     try {
       const response = await aiApi.generateGiftSuggestions({
-        persona,
-        occasion,
+        persona: persona.name,
+        occasion: occasion.name,
         budget,
       });
       setResults(response.products as GiftResult[]);
@@ -249,18 +237,18 @@ export default function GiftFinderPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {metadata.personas.map((p) => (
                     <button
-                      key={p}
+                      key={p.name}
                       onClick={() => setPersona(p)}
                       className={`p-5 flex flex-col items-center gap-3 transition-all duration-200 ${
-                        persona === p
+                        persona?.name === p.name
                           ? "bg-[#111111] text-white"
                           : "bg-white text-[#111111] border border-[#CACACB] hover:border-[#111111]"
                       }`}
                     >
                       <div
-                        className={`p-2.5 ${persona === p ? "bg-white/10" : "bg-[#F5F5F5]"}`}
+                        className={`p-2.5 ${persona?.name === p.name ? "bg-white/10" : "bg-[#F5F5F5]"}`}
                       >
-                        {PERSONA_ICONS[p] || <User className="w-5 h-5" />}
+                        {ICON_MAP[p.icon] || <User className="w-5 h-5" />}
                       </div>
                       <div className="text-center">
                         <span
@@ -270,16 +258,16 @@ export default function GiftFinderPage() {
                               '"Helvetica Neue", Helvetica, Arial, sans-serif',
                           }}
                         >
-                          {p}
+                          {p.name}
                         </span>
                         <span
-                          className={`text-[11px] block mt-0.5 ${persona === p ? "text-white/60" : "text-[#707072]"}`}
+                          className={`text-[11px] block mt-0.5 ${persona?.name === p.name ? "text-white/60" : "text-[#707072]"}`}
                           style={{
                             fontFamily:
                               '"Helvetica Neue", Helvetica, Arial, sans-serif',
                           }}
                         >
-                          {PERSONA_DESCRIPTIONS[p] || "Unique & Special"}
+                          {p.description}
                         </span>
                       </div>
                     </button>
@@ -329,18 +317,16 @@ export default function GiftFinderPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {metadata.occasions.map((o) => (
                     <button
-                      key={o}
+                      key={o.name}
                       onClick={() => setOccasion(o)}
                       className={`p-5 flex items-center justify-between gap-4 transition-all duration-200 ${
-                        occasion === o
+                        occasion?.name === o.name
                           ? "bg-[#111111] text-white"
                           : "bg-white text-[#111111] border border-[#CACACB] hover:border-[#111111]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">
-                          {OCCASION_EMOJIS[o] || "✨"}
-                        </span>
+                        <span className="text-xl">{o.emoji}</span>
                         <span
                           className="text-[14px] font-medium"
                           style={{
@@ -348,15 +334,17 @@ export default function GiftFinderPage() {
                               '"Helvetica Neue", Helvetica, Arial, sans-serif',
                           }}
                         >
-                          {o}
+                          {o.name}
                         </span>
                       </div>
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          occasion === o ? "border-white" : "border-[#CACACB]"
+                          occasion?.name === o.name
+                            ? "border-white"
+                            : "border-[#CACACB]"
                         }`}
                       >
-                        {occasion === o && (
+                        {occasion?.name === o.name && (
                           <div className="w-2 h-2 bg-white rounded-full" />
                         )}
                       </div>

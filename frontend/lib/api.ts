@@ -424,8 +424,8 @@ export const aiApi = {
 
   getGiftFinderMetadata: () =>
     apiFetch<{
-      personas: string[];
-      occasions: string[];
+      personas: Array<{ name: string; description: string; icon: string }>;
+      occasions: Array<{ name: string; emoji: string }>;
       budgetRange: { min: number; max: number };
     }>("/api/gift-finder/metadata"),
 
