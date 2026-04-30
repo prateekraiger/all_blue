@@ -108,6 +108,9 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
   const [showCapture, setShowCapture] = useState(false)
   const [cameraZoom, setCameraZoom] = useState(1)
   const [zoomCapabilities, setZoomCapabilities] = useState<{ min: number; max: number; step: number } | null>(null)
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment")
+  const [imageLoading, setImageLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
 
   const arServerUrl = process.env.NEXT_PUBLIC_AR_SERVER_URL || "http://localhost:4000"
   const rawImageUrl = product.images?.[0] || ""
@@ -139,7 +142,7 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
     const startCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          video: { facingMode: { ideal: facingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
           audio: false,
         })
         
@@ -209,7 +212,7 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
         streamRef.current = null
       }
     }
-  }, [])
+  }, [facingMode])
 
   const handlePlace = (clientX: number, clientY: number) => {
     if (isPlaced) return
@@ -281,6 +284,11 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
 
   const handleRotate = () => {
     setRotation((r) => (r + 45) % 360)
+  }
+
+  const toggleCamera = () => {
+    setFacingMode(prev => prev === "environment" ? "user" : "environment")
+    setCameraReady(false)
   }
 
   const handleCapture = async () => {
@@ -479,9 +487,43 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
             id="ar-product-img"
             src={imageUrl}
             alt={product.name}
-            className="w-full h-full object-contain pointer-events-none"
+            onLoad={() => {
+              setImageLoading(false)
+              setImageError(false)
+            }}
+            onError={() => {
+              setImageLoading(false)
+              setImageError(true)
+              console.error("Failed to load product image in AR:", imageUrl)
+            }}
+            className={`w-full h-full object-contain pointer-events-none transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
             crossOrigin="anonymous"
           />
+
+          {imageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+            </div>
+          )}
+
+          {imageError && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-4 text-center">
+              <X className="w-8 h-8 text-red-500 mb-2" />
+              <p className="text-white text-[10px] font-bold uppercase tracking-widest">Image Load Failed</p>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const currentUrl = imageUrl;
+                  // Force reload
+                  setImageLoading(true);
+                  setImageError(false);
+                }}
+                className="mt-2 text-[8px] bg-white/20 px-2 py-1 rounded-full text-white"
+              >
+                RETRY
+              </button>
+            </div>
+          )}
 
           {/* Shadow on surface */}
           <div
@@ -508,9 +550,17 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
             <ArrowLeft className="w-4 h-4" />
             Back
           </button>
-          <div className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-xl border border-blue-400/30 px-4 py-2 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-[10px] font-extrabold uppercase tracking-[2px] text-blue-300">AR Live</span>
+          <div className="flex gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleCamera() }}
+              className="bg-white/15 backdrop-blur-xl border border-white/20 text-white p-2.5 rounded-full hover:bg-white/25 transition-all"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-xl border border-blue-400/30 px-4 py-2 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[10px] font-extrabold uppercase tracking-[2px] text-blue-300">AR Live</span>
+            </div>
           </div>
         </div>
       )}
@@ -597,7 +647,25 @@ function ARViewerInline({ product, onClose }: ARViewerInlineProps) {
                 />
               </div>
 
-              {/* Brightness slider */}
+              {/* Camera Zoom slider */}
+              {zoomCapabilities && (
+                <div className="flex flex-col gap-1.5 bg-white/8 backdrop-blur-xl border border-white/10 px-3 py-2.5 rounded-2xl">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Cam Zoom</span>
+                    <span className="text-[10px] font-black text-blue-400">{cameraZoom.toFixed(1)}x</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={zoomCapabilities.min}
+                    max={zoomCapabilities.max}
+                    step={zoomCapabilities.step}
+                    value={cameraZoom}
+                    onChange={(e) => applyCameraZoom(parseFloat(e.target.value))}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-1.5 bg-white/8 backdrop-blur-xl border border-white/10 px-3 py-2.5 rounded-2xl">
                 <div className="flex justify-between items-center px-1">
                   <span className="text-[9px] font-extrabold uppercase tracking-[1px] text-white/40">Light</span>
