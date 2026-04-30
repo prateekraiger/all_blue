@@ -174,7 +174,7 @@ export default function ProductDetailPage() {
         {/* Product Main Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-12 mb-16">
           {/* Images — no border radius, edge-to-edge */}
-          <div className="sticky top-24 self-start">
+          <div className="md:sticky md:top-24 self-start">
             <div className="relative bg-[#F5F5F5] aspect-square flex items-center justify-center overflow-hidden group">
               <Image
                 src={images[selectedImage]}

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
-import { ChevronDown, ShoppingBag, Search, X, SlidersHorizontal } from "lucide-react"
+import { ChevronDown, ShoppingBag, Search, X, SlidersHorizontal, CheckCircle2 } from "lucide-react"
 import { productsApi, type Product } from "@/lib/api"
 import { getLikedProductIds, toggleLikedProduct } from "@/lib/wishlist"
 import { useCart } from "@/context/CartContext"
@@ -31,15 +31,20 @@ function ProductCard({
 }) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const [imgSrc, setImgSrc] = useState(product.images?.[0] || "/placeholder.svg")
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (isSuccess) return
+
     try {
       setAdding(true)
       await addItem(product, 1)
+      setIsSuccess(true)
       toast.success(`${product.name} added to cart`)
+      setTimeout(() => setIsSuccess(false), 2000)
     } catch (err: any) {
       toast.error(err.message || "Failed to add to cart")
     } finally {
@@ -50,78 +55,100 @@ function ProductCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.4 }}
-      className="relative group"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="group relative flex flex-col h-full"
     >
-      <Link href={`/shop/${product.id}`} className="block no-underline">
-        {/* Product Image — square, no border radius, Nike grey background */}
-        <div className="relative aspect-square overflow-hidden bg-[#F5F5F5]">
+      <Link href={`/shop/${product.id}`} className="block flex-1 no-underline">
+        {/* Product Image Container */}
+        <div className="relative aspect-[4/5] bg-[#F5F5F5] overflow-hidden contain-layout">
           <Image
             src={imgSrc}
             alt={product.name}
             fill
-            className="object-contain p-6 transition-opacity duration-200"
+            className="object-contain p-2 sm:p-6 transition-transform duration-700 ease-out group-hover:scale-110"
             onError={() => setImgSrc("/placeholder.svg")}
             unoptimized={imgSrc.startsWith('http')}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
-          {/* Badges */}
-          {product.stock === 0 && (
-            <div className="absolute top-3 left-3 bg-[#111111] text-white text-[12px] font-medium px-3 py-1 z-10">
-              Sold Out
-            </div>
-          )}
-          {product.stock > 0 && product.stock < 10 && (
-            <div className="absolute top-3 left-3 bg-[#D30005] text-white text-[12px] font-medium px-3 py-1 z-10">
-              Only {product.stock} left
-            </div>
-          )}
+          {/* Badges — Top Left */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+            {product.stock > 0 && product.stock < 10 && (
+              <div className="bg-[#D30005] text-white text-[11px] font-bold px-2.5 py-1 uppercase tracking-tight">
+                Only {product.stock} left
+              </div>
+            )}
+            {product.stock === 0 && (
+              <div className="bg-[#707072] text-white text-[11px] font-bold px-2.5 py-1 uppercase tracking-tight">
+                Sold Out
+              </div>
+            )}
+          </div>
 
-          {/* Heart icon */}
+          {/* Wishlist — Top Right */}
           <button
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
               onToggleLike(product.id)
             }}
-            aria-label={isLiked ? `Remove ${product.name} from liked items` : `Like ${product.name}`}
-            className={`absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center transition-colors z-10 ${
-              isLiked ? "text-[#D30005]" : "text-[#CACACB] hover:text-[#D30005]"
-            }`}
+            className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10 hover:bg-white shadow-sm active:scale-90"
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} strokeWidth={1.5} />
+            <Heart 
+              className={`w-4.5 h-4.5 transition-colors ${isLiked ? "fill-[#D30005] text-[#D30005]" : "text-[#111111]"}`} 
+              strokeWidth={1.5} 
+            />
           </button>
 
-          {/* Quick Add on hover */}
-          <div className="absolute inset-x-0 bottom-0 p-3 opacity-100 md:opacity-0 md:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 z-20">
+          {/* Action Overlay (Desktop) / Quick Add (Mobile) */}
+          <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out hidden md:block">
             <button
               onClick={handleAddToCart}
-              disabled={adding || product.stock === 0}
-              className="nike-btn-primary w-full text-[14px] py-3"
+              disabled={adding || product.stock === 0 || isSuccess}
+              className={`nike-btn-primary w-full text-[14px] py-3 shadow-xl transition-all ${
+                isSuccess ? "bg-[#007D48] hover:bg-[#007D48]" : ""
+              }`}
             >
-              <ShoppingBag className="w-4 h-4" />
-              {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
+              {isSuccess ? (
+                <><CheckCircle2 className="w-4 h-4" /> Added to Bag</>
+              ) : (
+                <><ShoppingBag className="w-4 h-4" /> {adding ? "Adding..." : "Add to Bag"}</>
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Quick Add Button */}
+          <div className="absolute right-3 bottom-3 md:hidden">
+             <button
+              onClick={handleAddToCart}
+              disabled={adding || product.stock === 0 || isSuccess}
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg active:scale-90 ${
+                isSuccess ? "bg-[#007D48] text-white" : "bg-white text-[#111111]"
+              } disabled:opacity-50`}
+            >
+              {isSuccess ? <CheckCircle2 className="w-5.5 h-5.5" /> : <ShoppingBag className="w-5.5 h-5.5" />}
             </button>
           </div>
         </div>
 
-        {/* Product Info */}
-        <div className="pt-3 space-y-1">
-          <div className="flex justify-between items-start gap-2">
-            <h3 className="text-[15px] font-medium text-[#111111] leading-tight line-clamp-1 group-hover:underline" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+        {/* Info — Proper Nike Hierarchy */}
+        <div className="pt-4 flex flex-col gap-1">
+          <div className="flex flex-col">
+            <h3 className="text-[15px] sm:text-[16px] font-medium text-[#111111] leading-tight">
               {product.name}
             </h3>
-            <span className="text-[15px] font-medium text-[#111111] whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              ₹{product.price.toLocaleString("en-IN")}
-            </span>
+            <p className="text-[14px] text-[#707072] font-normal">
+              {product.category}
+            </p>
           </div>
-          <p className="text-[14px] text-[#707072] font-normal" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-            {product.category}
-          </p>
+          <div className="mt-1">
+            <p className="text-[15px] sm:text-[16px] font-medium text-[#111111]">
+              ₹{product.price.toLocaleString("en-IN")}
+            </p>
+          </div>
         </div>
       </Link>
     </motion.div>
@@ -382,8 +409,11 @@ function ShopContent() {
             </button>
           </div>
         ) : (
-          <motion.div layout className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-3">
-            <AnimatePresence>
+          <motion.div 
+            layout 
+            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-10 sm:gap-x-4 md:gap-x-6 md:gap-y-12"
+          >
+            <AnimatePresence mode="popLayout">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
