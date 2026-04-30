@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { ShoppingBag, Star, ArrowRight, Smartphone } from "lucide-react"
+import { ShoppingBag, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 import { productsApi, type Product } from "@/lib/api"
 import { useCart } from "@/context/CartContext"
@@ -53,61 +53,54 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <Link href={`/shop/${product.id}`} className="text-foreground no-underline group block mb-6 md:mb-8">
-        <div className="relative aspect-[3/4] bg-neutral-50 mb-4 md:mb-5 overflow-hidden rounded-2xl md:rounded-3xl flex items-center justify-center transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/5 border border-neutral-100/80">
-          <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.02] transition-colors duration-500" />
+      <Link href={`/shop/${product.id}`} className="text-[#111111] no-underline group block">
+        {/* Product Image — square, no border radius, edge-to-edge */}
+        <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden">
           <Image
             src={imageUrl}
             alt={product.name}
             fill
-            className="object-contain p-6 sm:p-8 md:p-10 transition-all duration-700 ease-out group-hover:scale-110"
+            className="object-contain p-6 transition-opacity duration-200"
             onError={() => setImgError(true)}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             unoptimized={imageUrl.startsWith('http')}
           />
-          
-          {/* Status Badge */}
+
+          {/* Sold Out badge */}
           {product.stock === 0 && (
-            <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[9px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full z-20">
+            <div className="absolute top-3 left-3 bg-[#111111] text-white text-[12px] font-medium px-3 py-1 z-10">
               Sold Out
             </div>
           )}
 
-          {/* AR Badge */}
-          {product.stock > 0 && (
-            <div className="absolute top-4 right-4 bg-primary/10 backdrop-blur-md text-primary text-[8px] uppercase font-bold tracking-wider px-2 py-1 rounded-full z-20 flex items-center gap-1 border border-primary/20">
-              <Smartphone className="w-2.5 h-2.5" />
-              AR
-            </div>
-          )}
-          
-          {/* Quick Add Button */}
-          <div className="absolute inset-x-3 sm:inset-x-4 bottom-3 sm:bottom-4 translate-y-0 opacity-100 md:translate-y-3 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-400 z-30">
+          {/* Quick Add — appears on hover (desktop), always visible (mobile) */}
+          <div className="absolute inset-x-0 bottom-0 p-3 opacity-100 md:opacity-0 md:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 z-20">
             <button
               onClick={handleAddToCart}
               disabled={adding || product.stock === 0}
-              className="w-full bg-white/95 backdrop-blur-md text-black py-3 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-lg hover:bg-neutral-900 hover:text-white transition-all flex items-center justify-center gap-2 border border-neutral-100"
+              className="nike-btn-primary w-full text-[14px] py-3"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              {product.stock === 0 ? "Unavailable" : adding ? "Adding..." : "Quick Add"}
+              <ShoppingBag className="w-4 h-4" />
+              {product.stock === 0 ? "Unavailable" : adding ? "Adding..." : "Add to Cart"}
             </button>
           </div>
         </div>
 
-        <div className="px-1">
-          <div className="flex justify-between items-start gap-3 mb-1.5">
-            <h3 className="font-bold text-sm md:text-base leading-tight group-hover:text-primary transition-colors line-clamp-1">{product.name}</h3>
-            <span className="font-bold text-sm md:text-base whitespace-nowrap">{priceDisplay}</span>
+        {/* Product Info — below image, tight spacing */}
+        <div className="pt-3 space-y-1">
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="text-[16px] font-medium text-[#111111] leading-tight line-clamp-1 group-hover:underline" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {product.name}
+            </h3>
+            <span className="text-[16px] font-medium text-[#111111] whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {priceDisplay}
+            </span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">{product.category}</span>
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-              <span className="text-[10px] font-semibold text-neutral-400">4.9</span>
-            </div>
-          </div>
+          <p className="text-[14px] text-[#707072] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            {product.category}
+          </p>
         </div>
       </Link>
     </motion.div>
@@ -149,33 +142,35 @@ export function ProductGrid({
 
   return (
     <section className="w-full">
-      <div className="max-w-7xl mx-auto mb-16 md:mb-20 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-10 md:mb-12 gap-4 pt-8 md:pt-12">
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-            {title.split(' ')[0]} <span className="text-primary">{title.split(' ').slice(1).join(' ')}</span>
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-16">
+        {/* Section Header */}
+        <div className="flex items-end justify-between mb-8 md:mb-10">
+          <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111]">
+            {title}
           </h2>
           {showViewAll && (
             <Link
               href="/shop"
-              className="group flex items-center gap-2 font-semibold text-sm text-neutral-600 hover:text-primary transition-colors"
+              className="text-[14px] font-medium text-[#111111] hover:text-[#707072] transition-colors flex items-center gap-1"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
             >
-              View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              View All <ArrowRight className="w-4 h-4" />
             </Link>
           )}
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-3">
             {Array.from({ length: limit > 4 ? 4 : limit }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="bg-neutral-100 aspect-[3/4] rounded-2xl mb-4" />
-                <div className="h-4 bg-neutral-100 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-neutral-100 rounded w-1/2" />
+                <div className="bg-[#F5F5F5] aspect-square mb-3" />
+                <div className="h-4 bg-[#F5F5F5] w-3/4 mb-2" />
+                <div className="h-3 bg-[#F5F5F5] w-1/2" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-3">
             {products.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}

@@ -34,48 +34,28 @@ const INITIAL_MESSAGE: Message = {
   timestamp: new Date(),
 }
 
-/**
- * Simple inline markdown renderer: **bold**, *italic*, and line breaks.
- */
 function renderMarkdown(text: string) {
   const parts: (string | React.ReactNode)[] = []
-  // Split by newlines first
   const lines = text.split("\n")
 
   lines.forEach((line, lineIdx) => {
     if (lineIdx > 0) parts.push(<br key={`br-${lineIdx}`} />)
-
-    // Match **bold** and *italic*
     const regex = /(\*\*(.+?)\*\*|\*(.+?)\*)/g
     let lastIndex = 0
     let match
 
     while ((match = regex.exec(line)) !== null) {
-      // Push text before the match
       if (match.index > lastIndex) {
         parts.push(line.slice(lastIndex, match.index))
       }
-
       if (match[2]) {
-        // **bold**
-        parts.push(
-          <strong key={`b-${lineIdx}-${match.index}`} className="font-semibold">
-            {match[2]}
-          </strong>
-        )
+        parts.push(<strong key={`b-${lineIdx}-${match.index}`} className="font-medium">{match[2]}</strong>)
       } else if (match[3]) {
-        // *italic*
-        parts.push(
-          <em key={`i-${lineIdx}-${match.index}`} className="italic opacity-80">
-            {match[3]}
-          </em>
-        )
+        parts.push(<em key={`i-${lineIdx}-${match.index}`} className="italic opacity-80">{match[3]}</em>)
       }
-
       lastIndex = match.index + match[0].length
     }
 
-    // Remaining text after last match
     if (lastIndex < line.length) {
       parts.push(line.slice(lastIndex))
     }
@@ -110,7 +90,6 @@ export function AIChatbot() {
     }
   }, [isOpen])
 
-  // Track scroll position for "scroll to bottom" button
   useEffect(() => {
     const container = messagesContainerRef.current
     if (!container) return
@@ -139,7 +118,6 @@ export function AIChatbot() {
 
       try {
         const response = await aiApi.chat(userMessage, token)
-
         const aiMsg: Message = {
           id: (Date.now() + 1).toString(),
           role: "assistant",
@@ -148,7 +126,6 @@ export function AIChatbot() {
           quickReplies: response.quickReplies,
           timestamp: new Date(),
         }
-
         setMessages((prev) => [...prev, aiMsg])
       } catch (error) {
         console.error("Chat error:", error)
@@ -203,7 +180,7 @@ export function AIChatbot() {
 
   return (
     <>
-      {/* Floating action button */}
+      {/* Floating action button — Nike black, no shadow lift */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -212,70 +189,55 @@ export function AIChatbot() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 group"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#111111] rounded-full flex items-center justify-center hover:bg-[#707072] transition-colors duration-200"
             aria-label="Open AI Shopping Assistant"
           >
-            <div className="relative">
-              {/* Glow ring */}
-              <div className="absolute inset-0 rounded-full bg-primary/30 blur-xl group-hover:bg-primary/50 transition-all duration-500 scale-150" />
-              {/* Button */}
-              <div className="relative w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform duration-300">
-                <Gift className="w-6 h-6 text-white" />
-              </div>
-              {/* Badge */}
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-[7px] font-black flex items-center justify-center rounded-full border-2 border-background shadow-lg">
-                AI
-              </span>
-            </div>
+            <Gift className="w-6 h-6 text-white" />
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#007D48] text-white text-[7px] font-medium flex items-center justify-center rounded-full">
+              AI
+            </span>
           </motion.button>
         )}
       </AnimatePresence>
 
-      {/* Chat window */}
+      {/* Chat window — Nike design system */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            initial={{ opacity: 0, y: 30, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-6 right-6 z-50 w-[360px] sm:w-[400px] h-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-3xl shadow-2xl border border-border/50"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-card), var(--color-background))",
-            }}
+            exit={{ opacity: 0, y: 30, scale: 0.96 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            className="fixed bottom-6 right-6 z-50 w-[360px] sm:w-[400px] h-[600px] max-h-[88vh] flex flex-col overflow-hidden bg-white"
+            style={{ boxShadow: '0 0 0 1px #E5E5E5, 0 20px 60px -10px rgba(0,0,0,0.15)' }}
           >
-            {/* ── Header ─────────────────────────────────────────────── */}
-            <div className="relative px-5 py-4 shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl">
+            {/* Header */}
+            <div className="px-5 py-4 shrink-0 bg-[#111111]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                      <Bot className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-card" />
+                  <div className="w-9 h-9 bg-white/10 flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-foreground tracking-tight">
+                    <h3 className="text-[14px] font-medium text-white" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       AI Gift Concierge
                     </h3>
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-primary" />
-                      Powered by Gemini
+                    <p className="text-[11px] text-white/50 flex items-center gap-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      <Zap className="w-3 h-3" /> Powered by Gemini
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={clearChat}
-                    className="p-2 hover:bg-muted rounded-xl transition-colors text-muted-foreground hover:text-foreground"
+                    className="p-2 text-white/50 hover:text-white transition-colors"
                     title="Clear chat"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-muted rounded-xl transition-colors text-muted-foreground hover:text-foreground"
+                    className="p-2 text-white/50 hover:text-white transition-colors"
                     title="Close"
                   >
                     <X className="w-4 h-4" />
@@ -284,18 +246,18 @@ export function AIChatbot() {
               </div>
             </div>
 
-            {/* ── Messages ───────────────────────────────────────────── */}
+            {/* Messages */}
             <div
               ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth"
+              className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[#FAFAFA]"
               style={{ scrollbarWidth: "thin" }}
             >
               {messages.map((msg, idx) => (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: idx === messages.length - 1 ? 0.05 : 0 }}
+                  transition={{ duration: 0.2, delay: idx === messages.length - 1 ? 0.05 : 0 }}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div className="flex flex-col gap-1.5 max-w-[85%]">
@@ -303,9 +265,10 @@ export function AIChatbot() {
                     <div
                       className={`px-4 py-3 text-[13px] leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md shadow-md"
-                          : "bg-muted/70 text-foreground rounded-2xl rounded-bl-md border border-border/30"
+                          ? "bg-[#111111] text-white rounded-[20px] rounded-br-[4px]"
+                          : "bg-white text-[#111111] rounded-[20px] rounded-bl-[4px]"
                       }`}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', boxShadow: msg.role === "assistant" ? '0 0 0 1px #E5E5E5' : 'none' }}
                     >
                       {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
                     </div>
@@ -318,31 +281,29 @@ export function AIChatbot() {
                             key={product.id}
                             href={`/shop/${product.id}`}
                             onClick={() => setIsOpen(false)}
-                            className="group flex items-center gap-3 p-2.5 bg-card/80 backdrop-blur-sm border border-border/40 rounded-2xl hover:border-primary/40 hover:shadow-md transition-all duration-300"
+                            className="group flex items-center gap-3 p-2.5 bg-white hover:bg-[#F5F5F5] transition-colors no-underline"
+                            style={{ boxShadow: '0 0 0 1px #E5E5E5' }}
                           >
-                            <div className="w-11 h-11 bg-muted rounded-xl overflow-hidden flex-shrink-0">
+                            <div className="w-11 h-11 bg-[#F5F5F5] overflow-hidden flex-shrink-0">
                               {product.images && product.images[0] ? (
                                 <img
                                   src={product.images[0]}
                                   alt={product.name}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
-                                  <Gift className="w-4 h-4 text-muted-foreground" />
+                                  <Gift className="w-4 h-4 text-[#CACACB]" />
                                 </div>
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold truncate group-hover:text-primary transition-colors">
+                              <p className="text-[12px] font-medium text-[#111111] truncate group-hover:underline" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                                 {product.name}
                               </p>
-                              <p className="text-xs text-muted-foreground font-medium">
+                              <p className="text-[12px] text-[#707072] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                                 ₹{product.price.toLocaleString("en-IN")}
                               </p>
-                            </div>
-                            <div className="text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                              View →
                             </div>
                           </Link>
                         ))}
@@ -350,7 +311,8 @@ export function AIChatbot() {
                           <Link
                             href="/shop"
                             onClick={() => setIsOpen(false)}
-                            className="text-[11px] text-primary font-semibold text-center hover:underline py-1"
+                            className="text-[12px] font-medium text-[#111111] text-center hover:underline py-1"
+                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                           >
                             View all {msg.products.length} results →
                           </Link>
@@ -359,33 +321,28 @@ export function AIChatbot() {
                     )}
 
                     {/* Quick replies */}
-                    {msg.quickReplies &&
-                      msg.quickReplies.length > 0 &&
-                      msg.role === "assistant" && (
-                        <div className="flex flex-wrap gap-1.5 mt-1">
-                          {msg.quickReplies.map((qr) => (
-                            <button
-                              key={qr}
-                              onClick={() => handleQuickReply(qr)}
-                              disabled={isLoading}
-                              className="text-[11px] font-medium border border-border/50 rounded-full px-3 py-1.5 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              {qr}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                    {msg.quickReplies && msg.quickReplies.length > 0 && msg.role === "assistant" && (
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {msg.quickReplies.map((qr) => (
+                          <button
+                            key={qr}
+                            onClick={() => handleQuickReply(qr)}
+                            disabled={isLoading}
+                            className="text-[11px] font-medium border border-[#CACACB] rounded-full px-3 py-1.5 text-[#111111] hover:border-[#111111] hover:bg-[#F5F5F5] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                          >
+                            {qr}
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Timestamp */}
                     <span
-                      className={`text-[10px] text-muted-foreground/60 ${
-                        msg.role === "user" ? "text-right" : "text-left"
-                      }`}
+                      className={`text-[10px] text-[#CACACB] ${msg.role === "user" ? "text-right" : "text-left"}`}
+                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                     >
-                      {msg.timestamp.toLocaleTimeString("en-IN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
                 </motion.div>
@@ -394,33 +351,24 @@ export function AIChatbot() {
               {/* Typing indicator */}
               {isLoading && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-muted/70 border border-border/30 px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-2">
+                  <div className="bg-white px-4 py-3 rounded-[20px] rounded-bl-[4px] flex items-center gap-2" style={{ boxShadow: '0 0 0 1px #E5E5E5' }}>
                     <div className="flex gap-1">
-                      <span
-                        className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                        style={{ animationDelay: "0ms" }}
-                      />
-                      <span
-                        className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                        style={{ animationDelay: "150ms" }}
-                      />
-                      <span
-                        className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                        style={{ animationDelay: "300ms" }}
-                      />
+                      <span className="w-1.5 h-1.5 bg-[#707072] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 bg-[#707072] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-1.5 h-1.5 bg-[#707072] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                     </div>
-                    <span className="text-xs text-muted-foreground ml-1">Thinking...</span>
+                    <span className="text-[11px] text-[#707072] ml-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Thinking...</span>
                   </div>
                 </motion.div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Scroll-to-bottom button */}
+            {/* Scroll-to-bottom */}
             <AnimatePresence>
               {showScrollBtn && (
                 <motion.button
@@ -428,49 +376,46 @@ export function AIChatbot() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   onClick={scrollToBottom}
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 w-8 h-8 bg-card border border-border rounded-full shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
+                  className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 w-8 h-8 bg-white flex items-center justify-center text-[#707072] hover:text-[#111111] transition-colors"
+                  style={{ boxShadow: '0 0 0 1px #E5E5E5' }}
                 >
-                  <ArrowDown className="w-4 h-4 text-muted-foreground" />
+                  <ArrowDown className="w-4 h-4" />
                 </motion.button>
               )}
             </AnimatePresence>
 
-            {/* ── Input ─────────────────────────────────────────────── */}
-            <div className="px-4 py-3 border-t border-border/50 bg-card/80 backdrop-blur-xl shrink-0">
+            {/* Input */}
+            <div className="px-4 py-3 bg-white shrink-0" style={{ borderTop: '1px solid #E5E5E5' }}>
               <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                {/* Voice button */}
                 <button
                   type="button"
                   onClick={startVoiceInput}
                   disabled={isListening || isLoading}
-                  className={`p-2.5 rounded-xl border transition-all duration-200 shrink-0 ${
+                  className={`w-10 h-10 flex items-center justify-center shrink-0 transition-all duration-200 ${
                     isListening
-                      ? "border-red-400 bg-red-500/10 text-red-500 shadow-lg shadow-red-500/20"
-                      : "border-border/50 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary"
+                      ? "bg-[#D30005]/5 text-[#D30005]"
+                      : "bg-[#F5F5F5] text-[#707072] hover:text-[#111111]"
                   }`}
                   aria-label="Voice input"
                 >
                   <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
                 </button>
 
-                {/* Text input */}
-                <div className="flex-1 relative">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={isListening ? "Listening..." : "Describe your perfect gift..."}
-                    className="w-full border border-border/50 bg-background/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder:text-muted-foreground/50"
-                    disabled={isListening}
-                  />
-                </div>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={isListening ? "Listening..." : "Describe your perfect gift..."}
+                  className="flex-1 bg-[#F5F5F5] border border-[#E5E5E5] py-2.5 px-4 text-[14px] focus:outline-none focus:border-[#111111] transition-colors placeholder:text-[#CACACB] text-[#111111]"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  disabled={isListening}
+                />
 
-                {/* Send button */}
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="p-2.5 bg-gradient-to-br from-primary to-accent text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-300 hover:scale-105 active:scale-95 shrink-0"
+                  className="w-10 h-10 bg-[#111111] text-white flex items-center justify-center hover:bg-[#707072] disabled:bg-[#E5E5E5] disabled:text-[#CACACB] disabled:cursor-not-allowed transition-colors duration-200 shrink-0"
                   aria-label="Send message"
                 >
                   {isLoading ? (

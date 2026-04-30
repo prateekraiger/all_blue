@@ -50,17 +50,10 @@ export default function GiftFinderPage() {
 
   const handleGenerate = async () => {
     if (!persona || !occasion) return
-
     setIsGenerating(true)
     setError(null)
-
     try {
-      const response = await aiApi.generateGiftSuggestions({
-        persona,
-        occasion,
-        budget,
-      })
-
+      const response = await aiApi.generateGiftSuggestions({ persona, occasion, budget })
       setResults(response.products as GiftResult[])
       setStep(4)
     } catch (err: any) {
@@ -83,23 +76,17 @@ export default function GiftFinderPage() {
   const budgetPresets = [1000, 2500, 5000, 10000, 25000]
 
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden py-12 md:py-24">
-      {/* Background Decor */}
-      <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/10 rounded-full blur-[120px] animate-pulse" />
-      </div>
-
-      <div className="max-w-[1200px] mx-auto px-4 relative">
+    <div className="min-h-screen bg-white py-12 md:py-20">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 mb-6 backdrop-blur-sm"
+            className="inline-flex items-center gap-2 bg-[#F5F5F5] px-4 py-2 rounded-full mb-6"
           >
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+            <Zap className="w-4 h-4 text-[#111111]" />
+            <span className="text-[12px] font-medium uppercase tracking-wider text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               Powered by Gemini AI
             </span>
           </motion.div>
@@ -107,33 +94,30 @@ export default function GiftFinderPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-gradient"
+            className="nike-display text-[48px] md:text-[64px] lg:text-[96px] text-[#111111] mb-4"
           >
-            AI Gift Finder
+            AI GIFT FINDER
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-[16px] md:text-[18px] text-[#707072] max-w-2xl mx-auto" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           >
             Our intelligent recommendation engine finds the perfect gift based on personality, occasion, and your budget.
           </motion.p>
         </div>
 
         {/* Progress Bar */}
-        <div className="max-w-[700px] mx-auto mb-10 md:mb-12 px-4">
-          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden flex gap-1">
+        <div className="max-w-[700px] mx-auto mb-10 md:mb-12">
+          <div className="h-1 w-full bg-[#E5E5E5] flex gap-1">
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
-                className="h-full flex-1 rounded-full"
+                className="h-full flex-1"
                 initial={false}
-                animate={{
-                  backgroundColor: step >= i ? "var(--color-primary)" : "var(--color-muted)",
-                  boxShadow: step >= i ? "0 0 12px var(--color-primary)" : "none",
-                }}
-                transition={{ duration: 0.5 }}
+                animate={{ backgroundColor: step >= i ? "#111111" : "#E5E5E5" }}
+                transition={{ duration: 0.4 }}
               />
             ))}
           </div>
@@ -141,9 +125,10 @@ export default function GiftFinderPage() {
             {["Recipient", "Occasion", "Budget", "Results"].map((label, i) => (
               <span
                 key={label}
-                className={`text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 ${
-                  step === i + 1 ? "text-primary" : "text-muted-foreground/50"
+                className={`text-[11px] font-medium uppercase tracking-wider transition-colors ${
+                  step === i + 1 ? "text-[#111111]" : "text-[#CACACB]"
                 }`}
+                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 {label}
               </span>
@@ -151,215 +136,188 @@ export default function GiftFinderPage() {
           </div>
         </div>
 
-        {/* Error display */}
+        {/* Error */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-[800px] mx-auto mb-6 px-6 py-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm text-center"
+            className="max-w-[800px] mx-auto mb-6 px-6 py-4 bg-[#D30005]/5 text-[#D30005] text-[14px] text-center" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           >
             {error}
           </motion.div>
         )}
 
         {/* Wizard Steps */}
-        <div className="max-w-[800px] mx-auto relative">
+        <div className="max-w-[800px] mx-auto">
           <AnimatePresence mode="wait">
-            {/* ── Step 1: Recipient ──────────────────────────── */}
+            {/* Step 1: Recipient */}
             {step === 1 && (
               <motion.div
                 key="step1"
-                initial={{ opacity: 0, scale: 0.96, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.02, y: -20 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-card/80 backdrop-blur-2xl rounded-3xl border border-border/50 shadow-2xl p-8 md:p-14"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.35 }}
+                className="bg-[#FAFAFA] p-8 md:p-12"
               >
                 <div className="text-center mb-10">
-                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5 rotate-3">
-                    <User className="w-7 h-7 text-primary" />
+                  <div className="w-12 h-12 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-5">
+                    <User className="w-6 h-6 text-[#111111]" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-foreground">
+                  <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-2">
                     Who is the Recipient?
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     Every great gift starts with understanding the person.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {(["Partner", "Colleague", "Friend", "Parent", "Client"] as Persona[]).map(
-                    (p, i) => (
-                      <motion.button
-                        key={p}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.07 }}
-                        onClick={() => setPersona(p)}
-                        className={`group relative rounded-2xl border-2 transition-all duration-300 p-6 flex flex-col items-center justify-center gap-3 ${
-                          persona === p
-                            ? "border-primary bg-primary text-primary-foreground shadow-xl shadow-primary/20"
-                            : "border-border/50 bg-card hover:border-primary/40 hover:bg-muted/50"
-                        }`}
-                      >
-                        <div
-                          className={`p-3 rounded-xl transition-colors ${
-                            persona === p ? "bg-primary-foreground/20" : "bg-muted"
-                          }`}
-                        >
-                          {PERSONA_ICONS[p]}
-                        </div>
-                        <div className="text-center">
-                          <span className="font-bold text-xs uppercase tracking-widest block">
-                            {p}
-                          </span>
-                          <span
-                            className={`text-[10px] mt-1 block ${
-                              persona === p ? "text-primary-foreground/70" : "text-muted-foreground"
-                            }`}
-                          >
-                            {PERSONA_DESCRIPTIONS[p]}
-                          </span>
-                        </div>
-                      </motion.button>
-                    )
-                  )}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {(["Partner", "Colleague", "Friend", "Parent", "Client"] as Persona[]).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPersona(p)}
+                      className={`p-5 flex flex-col items-center gap-3 transition-all duration-200 ${
+                        persona === p
+                          ? "bg-[#111111] text-white"
+                          : "bg-white text-[#111111] border border-[#CACACB] hover:border-[#111111]"
+                      }`}
+                    >
+                      <div className={`p-2.5 ${persona === p ? "bg-white/10" : "bg-[#F5F5F5]"}`}>
+                        {PERSONA_ICONS[p]}
+                      </div>
+                      <div className="text-center">
+                        <span className="text-[14px] font-medium block" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{p}</span>
+                        <span className={`text-[11px] block mt-0.5 ${persona === p ? "text-white/60" : "text-[#707072]"}`} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          {PERSONA_DESCRIPTIONS[p]}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
 
-                <div className="mt-12 flex justify-center">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                <div className="mt-10 flex justify-center">
+                  <button
                     onClick={() => setStep(2)}
                     disabled={!persona}
-                    className="bg-foreground text-background px-10 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center gap-3 shadow-xl hover:shadow-2xl"
+                    className="nike-btn-primary text-[14px] px-10 py-3.5"
                   >
                     Choose Occasion <ArrowRight className="w-4 h-4" />
-                  </motion.button>
+                  </button>
                 </div>
               </motion.div>
             )}
 
-            {/* ── Step 2: Occasion ──────────────────────────── */}
+            {/* Step 2: Occasion */}
             {step === 2 && (
               <motion.div
                 key="step2"
-                initial={{ opacity: 0, x: 60 }}
+                initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -60 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-card/80 backdrop-blur-2xl rounded-3xl border border-border/50 shadow-2xl p-8 md:p-14"
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35 }}
+                className="bg-[#FAFAFA] p-8 md:p-12"
               >
                 <div className="text-center mb-10">
-                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5 -rotate-3">
-                    <Gift className="w-7 h-7 text-primary" />
+                  <div className="w-12 h-12 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-5">
+                    <Gift className="w-6 h-6 text-[#111111]" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-foreground">
+                  <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-2">
                     The Occasion?
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     Timing is everything in the art of gifting.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {(
-                    ["Birthday", "Anniversary", "Thank You", "Corporate", "Just Because"] as Occasion[]
-                  ).map((o, i) => (
-                    <motion.button
+                  {(["Birthday", "Anniversary", "Thank You", "Corporate", "Just Because"] as Occasion[]).map((o) => (
+                    <button
                       key={o}
-                      initial={{ opacity: 0, x: 15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
                       onClick={() => setOccasion(o)}
-                      className={`relative p-6 rounded-2xl border-2 transition-all duration-300 flex items-center justify-between gap-4 group ${
+                      className={`p-5 flex items-center justify-between gap-4 transition-all duration-200 ${
                         occasion === o
-                          ? "border-primary bg-primary text-primary-foreground shadow-xl shadow-primary/20"
-                          : "border-border/50 bg-card hover:border-primary/40 hover:bg-muted/50"
+                          ? "bg-[#111111] text-white"
+                          : "bg-white text-[#111111] border border-[#CACACB] hover:border-[#111111]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-xl">{OCCASION_EMOJIS[o]}</span>
-                        <span className="font-bold text-xs uppercase tracking-widest">{o}</span>
+                        <span className="text-[14px] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{o}</span>
                       </div>
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          occasion === o ? "border-primary-foreground/60 bg-primary-foreground/20" : "border-border"
-                        }`}
-                      >
-                        {occasion === o && <div className="w-2 h-2 bg-primary-foreground rounded-full" />}
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        occasion === o ? "border-white" : "border-[#CACACB]"
+                      }`}>
+                        {occasion === o && <div className="w-2 h-2 bg-white rounded-full" />}
                       </div>
-                    </motion.button>
+                    </button>
                   ))}
                 </div>
 
-                <div className="mt-12 flex justify-between items-center">
+                <div className="mt-10 flex justify-between items-center">
                   <button
                     onClick={() => setStep(1)}
-                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                    className="flex items-center gap-2 text-[14px] font-medium text-[#707072] hover:text-[#111111] transition-colors"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   >
-                    <ArrowLeft className="w-3 h-3" /> Back
+                    <ArrowLeft className="w-4 h-4" /> Back
                   </button>
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                  <button
                     onClick={() => setStep(3)}
                     disabled={!occasion}
-                    className="bg-foreground text-background px-10 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center gap-3 shadow-xl hover:shadow-2xl"
+                    className="nike-btn-primary text-[14px] px-10 py-3.5"
                   >
                     Set Budget <ArrowRight className="w-4 h-4" />
-                  </motion.button>
+                  </button>
                 </div>
               </motion.div>
             )}
 
-            {/* ── Step 3: Budget ────────────────────────────── */}
+            {/* Step 3: Budget */}
             {step === 3 && (
               <motion.div
                 key="step3"
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-card/80 backdrop-blur-2xl rounded-3xl border border-border/50 shadow-2xl p-8 md:p-14"
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.35 }}
+                className="bg-[#FAFAFA] p-8 md:p-12"
               >
                 <div className="text-center mb-10">
-                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                    <Target className="w-7 h-7 text-primary" />
+                  <div className="w-12 h-12 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-5">
+                    <Target className="w-6 h-6 text-[#111111]" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-foreground">
+                  <h2 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-2">
                     Investment Range
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                     Quality has no price, but planning helps.
                   </p>
                 </div>
 
                 <div className="py-8">
-                  {/* Budget display */}
-                  <div className="text-6xl md:text-7xl font-black text-center mb-8 tracking-tighter tabular-nums text-foreground">
+                  <div className="nike-display text-[48px] md:text-[64px] text-[#111111] text-center mb-8 tabular-nums">
                     ₹{budget.toLocaleString("en-IN")}
                   </div>
 
-                  {/* Quick presets */}
                   <div className="flex flex-wrap justify-center gap-2 mb-8">
                     {budgetPresets.map((preset) => (
                       <button
                         key={preset}
                         onClick={() => setBudget(preset)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                        className={`px-5 py-2.5 rounded-full text-[14px] font-medium transition-all duration-200 ${
                           budget === preset
-                            ? "bg-primary text-primary-foreground shadow-md"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground border border-border/50"
+                            ? "bg-[#111111] text-white"
+                            : "bg-[#F5F5F5] text-[#707072] hover:bg-[#E5E5E5] hover:text-[#111111]"
                         }`}
+                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                       >
                         ₹{preset.toLocaleString("en-IN")}
                       </button>
                     ))}
                   </div>
 
-                  {/* Slider */}
-                  <div className="relative px-2">
+                  <div className="px-2">
                     <input
                       type="range"
                       min="500"
@@ -367,9 +325,9 @@ export default function GiftFinderPage() {
                       step="500"
                       value={budget}
                       onChange={(e) => setBudget(Number(e.target.value))}
-                      className="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-primary"
+                      className="w-full h-1 bg-[#E5E5E5] appearance-none cursor-pointer accent-[#111111]"
                     />
-                    <div className="flex justify-between mt-3 text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                    <div className="flex justify-between mt-3 text-[11px] font-medium text-[#CACACB]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       <span>₹500</span>
                       <span>₹12,500</span>
                       <span>₹25,000</span>
@@ -380,42 +338,36 @@ export default function GiftFinderPage() {
                 <div className="mt-10 flex justify-between items-center">
                   <button
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                    className="flex items-center gap-2 text-[14px] font-medium text-[#707072] hover:text-[#111111] transition-colors"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   >
-                    <ArrowLeft className="w-3 h-3" /> Back
+                    <ArrowLeft className="w-4 h-4" /> Back
                   </button>
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                  <button
                     onClick={handleGenerate}
                     disabled={isGenerating}
-                    className="bg-gradient-to-r from-primary to-accent text-white px-10 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all flex items-center gap-3 shadow-xl hover:shadow-2xl hover:shadow-primary/25 relative overflow-hidden group disabled:opacity-60"
+                    className="nike-btn-primary text-[14px] px-10 py-3.5"
                   >
                     {isGenerating ? (
                       <>
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                        >
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
                           <Gift className="w-4 h-4" />
                         </motion.div>
                         AI is Analysing...
                       </>
                     ) : (
-                      <>
-                        Find Perfection <Gift className="w-4 h-4" />
-                      </>
+                      <>Find Perfection <Gift className="w-4 h-4" /></>
                     )}
-                  </motion.button>
+                  </button>
                 </div>
               </motion.div>
             )}
 
-            {/* ── Step 4: Results ───────────────────────────── */}
+            {/* Step 4: Results */}
             {step === 4 && results && (
               <motion.div
                 key="step4"
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full"
               >
@@ -424,45 +376,44 @@ export default function GiftFinderPage() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-                    className="inline-flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20 mb-4"
+                    className="inline-flex items-center gap-2 bg-[#007D48]/10 px-4 py-2 rounded-full mb-4"
                   >
-                    <Gift className="w-4 h-4 text-green-500" />
-                    <span className="text-xs font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
+                    <Gift className="w-4 h-4 text-[#007D48]" />
+                    <span className="text-[12px] font-medium text-[#007D48] uppercase tracking-wider" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Curated by Gemini AI
                     </span>
                   </motion.div>
-                  <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground mb-3">
-                    Your Perfect Matches
+                  <h2 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-3">
+                    YOUR PERFECT MATCHES
                   </h2>
-                  <p className="text-muted-foreground">
-                    Selected for a{" "}
-                    <span className="text-foreground font-semibold">{persona}</span> celebrating{" "}
-                    <span className="text-foreground font-semibold">{occasion}</span>.
+                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    Selected for a <span className="text-[#111111] font-medium">{persona}</span> celebrating{" "}
+                    <span className="text-[#111111] font-medium">{occasion}</span>.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-3">
                   {results.map((product, i) => (
                     <motion.div
                       key={product.id}
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
                     >
                       <Link
                         href={`/shop/${product.id}`}
-                        className="group flex flex-col md:flex-row gap-6 md:gap-8 p-6 md:p-8 rounded-3xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all duration-500"
+                        className="group flex flex-col md:flex-row gap-6 p-6 md:p-8 bg-[#F5F5F5] hover:bg-[#E5E5E5] transition-colors duration-300 no-underline"
                       >
                         {/* Product Image */}
-                        <div className="w-full md:w-56 aspect-square bg-muted/50 rounded-2xl relative overflow-hidden shrink-0">
+                        <div className="w-full md:w-48 aspect-square bg-white relative overflow-hidden shrink-0">
                           <Image
-                            src={product.images?.[0] || "/placeholder.jpg"}
+                            src={product.images?.[0] || "/placeholder.svg"}
                             alt={product.name}
                             fill
-                            className="object-contain p-6 group-hover:scale-110 transition-transform duration-700 ease-out"
+                            className="object-contain p-6 group-hover:scale-105 transition-transform duration-500"
                           />
-                          <div className="absolute top-4 right-4 bg-card/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-border/50">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                          <div className="absolute top-3 right-3 bg-[#111111] text-white px-3 py-1">
+                            <span className="text-[11px] font-medium" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {product.matchScore}% Match
                             </span>
                           </div>
@@ -470,41 +421,38 @@ export default function GiftFinderPage() {
 
                         {/* Product Info */}
                         <div className="flex-1 flex flex-col justify-center">
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            <span className="text-[12px] font-medium text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {product.category}
                             </span>
                             {product.tags?.slice(0, 3).map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[9px] font-bold uppercase tracking-widest text-primary/70 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10"
-                              >
+                              <span key={tag} className="text-[11px] font-medium text-[#707072] bg-white px-2 py-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                                 {tag}
                               </span>
                             ))}
                           </div>
 
-                          <h3 className="text-2xl md:text-3xl font-black tracking-tight mb-3 group-hover:text-primary transition-colors text-foreground">
+                          <h3 className="nike-heading text-[20px] md:text-[24px] text-[#111111] mb-3 group-hover:underline">
                             {product.name}
                           </h3>
 
                           {/* AI Reason */}
-                          <div className="bg-muted/50 rounded-2xl p-4 md:p-5 border border-border/30 mb-6">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-primary mb-2 flex items-center gap-1.5">
+                          <div className="bg-white p-4 mb-4">
+                            <span className="text-[11px] font-medium text-[#111111] mb-1 flex items-center gap-1.5 uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               <Zap className="w-3 h-3" /> AI Insight
                             </span>
-                            <p className="text-muted-foreground text-sm leading-relaxed italic">
+                            <p className="text-[14px] text-[#707072] leading-relaxed italic" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               &ldquo;{product.reason}&rdquo;
                             </p>
                           </div>
 
-                          <div className="flex items-center justify-between pt-3 border-t border-border/30">
-                            <div className="text-2xl md:text-3xl font-black text-foreground">
+                          <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid #E5E5E5' }}>
+                            <span className="text-[20px] md:text-[24px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               ₹{product.price.toLocaleString("en-IN")}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all">
+                            </span>
+                            <span className="text-[14px] font-medium text-[#707072] group-hover:text-[#111111] flex items-center gap-1 transition-colors" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               View Product <ArrowRight className="w-4 h-4" />
-                            </div>
+                            </span>
                           </div>
                         </div>
                       </Link>
@@ -513,30 +461,27 @@ export default function GiftFinderPage() {
                 </div>
 
                 {results.length === 0 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center py-16"
-                  >
-                    <Gift className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                    <p className="text-muted-foreground text-lg mb-2">No matches found</p>
-                    <p className="text-muted-foreground/60 text-sm">
+                  <div className="text-center py-16">
+                    <Gift className="w-10 h-10 text-[#CACACB] mx-auto mb-4" />
+                    <p className="text-[16px] text-[#707072] mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No matches found</p>
+                    <p className="text-[14px] text-[#CACACB]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                       Try adjusting your budget or choosing different options.
                     </p>
-                  </motion.div>
+                  </div>
                 )}
 
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                  className="mt-12 text-center"
+                  transition={{ delay: 0.6 }}
+                  className="mt-10 text-center"
                 >
                   <button
                     onClick={resetWizard}
-                    className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all group"
+                    className="inline-flex items-center gap-2 text-[14px] font-medium text-[#707072] hover:text-[#111111] transition-colors group"
+                    style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   >
-                    <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-180 transition-transform duration-500" />
+                    <RotateCcw className="w-4 h-4 group-hover:-rotate-180 transition-transform duration-500" />
                     Start New Search
                   </button>
                 </motion.div>

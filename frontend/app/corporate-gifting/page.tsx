@@ -4,66 +4,78 @@ import { Briefcase, Gem, Clock } from "lucide-react"
 
 export default function CorporateGiftingPage() {
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <section className="relative h-[400px] md:h-[500px] lg:h-[600px] w-full flex items-center justify-center">
+    <div className="w-full bg-white">
+      {/* Hero Section — full-bleed image, no border radius */}
+      <section className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
         <Image
           src="https://images.unsplash.com/photo-1558459654-c430be5b0a44?q=80&w=2000&auto=format&fit=crop"
-          alt="Corporate Gifting Displays"
+          alt="Corporate Gifting"
           fill
-          className="object-cover brightness-[0.6] grayscale hover:grayscale-0 transition-all duration-700"
+          priority
+          className="object-cover"
+          sizes="100vw"
         />
-        <div className="relative z-10 text-center px-4">
-          <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight uppercase text-white mb-6">
-            Corporate Gifting
-          </h1>
-          <p className="text-lg md:text-xl text-neutral-200 max-w-2xl mx-auto font-medium">
-            Elevate your corporate relationships with bespoke curated gifting solutions tailored for your elite clients and teams.
-          </p>
+        <div className="nike-hero-scrim absolute inset-0" />
+        <div className="absolute inset-0 flex flex-col justify-end">
+          <div className="max-w-[1920px] mx-auto w-full px-4 sm:px-6 lg:px-12 pb-12 md:pb-16">
+            <p className="text-white/70 text-[12px] font-medium mb-3 uppercase tracking-wider" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              For Business
+            </p>
+            <h1 className="nike-display text-white text-[48px] sm:text-[64px] md:text-[80px] lg:text-[96px] max-w-4xl">
+              CORPORATE GIFTING
+            </h1>
+            <p className="text-white/80 text-[16px] md:text-[18px] mt-4 max-w-xl leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Elevate your corporate relationships with bespoke curated gifting solutions tailored for your elite clients and teams.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Info Section */}
-      <section className="max-w-[1920px] mx-auto py-16 md:py-24 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 mb-20 text-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
-              <Gem className="w-8 h-8 text-neutral-800" />
+      {/* Features Section */}
+      <section className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16 md:py-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-3">
+          {[
+            {
+              icon: <Gem className="w-6 h-6" />,
+              title: "Superior Curation",
+              description: "We source only the finest globally recognized luxury items, ensuring your brand is associated with unparalleled quality."
+            },
+            {
+              icon: <Briefcase className="w-6 h-6" />,
+              title: "Branded Elegance",
+              description: "Subtle, elegant branding on bespoke packaging that highlights your company without detracting from the gift."
+            },
+            {
+              icon: <Clock className="w-6 h-6" />,
+              title: "White-Glove Delivery",
+              description: "From conception to unboxing, our dedicated concierge team manages every detail of logistics and handling."
+            }
+          ].map((feature) => (
+            <div key={feature.title} className="bg-[#F5F5F5] p-8 md:p-10 flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-white flex items-center justify-center mb-6 text-[#111111]">
+                {feature.icon}
+              </div>
+              <h3 className="text-[16px] font-medium text-[#111111] mb-3 uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                {feature.title}
+              </h3>
+              <p className="text-[14px] text-[#707072] leading-relaxed max-w-sm" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                {feature.description}
+              </p>
             </div>
-            <h3 className="text-xl font-bold uppercase tracking-widest">Superior Curation</h3>
-            <p className="text-neutral-500 leading-relaxed">
-              We source only the finest globally recognized luxury items, ensuring your brand is associated with unparalleled quality.
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
-              <Briefcase className="w-8 h-8 text-neutral-800" />
-            </div>
-            <h3 className="text-xl font-bold uppercase tracking-widest">Branded Elegance</h3>
-            <p className="text-neutral-500 leading-relaxed">
-              Subtle, elegant branding on bespoke packaging that highlights your company without detracting from the gift.
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
-              <Clock className="w-8 h-8 text-neutral-800" />
-            </div>
-            <h3 className="text-xl font-bold uppercase tracking-widest">White-Glove Delivery</h3>
-            <p className="text-neutral-500 leading-relaxed">
-              From conception to unboxing, our dedicated concierge team manages every detail of logistics and handling.
-            </p>
-          </div>
+          ))}
         </div>
+      </section>
 
-        <div className="bg-neutral-50 p-8 md:p-16 lg:p-24 flex flex-col items-center text-center max-w-4xl mx-auto border border-neutral-200">
-          <h2 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight mb-6">Partner With Us</h2>
-          <p className="text-neutral-500 text-lg mb-10 max-w-2xl leading-relaxed">
+      {/* CTA Section */}
+      <section className="bg-[#111111]">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16 md:py-24 text-center">
+          <h2 className="nike-display text-white text-[32px] md:text-[48px] lg:text-[64px] mb-4">
+            PARTNER WITH US
+          </h2>
+          <p className="text-[16px] text-[#707072] mb-10 max-w-xl mx-auto leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
             Ready to show appreciation to your VIP clients and top performers? Let our concierge team design a custom gifting program for your organization.
           </p>
-          <Link
-            href="/contact"
-            className="bg-foreground text-background px-10 py-5 font-bold text-sm uppercase tracking-widest hover:bg-neutral-800 hover:-translate-y-0.5 transition-all"
-          >
+          <Link href="/contact" className="nike-btn-primary-inverted text-[16px] px-10 py-3.5">
             Contact Concierge
           </Link>
         </div>

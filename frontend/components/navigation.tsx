@@ -1,39 +1,30 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { Gift } from "lucide-react"
 import { NavbarSimple } from "@/components/Navbar-simple"
 
 function AnnouncementBar() {
   return (
-    <div className="bg-neutral-900 text-white py-2 overflow-hidden relative border-b border-white/5">
+    <div className="bg-[#111111] text-white py-2 overflow-hidden relative">
       <div className="flex whitespace-nowrap overflow-x-hidden">
-        <motion.div 
-          animate={{ x: [0, "-50%"] }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-          className="flex gap-8 sm:gap-12 items-center px-2 sm:px-4"
-        >
+        <div className="flex gap-12 items-center px-4 animate-marquee">
           {[1, 2].map((group) => (
-            <div key={group} className="flex gap-8 sm:gap-12 items-center">
-              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1 sm:gap-2 opacity-80 whitespace-nowrap">
-                <Gift className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary flex-shrink-0" /> 
-                <span className="truncate">Free shipping above ₹999</span>
+            <div key={group} className="flex gap-12 items-center">
+              <span className="text-[12px] font-medium flex items-center gap-2 whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Free shipping above ₹999
               </span>
-              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1 sm:gap-2 opacity-80 whitespace-nowrap">
-                <Gift className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary flex-shrink-0" /> 
-                <span className="truncate">New: Summer Blue</span>
+              <span className="text-[12px] font-medium flex items-center gap-2 whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                New: Summer Collection 2026
               </span>
-              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1 sm:gap-2 opacity-80 whitespace-nowrap">
-                <Gift className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary flex-shrink-0" /> 
-                <span className="truncate">Code: BLUE10</span>
+              <span className="text-[12px] font-medium flex items-center gap-2 whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Code: BLUE10 — 10% Off First Order
+              </span>
+              <span className="text-[12px] font-medium flex items-center gap-2 whitespace-nowrap" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Members Get Early Access
               </span>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,5 @@
 import React, { Suspense } from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
@@ -13,9 +12,6 @@ import { stackServerApp } from "@/stack/server";
 import { AIChatbot } from "@/components/AIChatbot"
 import { PageTransition } from "@/components/PageTransition"
 import { SilenceWarnings } from "@/components/SilenceWarnings"
-
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
@@ -80,7 +76,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body className="font-sans antialiased overflow-x-hidden">
+      <head>
+        {/* Oswald — Nike Futura ND substitute for display headlines */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased overflow-x-hidden bg-white text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
         <SilenceWarnings />
         <StackProvider app={stackServerApp}>
           <StackTheme>
@@ -96,7 +101,6 @@ export default function RootLayout({
                   </div>
                   <Toaster position="bottom-right" />
                   <AIChatbot />
-
                 </CartProvider>
               </AuthProvider>
             </Suspense>

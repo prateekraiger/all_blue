@@ -1,66 +1,88 @@
 import Image from "next/image"
-import { Mail, MapPin, Phone } from "lucide-react"
+import { Mail, Phone } from "lucide-react"
 
 export default function ContactPage() {
   return (
-    <div className="max-w-[1920px] mx-auto py-12 md:py-20 lg:py-24 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-        {/* Left Side: Contact Form & Info */}
-        <div className="max-w-xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight uppercase mb-6">Contact Us</h1>
-          <p className="text-neutral-500 mb-10 text-lg leading-relaxed">
-            Whether you have a question about our bespoke gifting services, need assistance with an order, or simply want to say hello, our luxury concierge team is here for you.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div className="flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-foreground">
-                <Phone className="w-5 h-5" />
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          {/* Left — Contact Form & Info */}
+          <div className="max-w-xl">
+            <p className="text-[12px] font-medium text-[#707072] mb-3 uppercase tracking-wider" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Get In Touch
+            </p>
+            <h1 className="nike-display text-[48px] md:text-[64px] lg:text-[80px] text-[#111111] mb-6">
+              CONTACT US
+            </h1>
+            <p className="text-[16px] text-[#707072] mb-10 leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Whether you have a question about our bespoke gifting services, need assistance with an order, or simply want to say hello, our concierge team is here for you.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 bg-[#F5F5F5] flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-[#111111]" />
+                </div>
+                <h3 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Call Us</h3>
+                <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>1-800-ALL-BLUE</p>
+                <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mon-Fri, 9am - 6pm EST</p>
               </div>
-              <h3 className="font-bold uppercase tracking-widest text-sm">Call Us</h3>
-              <p className="text-neutral-500 text-sm">1-800-ALL-BLUE</p>
-              <p className="text-neutral-500 text-sm">Mon-Fri, 9am - 6pm EST</p>
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-foreground">
-                <Mail className="w-5 h-5" />
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 bg-[#F5F5F5] flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-[#111111]" />
+                </div>
+                <h3 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Email</h3>
+                <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>concierge@allbluegifts.com</p>
+                <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>24/7 Support</p>
               </div>
-              <h3 className="font-bold uppercase tracking-widest text-sm">Email</h3>
-              <p className="text-neutral-500 text-sm">concierge@allbluegifts.com</p>
-              <p className="text-neutral-500 text-sm">24/7 Support</p>
             </div>
+
+            <form className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="name" className="text-[12px] font-medium text-[#707072] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>First Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    className="nike-input"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="email" className="text-[12px] font-medium text-[#707072] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    className="nike-input"
+                    placeholder="Your email"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="message" className="text-[12px] font-medium text-[#707072] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>How can we help?</label>
+                <textarea
+                  id="message"
+                  rows={4}
+                  className="nike-input resize-y"
+                  placeholder="Tell us about your inquiry..."
+                />
+              </div>
+              <button type="button" className="nike-btn-primary text-[16px] px-8 py-3.5 w-full sm:w-auto mt-2">
+                Send Message
+              </button>
+            </form>
           </div>
 
-          <form className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="name" className="text-xs font-semibold uppercase tracking-widest text-neutral-800">First Name</label>
-                <input type="text" id="name" className="border-b border-neutral-300 py-3 bg-transparent rounded-none focus:outline-none focus:border-neutral-900 transition-colors" placeholder="Your name" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-xs font-semibold uppercase tracking-widest text-neutral-800">Email Address</label>
-                <input type="email" id="email" className="border-b border-neutral-300 py-3 bg-transparent rounded-none focus:outline-none focus:border-neutral-900 transition-colors" placeholder="Your email" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 mt-4">
-              <label htmlFor="message" className="text-xs font-semibold uppercase tracking-widest text-neutral-800">How can we help?</label>
-              <textarea id="message" rows={4} className="border-b border-neutral-300 py-3 bg-transparent rounded-none focus:outline-none focus:border-neutral-900 transition-colors resize-y" placeholder="Tell us about your inquiry..."></textarea>
-            </div>
-            <button type="button" className="bg-foreground text-background px-8 py-5 font-bold text-sm uppercase tracking-widest hover:bg-neutral-800 hover:-translate-y-0.5 transition-all w-full md:w-fit mt-6">
-              Send Message
-            </button>
-          </form>
-        </div>
-
-        {/* Right Side: Image */}
-        <div className="relative h-[500px] md:h-[600px] lg:h-[800px] w-full hidden md:block">
-          <Image
-            src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop"
-            alt="Customer Concierge Desk"
-            fill
-            className="object-cover"
-          />
+          {/* Right — Image, no border radius */}
+          <div className="relative h-[500px] md:h-[600px] lg:h-[800px] w-full hidden md:block overflow-hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop"
+              alt="Customer Concierge"
+              fill
+              className="object-cover"
+              sizes="50vw"
+            />
+          </div>
         </div>
       </div>
     </div>

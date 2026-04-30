@@ -27,7 +27,7 @@ export default function Home() {
   }, [token])
 
   return (
-    <div className="flex flex-col gap-32 md:gap-48 overflow-x-hidden min-h-screen">
+    <div className="flex flex-col overflow-x-hidden min-h-screen bg-white">
       <Hero />
 
       {/* AI Personalized Feed (for logged-in users) */}
@@ -40,14 +40,11 @@ export default function Home() {
         />
       )}
 
-      
-      <Collections />
-      
-      <div className="pb-32">
-        <Newsletter />
-      </div>
-      
+      <ProductGrid title="Featured Products" />
 
+      <Collections />
+
+      <Newsletter />
     </div>
   )
 }

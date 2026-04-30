@@ -13,7 +13,7 @@ import { toast } from "sonner"
 function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const [adding, setAdding] = useState(false)
-  const [imgSrc, setImgSrc] = useState(product.images?.[0] || "/placeholder.jpg")
+  const [imgSrc, setImgSrc] = useState(product.images?.[0] || "/placeholder.svg")
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -30,32 +30,43 @@ function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Link href={`/shop/${product.id}`} className="text-foreground no-underline group block">
-      <div className="relative bg-neutral-100 p-4 mb-3 h-[200px] sm:h-[240px] flex items-center justify-center overflow-hidden">
+    <Link href={`/shop/${product.id}`} className="text-[#111111] no-underline group block">
+      {/* Product Image — no border radius, Nike grey bg */}
+      <div className="relative bg-[#F5F5F5] aspect-square overflow-hidden mb-3">
         <Image
           src={imgSrc}
           alt={product.name}
-          width={300}
-          height={300}
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-          onError={() => setImgSrc("/placeholder.jpg")}
+          fill
+          className="object-contain p-6 transition-opacity duration-200"
+          onError={() => setImgSrc("/placeholder.svg")}
           unoptimized={imgSrc.startsWith('http')}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
         />
-        <button
-          onClick={handleAddToCart}
-          disabled={adding || product.stock === 0}
-          className="absolute bottom-3 left-3 right-3 bg-foreground text-background py-2 text-xs font-semibold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-700 disabled:bg-neutral-400 flex items-center justify-center gap-1"
-        >
-          <ShoppingBag className="w-3 h-3" />
-          {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
-        </button>
-      </div>
-      <div className="flex justify-between items-start">
-        <div className="flex-1 min-w-0 mr-2">
-          <div className="font-semibold text-sm mb-0.5 truncate">{product.name}</div>
-          <div className="text-xs text-neutral-500">{product.category}</div>
+        {/* Quick Add on hover */}
+        <div className="absolute inset-x-0 bottom-0 p-3 opacity-100 md:opacity-0 md:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 z-20">
+          <button
+            onClick={handleAddToCart}
+            disabled={adding || product.stock === 0}
+            className="nike-btn-primary w-full text-[14px] py-2.5"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {product.stock === 0 ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
+          </button>
         </div>
-        <div className="font-extrabold text-sm shrink-0">₹{product.price.toLocaleString("en-IN")}</div>
+      </div>
+      {/* Product Info */}
+      <div className="flex justify-between items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-[15px] font-medium text-[#111111] truncate group-hover:underline" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            {product.name}
+          </h3>
+          <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            {product.category}
+          </p>
+        </div>
+        <span className="text-[15px] font-medium text-[#111111] shrink-0" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+          ₹{product.price.toLocaleString("en-IN")}
+        </span>
       </div>
     </Link>
   )
@@ -64,9 +75,15 @@ function ProductCard({ product }: { product: Product }) {
 function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [query, setQuery] = useState("")
+  const [products, setProducts] = useState<Product[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const LIMIT = 10
 
   const handleSearch = useCallback(async (q: string, p = 1) => {
@@ -79,15 +96,15 @@ function SearchContent() {
     try {
       if (p === 1) setLoading(true)
       else setLoadingMore(true)
-      
+
       const result = await searchApi.search({ q, limit: LIMIT, offset: (p - 1) * LIMIT })
-      
+
       if (p === 1) {
         setProducts(result.products)
       } else {
         setProducts(prev => [...prev, ...result.products])
       }
-      
+
       setTotal(result.total)
       setHasMore(result.products.length === LIMIT && (p * LIMIT) < result.total)
       setPage(p)
@@ -114,7 +131,7 @@ function SearchContent() {
 
   const handleInputChange = (value: string) => {
     setQuery(value)
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current)
     debounceTimer.current = setTimeout(() => {
       const params = new URLSearchParams()
       if (value.trim()) params.set("q", value.trim())
@@ -150,96 +167,122 @@ function SearchContent() {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-8 md:py-12">
-      <form onSubmit={handleSubmit} className="relative mb-8">
-        <div className="flex items-center border-b-2 border-foreground pb-3">
-          <Search className="w-6 h-6 text-neutral-400 shrink-0 mr-3" />
-          <input
-            autoFocus
-            type="text"
-            value={query}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="Search for gifts, occasions, products..."
-            className="flex-1 text-lg md:text-2xl font-medium outline-none placeholder:text-neutral-300 bg-transparent"
-          />
-          {query && (
-            <button type="button" onClick={() => { setQuery(""); setProducts([]); setTotal(0) }} className="p-1 hover:opacity-60 mr-2">
-              <X className="w-5 h-5 text-neutral-400" />
-            </button>
-          )}
-          <button type="button" onClick={startVoiceSearch} className={`p-2 border transition-colors ${isListening ? "border-red-300 bg-red-50" : "border-neutral-200 hover:border-foreground"}`}>
-            <Mic className={`w-5 h-5 ${isListening ? "text-red-500 animate-pulse" : "text-neutral-400"}`} />
-          </button>
-        </div>
-      </form>
-
-      {query && !loading && (
-        <p className="text-sm text-neutral-500 mb-6">
-          {total > 0 ? `${total} results for "${query}"` : `No results for "${query}"`}
-        </p>
-      )}
-
-      {!query && (
-        <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3">Popular searches</p>
-          <div className="flex flex-wrap gap-2">
-            {["Birthday Gift", "Anniversary", "Corporate Gift", "Personalized", "Under ₹500", "Luxury Gift"].map((s) => (
-              <button key={s} onClick={() => { setQuery(s); handleSearch(s) }} className="text-sm border border-neutral-200 px-4 py-2 hover:border-foreground hover:bg-neutral-50 transition-colors">
-                {s}
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-8 md:py-12">
+        {/* Search Input — Nike style */}
+        <form onSubmit={handleSubmit} className="relative mb-8">
+          <div className="flex items-center gap-3 pb-3" style={{ borderBottom: '2px solid #111111' }}>
+            <Search className="w-6 h-6 text-[#707072] shrink-0" strokeWidth={1.5} />
+            <input
+              autoFocus
+              type="text"
+              value={query}
+              onChange={(e) => handleInputChange(e.target.value)}
+              placeholder="Search for gifts, occasions, products..."
+              className="flex-1 text-[18px] md:text-[24px] font-medium outline-none bg-transparent placeholder:text-[#CACACB] text-[#111111]"
+              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => { setQuery(""); setProducts([]); setTotal(0) }}
+                className="p-1 text-[#707072] hover:text-[#111111] transition-colors"
+              >
+                <X className="w-5 h-5" />
               </button>
+            )}
+            <button
+              type="button"
+              onClick={startVoiceSearch}
+              className={`w-10 h-10 flex items-center justify-center border transition-colors ${
+                isListening ? "border-[#D30005] bg-[#D30005]/5" : "border-[#CACACB] hover:border-[#111111]"
+              }`}
+            >
+              <Mic className={`w-5 h-5 ${isListening ? "text-[#D30005] animate-pulse" : "text-[#707072]"}`} />
+            </button>
+          </div>
+        </form>
+
+        {/* Results count */}
+        {query && !loading && (
+          <p className="text-[14px] text-[#707072] mb-6" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            {total > 0 ? `${total} results for "${query}"` : `No results for "${query}"`}
+          </p>
+        )}
+
+        {/* Popular searches */}
+        {!query && (
+          <div className="mb-8">
+            <p className="text-[12px] font-medium text-[#707072] mb-3 uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Popular searches
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {["Birthday Gift", "Anniversary", "Corporate Gift", "Personalized", "Under ₹500", "Luxury Gift"].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => { setQuery(s); handleSearch(s) }}
+                  className="text-[14px] font-medium px-5 py-2.5 rounded-full bg-[#F5F5F5] text-[#707072] hover:bg-[#E5E5E5] hover:text-[#111111] transition-all duration-200"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Loading skeletons */}
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1 md:gap-3">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-[#F5F5F5] aspect-square mb-3" />
+                <div className="h-4 bg-[#F5F5F5] w-3/4 mb-2" />
+                <div className="h-3 bg-[#F5F5F5] w-1/2" />
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-neutral-100 h-[200px] sm:h-[240px] mb-3" />
-              <div className="h-4 bg-neutral-100 w-3/4 mb-2" />
-              <div className="h-4 bg-neutral-100 w-1/2" />
+        {/* No results */}
+        {!loading && query && products.length === 0 && (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-5">
+              <Search className="w-7 h-7 text-[#CACACB]" />
             </div>
-          ))}
-        </div>
-      )}
-
-      {!loading && query && products.length === 0 && (
-        <div className="text-center py-16">
-          <Search className="w-12 h-12 mx-auto text-neutral-200 mb-4" />
-          <p className="text-lg font-semibold mb-2">No products found</p>
-          <p className="text-neutral-500 text-sm mb-6">Try different keywords or browse our collections</p>
-          <Link href="/shop" className="bg-foreground text-background px-8 py-3 text-sm font-semibold uppercase tracking-widest hover:bg-neutral-700 transition-colors">
-            Browse All Products
-          </Link>
-        </div>
-      )}
-
-      {!loading && products.length > 0 && (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {products.map((product) => <ProductCard key={`${product.id}-${product.name}`} product={product} />)}
+            <h2 className="text-[24px] font-medium text-[#111111] mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>No products found</h2>
+            <p className="text-[14px] text-[#707072] mb-6" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Try different keywords or browse our collections
+            </p>
+            <Link href="/shop" className="nike-btn-primary text-[14px]">
+              Browse All Products
+            </Link>
           </div>
-          
-          {hasMore && (
-            <div className="mt-12 flex justify-center">
-              <button
-                onClick={() => handleSearch(query, page + 1)}
-                disabled={loadingMore}
-                className="group relative px-10 py-4 bg-foreground text-background font-bold text-xs uppercase tracking-[0.2em] overflow-hidden transition-all hover:bg-neutral-800 disabled:opacity-50"
-              >
-                <div className="relative z-10 flex items-center gap-3">
-                  {loadingMore ? (
-                    <div className="w-4 h-4 border-2 border-background/20 border-t-background rounded-full animate-spin" />
-                  ) : (
-                    <span>Load More</span>
-                  )}
-                </div>
-              </button>
+        )}
+
+        {/* Results grid */}
+        {!loading && products.length > 0 && (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1 md:gap-3">
+              {products.map((product) => (
+                <ProductCard key={`${product.id}-${product.name}`} product={product} />
+              ))}
             </div>
-          )}
-        </>
-      )}
+
+            {hasMore && (
+              <div className="mt-12 flex justify-center">
+                <button
+                  onClick={() => handleSearch(query, page + 1)}
+                  disabled={loadingMore}
+                  className="nike-btn-secondary text-[14px] px-10 py-3"
+                >
+                  {loadingMore ? "Loading..." : "Load More"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -247,10 +290,10 @@ function SearchContent() {
 export default function SearchPage() {
   return (
     <Suspense fallback={
-      <div className="max-w-[1200px] mx-auto px-4 py-12 animate-pulse">
-        <div className="h-12 bg-neutral-100 mb-8" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-48 bg-neutral-100" />)}
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 animate-pulse">
+        <div className="h-10 bg-[#F5F5F5] mb-8" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[1,2,3,4].map(i => <div key={i} className="aspect-square bg-[#F5F5F5]" />)}
         </div>
       </div>
     }>

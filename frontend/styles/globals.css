@@ -3,80 +3,122 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ═══════════════════════════════════════════════════════════
+   Nike Design System — Color Tokens
+   ═══════════════════════════════════════════════════════════ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Nike Core */
+  --nike-black: #111111;
+  --nike-white: #FFFFFF;
+
+  /* Surfaces */
+  --nike-snow: #FAFAFA;
+  --nike-grey-100: #F5F5F5;
+  --nike-grey-hover: #E5E5E5;
+  --nike-dark-surface: #28282A;
+  --nike-deep-charcoal: #1F1F21;
+  --nike-dark-hover: #39393B;
+
+  /* Text */
+  --nike-text-primary: #111111;
+  --nike-text-secondary: #707072;
+  --nike-text-disabled: #9E9EA0;
+
+  /* Borders */
+  --nike-border-primary: #707072;
+  --nike-border-secondary: #CACACB;
+
+  /* Semantic */
+  --nike-red: #D30005;
+  --nike-bright-red: #EE0005;
+  --nike-orange-badge: #D33918;
+  --nike-orange-flash: #FF5000;
+  --nike-green: #007D48;
+  --nike-blue: #1151FF;
+  --nike-yellow: #FEDF35;
+  --nike-focus: rgba(39,93,197,1);
+
+  /* Spacing base unit 4px */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 60px;
+  --space-10: 80px;
+
+  /* Mapped to ShadCN variable contract so UI primitives still resolve */
+  --background: #FFFFFF;
+  --foreground: #111111;
+  --card: #FFFFFF;
+  --card-foreground: #111111;
+  --popover: #FFFFFF;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #111111;
+  --muted: #F5F5F5;
+  --muted-foreground: #707072;
+  --accent: #F5F5F5;
+  --accent-foreground: #111111;
+  --destructive: #D30005;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E5E5;
+  --input: #E5E5E5;
+  --ring: #111111;
+  --chart-1: #111111;
+  --chart-2: #707072;
+  --chart-3: #CACACB;
+  --chart-4: #007D48;
+  --chart-5: #1151FF;
+  --radius: 0px;
+  --sidebar: #FAFAFA;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #111111;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5F5F5;
+  --sidebar-accent-foreground: #111111;
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: #111111;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: #111111;
+  --foreground: #FFFFFF;
+  --card: #1F1F21;
+  --card-foreground: #FFFFFF;
+  --popover: #1F1F21;
+  --popover-foreground: #FFFFFF;
+  --primary: #FFFFFF;
+  --primary-foreground: #111111;
+  --secondary: #28282A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #28282A;
+  --muted-foreground: #707072;
+  --accent: #28282A;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EE0005;
+  --destructive-foreground: #FFFFFF;
+  --border: #39393B;
+  --input: #39393B;
+  --ring: #FFFFFF;
+  --sidebar: #1F1F21;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #111111;
+  --sidebar-accent: #28282A;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #39393B;
+  --sidebar-ring: #FFFFFF;
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -101,10 +143,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -115,11 +157,182 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Base Layer
+   ═══════════════════════════════════════════════════════════ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Nike Typography — Utility Classes
+   ═══════════════════════════════════════════════════════════ */
+
+/* Display — Oswald (Nike Futura ND substitute), uppercase, tight leading */
+.nike-display {
+  font-family: 'Oswald', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Heading — Helvetica Now Display Medium equivalent */
+.nike-heading {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+/* Body — Helvetica Now Text */
+.nike-body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Nike Component Classes
+   ═══════════════════════════════════════════════════════════ */
+
+/* Primary Button — black bg, white text, 30px pill */
+.nike-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--nike-black);
+  color: var(--nike-white);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nike-btn-primary:hover { background-color: var(--nike-text-secondary); }
+.nike-btn-primary:disabled { background-color: var(--nike-grey-hover); color: var(--nike-text-disabled); cursor: not-allowed; }
+
+/* Primary Inverted — white bg, black text */
+.nike-btn-primary-inverted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--nike-white);
+  color: var(--nike-black);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nike-btn-primary-inverted:hover { background-color: var(--nike-grey-hover); }
+.nike-btn-primary-inverted:disabled { background-color: var(--nike-grey-hover); color: var(--nike-text-disabled); cursor: not-allowed; }
+
+/* Secondary Button — outlined, transparent bg */
+.nike-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: transparent;
+  color: var(--nike-black);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: 1.5px solid var(--nike-border-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nike-btn-secondary:hover { border-color: var(--nike-black); }
+.nike-btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Input — Nike style */
+.nike-input {
+  width: 100%;
+  background-color: var(--nike-grey-100);
+  border: 1px solid var(--nike-border-secondary);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  color: var(--nike-text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.nike-input::placeholder { color: var(--nike-text-secondary); }
+.nike-input:focus { border-color: var(--nike-black); }
+
+/* Search Input — rounded pill */
+.nike-search-input {
+  width: 100%;
+  background-color: var(--nike-grey-100);
+  border: 1px solid var(--nike-border-secondary);
+  border-radius: 24px;
+  padding: 12px 16px 12px 44px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  color: var(--nike-text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.nike-search-input::placeholder { color: var(--nike-text-secondary); }
+.nike-search-input:focus { border-color: var(--nike-black); }
+
+/* Hero scrim — gradient overlay for text readability */
+.nike-hero-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.65) 0%,
+    rgba(0,0,0,0.25) 40%,
+    rgba(0,0,0,0.05) 70%,
+    transparent 100%
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Marquee Animation (Announcement Bar)
+   ═══════════════════════════════════════════════════════════ */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Scrollbar — Minimal
+   ═══════════════════════════════════════════════════════════ */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--nike-grey-100); }
+::-webkit-scrollbar-thumb { background: var(--nike-border-secondary); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--nike-text-secondary); }
