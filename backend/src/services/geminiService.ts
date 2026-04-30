@@ -52,7 +52,7 @@ export const geminiChatResponse = async (
       {
         "reply": "A helpful, conversational, and premium-feeling response.",
         "suggestedTags": ["list", "of", "relevant", "gift", "tags"],
-        "searchQuery": "the main product or category requested (e.g., 'perfume', 'wallet', 'hamper') or null",
+        "searchQuery": "A single specific noun representing the product (e.g., 'perfume', 'wallet', 'hamper', 'watch'). NEVER use multiple words like 'perfume set' or 'chocolate box', just 'perfume' or 'chocolate'. Return null if no specific product is mentioned.",
         "maxPrice": number or null,
         "minPrice": number or null,
         "intent": "greeting" | "farewell" | "help" | "product_search" | "price_query" | "order_help" | "garbage" | "unknown"
@@ -62,10 +62,9 @@ export const geminiChatResponse = async (
       - If the message is a greeting, be welcoming and mention what we sell (gifts, hampers, luxury items).
       - If the user's name is known, use it in greetings or personal moments.
       - If the message is about searching for gifts, extract specific tags AND a searchQuery for the main item.
-      - Even if you are asking a clarifying question, try to set a searchQuery if the user mentioned a specific item (e.g., "find me a watch" -> searchQuery: "watch").
+      - Even if you are asking a clarifying question, try to set a searchQuery if the user mentioned a specific item.
       - Extract price only if mentioned (e.g., "within 1000" -> maxPrice: 1000).
-      - Maintain continuity with the Conversation History. If the user asks "show me more", look at the previous context.
-      - If the message is "garbage" (nonsense, random letters, offensive, or completely irrelevant to shopping/gifting), set intent to "garbage".
+      - If the message is "garbage" (nonsense, random letters, offensive, completely irrelevant to shopping/gifting, e.g. "ajskhfasdf" or "write me a poem"), set intent to "garbage" and provide a polite reply redirecting to shopping.
       - ALWAYS respond with ONLY the valid JSON object.
     `;
 
@@ -130,6 +129,40 @@ export const geminiGiftReason = async (
     return JSON.parse(jsonMatch[0]) as GeminiReasonResult;
   } catch (error) {
     console.error("[Gemini Service] Reason generation failed:", error);
+    return null;
+  }
+};
+
+/**
+ * Generate a personalized intro message for Gift Finder results.
+ */
+export const geminiGiftFinderIntro = async (
+  persona: string,
+  occasion: string,
+  budget: number,
+  productCount: number,
+): Promise<string | null> => {
+  if (!isGeminiAvailable()) return null;
+
+  try {
+    const prompt = `
+      You are "ALL BLUE", an elite AI Shopping Concierge.
+      A user used our Gift Finder for:
+      Recipient: ${persona}
+      Occasion: ${occasion}
+      Budget: ₹${budget}
+      We found ${productCount} matching products.
+
+      Generate a short, premium, and sophisticated introductory sentence (max 20 words) 
+      to present these recommendations. Be conversational and elegant.
+      Do not use markdown, just plain text.
+    `;
+
+    const result = await model!.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
+  } catch (error) {
+    console.error("[Gemini Service] GiftFinder intro generation failed:", error);
     return null;
   }
 };

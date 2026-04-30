@@ -3,6 +3,7 @@ import { AppError } from "../middlewares/errorHandler";
 import {
   geminiChatResponse,
   geminiGiftReason,
+  geminiGiftFinderIntro,
   isGeminiAvailable,
 } from "./geminiService";
 import type {
@@ -500,22 +501,8 @@ export const chatbotResponse = async (
       if (minPrice) query = query.gte("price", minPrice);
 
       if (searchQuery) {
-        // Split query into individual words for broader matching
-        const words = searchQuery
-          .replace(/,/g, "")
-          .split(/\s+/)
-          .filter((w) => w.length > 2);
-
-        if (words.length > 0) {
-          // Create an OR condition for each word matching name or being in tags
-          const conditions = words.map(
-            (word) => `name.ilike.%${word}%,tags.ov.{${word}}`,
-          );
-          query = query.or(conditions.join(","));
-        } else {
-          // Fallback to simple ILIKE if no significant words extracted
-          query = query.ilike("name", `%${searchQuery}%`);
-        }
+        // Use a direct ILIKE on the exact search query for better precision
+        query = query.ilike("name", `%${searchQuery}%`);
       } else if (matchedTags.length > 0) {
         query = query.overlaps("tags", matchedTags);
       }
