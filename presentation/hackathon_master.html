@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALL BLUE | Oriental TechHack 2.0 Presentation</title>
-    
+
     <!-- Reveal.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@300;500;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@300;500;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
@@ -31,7 +34,10 @@
             background-color: var(--bg-light);
         }
 
-        .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+        .reveal h1,
+        .reveal h2,
+        .reveal h3,
+        .reveal h4 {
             font-family: 'Outfit', sans-serif !important;
             text-transform: none !important;
             font-weight: 800 !important;
@@ -39,10 +45,18 @@
             color: var(--text-main);
         }
 
-        .reveal h1 { font-size: 3.5em !important; line-height: 1.1 !important; }
-        .reveal h2 { color: var(--primary); margin-bottom: 0.5em !important; }
+        .reveal h1 {
+            font-size: 3.5em !important;
+            line-height: 1.1 !important;
+        }
 
-        .reveal p, .reveal li {
+        .reveal h2 {
+            color: var(--primary);
+            margin-bottom: 0.5em !important;
+        }
+
+        .reveal p,
+        .reveal li {
             color: var(--text-muted);
             font-weight: 400;
         }
@@ -55,7 +69,7 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: 
+            background:
                 radial-gradient(at 0% 0%, rgba(0, 71, 255, 0.03) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(0, 163, 255, 0.02) 0px, transparent 50%);
         }
@@ -110,16 +124,25 @@
             display: inline-block;
         }
 
-        .reveal .controls { color: var(--primary) !important; }
-        .reveal .progress { color: var(--primary) !important; }
+        .reveal .controls {
+            color: var(--primary) !important;
+        }
+
+        .reveal .progress {
+            color: var(--primary) !important;
+        }
 
         /* Slide specific adjustments */
-        .title-slide h1 { margin-top: 0.2em !important; }
+        .title-slide h1 {
+            margin-top: 0.2em !important;
+        }
+
         .grid-3 {
             display: grid !important;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
         }
+
         .grid-2 {
             display: grid !important;
             grid-template-columns: 1fr 1fr;
@@ -139,21 +162,29 @@
         }
     </style>
 </head>
+
 <body>
     <div class="reveal">
         <div class="slides">
-            
+
             <!-- SLIDE 1: TITLE -->
             <section class="title-slide" data-background-color="#ffffff">
                 <div class="slide-bg-mesh"></div>
                 <!-- Path to logo in frontend/public/logo.png -->
                 <!-- Since this HTML is likely opened from the root, we use the relative path -->
-                <img src="../frontend/public/logo.png" alt="ALL BLUE Logo" class="logo-img" onerror="this.style.display='none'">
-                <div style="font-family: 'Outfit'; font-weight: 700; color: #0047FF; font-size: 1.2em; margin-bottom: 0.2em;">ALL BLUE</div>
+                <img src="../frontend/public/logo.png" alt="ALL BLUE Logo" class="logo-img"
+                    onerror="this.style.display='none'">
+                <div
+                    style="font-family: 'Outfit'; font-weight: 700; color: #0047FF; font-size: 1em; margin-bottom: 0.8em; letter-spacing: 0.08em; text-transform: uppercase;">
+                    Oriental TechHack 2.0 Hackathon</div>
+                <div
+                    style="font-family: 'Outfit'; font-weight: 700; color: #0047FF; font-size: 1.2em; margin-bottom: 0.2em;">
+                    ALL BLUE</div>
                 <h1>Next-Gen <span class="highlight-blue">AI</span><br>E-Commerce</h1>
                 <p>Building the future of personalized gifting.</p>
-                <div class="team-badge">Team Claw #113</div>
-                <div style="margin-top: 1.5em; font-size: 0.6em; color: var(--text-muted);">Oriental TechHack 2.0</div>
+                <div class="team-badge">Team Claw · Team 113</div>
+                <div style="margin-top: 1.5em; font-size: 0.6em; color: var(--text-muted);">Hackathon project
+                    presentation</div>
             </section>
 
             <!-- SLIDE 2: THE VISION -->
@@ -161,14 +192,20 @@
                 <h2>The Vision</h2>
                 <div class="grid-2">
                     <div class="feature-card">
-                        <span class="badge-label" style="font-size: 0.6em; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700;">Problem Statement 10</span>
+                        <span class="badge-label"
+                            style="font-size: 0.6em; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700;">Problem
+                            Statement 10</span>
                         <h3 style="font-size: 1.2em; margin-top: 0.5em;">Intelligent Gifting</h3>
-                        <p style="font-size: 0.8em;">Traditional e-commerce lacks the emotional depth and tactile confidence required for gifting. We bridge this with AI and AR.</p>
+                        <p style="font-size: 0.8em;">Traditional e-commerce lacks the emotional depth and tactile
+                            confidence required for gifting. We bridge this with AI and AR.</p>
                     </div>
                     <div class="feature-card">
-                        <span class="badge-label" style="font-size: 0.6em; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700;">The Solution</span>
+                        <span class="badge-label"
+                            style="font-size: 0.6em; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700;">The
+                            Solution</span>
                         <h3 style="font-size: 1.2em; margin-top: 0.5em;">All Blue Platform</h3>
-                        <p style="font-size: 0.8em;">A Next.js + AI powered shopping experience featuring a real-time gift concierge and immersive AR previews.</p>
+                        <p style="font-size: 0.8em;">A Next.js + AI powered shopping experience featuring a real-time
+                            gift concierge and immersive AR previews.</p>
                     </div>
                 </div>
             </section>
@@ -179,14 +216,19 @@
                 <h2>AI Gift Concierge</h2>
                 <div class="grid-2">
                     <div>
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1000&auto=format&fit=crop" style="border-radius: 24px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.1);" alt="AI Gifts">
+                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1000&auto=format&fit=crop"
+                            style="border-radius: 24px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.1);"
+                            alt="AI Gifts">
                     </div>
                     <div style="text-align: left;">
                         <h3 style="font-size: 1.2em; color: var(--primary);">Powered by Gemini</h3>
                         <ul style="font-size: 0.7em; line-height: 1.8;">
-                            <li><strong>Natural Conversations:</strong> Chat with an AI that understands "What should I buy for a coffee-loving designer?"</li>
-                            <li><strong>Context Awareness:</strong> Analyzes user preferences and occasion metadata.</li>
-                            <li><strong>Instant Feedback:</strong> Real-time recommendations from our Supabase product vault.</li>
+                            <li><strong>Natural Conversations:</strong> Chat with an AI that understands "What should I
+                                buy for a coffee-loving designer?"</li>
+                            <li><strong>Context Awareness:</strong> Analyzes user preferences and occasion metadata.
+                            </li>
+                            <li><strong>Instant Feedback:</strong> Real-time recommendations from our Supabase product
+                                vault.</li>
                         </ul>
                         <div class="tech-tag">Google Gemini Pro</div>
                         <div class="tech-tag">Vector Search</div>
@@ -201,9 +243,12 @@
                     <div style="text-align: left;">
                         <h3 style="font-size: 1.2em; color: var(--primary);">The "See Before Buy"</h3>
                         <ul style="font-size: 0.7em; line-height: 1.8;">
-                            <li><strong>Web-Based:</strong> No app downloads. Works directly in the browser via WebXR.</li>
-                            <li><strong>Three.js Rendering:</strong> High-performance 3D visualization of gift items.</li>
-                            <li><strong>Scale & Texture:</strong> Users can visualize the actual size of products in their room.</li>
+                            <li><strong>Web-Based:</strong> No app downloads. Works directly in the browser via WebXR.
+                            </li>
+                            <li><strong>Three.js Rendering:</strong> High-performance 3D visualization of gift items.
+                            </li>
+                            <li><strong>Scale & Texture:</strong> Users can visualize the actual size of products in
+                                their room.</li>
                         </ul>
                         <div class="tech-tag">Three.js</div>
                         <div class="tech-tag">WebAR</div>
@@ -211,10 +256,12 @@
                     </div>
                     <div>
                         <!-- Mock AR Image -->
-                        <div style="background: var(--bg-offset); border-radius: 24px; height: 350px; display: flex; align-items: center; justify-content: center; border: 2px dashed #DDD;">
+                        <div
+                            style="background: var(--bg-offset); border-radius: 24px; height: 350px; display: flex; align-items: center; justify-content: center; border: 2px dashed #DDD;">
                             <div style="text-align: center;">
                                 <span style="font-size: 4em;">📱</span>
-                                <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 10px;">[ Live AR Demo Interface ]</p>
+                                <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 10px;">[ Live AR Demo
+                                    Interface ]</p>
                             </div>
                         </div>
                     </div>
@@ -228,7 +275,8 @@
                     <div class="feature-card">
                         <span class="feature-icon">🛡️</span>
                         <h4 style="font-size: 0.9em;">Secure Auth</h4>
-                        <p style="font-size: 0.6em;">Enterprise-grade authentication with session management via Stack.</p>
+                        <p style="font-size: 0.6em;">Enterprise-grade authentication with session management via Stack.
+                        </p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">💳</span>
@@ -254,15 +302,60 @@
                     <div class="tech-tag">Google Gemini</div>
                     <div class="tech-tag">Three.js</div>
                 </div>
-                
+
                 <style>
-                    .arch-wrapper { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-top: 30px; }
-                    .arch-row { display: flex; justify-content: center; align-items: center; gap: 30px; width: 100%; }
-                    .arch-box { background: var(--bg-offset); border: 2px solid #EEE; border-radius: 16px; padding: 15px; min-width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-                    .arch-box.active { border-color: var(--primary); background: rgba(0, 71, 255, 0.02); }
-                    .arch-label { font-size: 0.4em; font-weight: 800; color: var(--primary); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 1px; }
-                    .arch-text { font-size: 0.55em; color: var(--text-main); font-weight: 600; display: block; }
-                    .arch-arrow { color: var(--primary); font-size: 1.2em; font-weight: 300; }
+                    .arch-wrapper {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 25px;
+                        margin-top: 30px;
+                    }
+
+                    .arch-row {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 30px;
+                        width: 100%;
+                    }
+
+                    .arch-box {
+                        background: var(--bg-offset);
+                        border: 2px solid #EEE;
+                        border-radius: 16px;
+                        padding: 15px;
+                        min-width: 160px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+                    }
+
+                    .arch-box.active {
+                        border-color: var(--primary);
+                        background: rgba(0, 71, 255, 0.02);
+                    }
+
+                    .arch-label {
+                        font-size: 0.4em;
+                        font-weight: 800;
+                        color: var(--primary);
+                        margin-bottom: 5px;
+                        display: block;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                    }
+
+                    .arch-text {
+                        font-size: 0.55em;
+                        color: var(--text-main);
+                        font-weight: 600;
+                        display: block;
+                    }
+
+                    .arch-arrow {
+                        color: var(--primary);
+                        font-size: 1.2em;
+                        font-weight: 300;
+                    }
                 </style>
 
                 <div class="arch-wrapper">
@@ -299,14 +392,7 @@
             </section>
 
 
-            <!-- FINAL SLIDE: LIVE DEMO -->
-            <section data-background-color="#0047FF">
-                <h2 style="color: white !important;">Ready for the Demo?</h2>
-                <p style="color: rgba(255,255,255,0.8) !important;">Experience the future of Oriental Gifting.</p>
-                <div style="margin-top: 2em;">
-                    <div class="team-badge" style="background: white; color: var(--primary);">orientaltechhack.com</div>
-                </div>
-            </section>
+
 
 
         </div>
@@ -336,4 +422,5 @@
         // Arrow navigation is handled automatically by Reveal.js
     </script>
 </body>
+
 </html>
