@@ -1,11 +1,13 @@
-import 'dotenv/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import "dotenv/config";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-// Use gemini-2.5-flash-lite to handle high demand gracefully
-const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' }) : null;
+// Use gemini-2.5-flash as requested by user
+const model = genAI
+  ? genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+  : null;
 
 export const isGeminiAvailable = (): boolean => {
   return !!genAI && !!model;
@@ -25,21 +27,21 @@ interface GeminiChatResult {
  */
 export const geminiChatResponse = async (
   message: string,
-  history: Array<{ role: 'user' | 'assistant'; content: string }> = [],
-  userName: string | null = null
+  history: Array<{ role: "user" | "assistant"; content: string }> = [],
+  userName: string | null = null,
 ): Promise<GeminiChatResult | null> => {
   if (!isGeminiAvailable()) return null;
 
   try {
     const historyText = history
-      .map((h) => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`)
-      .join('\n');
+      .map((h) => `${h.role === "user" ? "User" : "Assistant"}: ${h.content}`)
+      .join("\n");
 
     const prompt = `
       You are "ALL BLUE", an elite AI Shopping Concierge for an ultra-premium gift shop.
       Your goal is to help users find the perfect gift from our catalog.
 
-      ${userName ? `The user's name is ${userName}. Greet them personally if appropriate.` : ''}
+      ${userName ? `The user's name is ${userName}. Greet them personally if appropriate.` : ""}
 
       Conversation History:
       ${historyText}
@@ -60,6 +62,7 @@ export const geminiChatResponse = async (
       - If the message is a greeting, be welcoming and mention what we sell (gifts, hampers, luxury items).
       - If the user's name is known, use it in greetings or personal moments.
       - If the message is about searching for gifts, extract specific tags AND a searchQuery for the main item.
+      - Even if you are asking a clarifying question, try to set a searchQuery if the user mentioned a specific item (e.g., "find me a watch" -> searchQuery: "watch").
       - Extract price only if mentioned (e.g., "within 1000" -> maxPrice: 1000).
       - Maintain continuity with the Conversation History. If the user asks "show me more", look at the previous context.
       - If the message is "garbage" (nonsense, random letters, offensive, or completely irrelevant to shopping/gifting), set intent to "garbage".
@@ -76,7 +79,7 @@ export const geminiChatResponse = async (
 
     return JSON.parse(jsonMatch[0]) as GeminiChatResult;
   } catch (error) {
-    console.error('[Gemini Service] Chat parsing failed:', error);
+    console.error("[Gemini Service] Chat parsing failed:", error);
     return null;
   }
 };
@@ -96,14 +99,14 @@ export const geminiGiftReason = async (
   price: number,
   persona: string,
   occasion: string,
-  budget: number
+  budget: number,
 ): Promise<GeminiReasonResult | null> => {
   if (!isGeminiAvailable()) return null;
 
   try {
     const prompt = `
       Product: ${productName} (${category})
-      Tags: ${tags.join(', ')}
+      Tags: ${tags.join(", ")}
       Price: ₹${price}
       Target Recipient: ${persona}
       Occasion: ${occasion}
@@ -126,7 +129,7 @@ export const geminiGiftReason = async (
 
     return JSON.parse(jsonMatch[0]) as GeminiReasonResult;
   } catch (error) {
-    console.error('[Gemini Service] Reason generation failed:', error);
+    console.error("[Gemini Service] Reason generation failed:", error);
     return null;
   }
 };

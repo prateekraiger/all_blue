@@ -1,10 +1,10 @@
-import supabase from '../config/supabase';
-import { AppError } from '../middlewares/errorHandler';
+import supabase from "../config/supabase";
+import { AppError } from "../middlewares/errorHandler";
 import {
   geminiChatResponse,
   geminiGiftReason,
   isGeminiAvailable,
-} from './geminiService';
+} from "./geminiService";
 import type {
   Product,
   UserPreferences,
@@ -15,58 +15,58 @@ import type {
   GiftFinderResult,
   GiftFinderPersona,
   GiftFinderOccasion,
-} from '../types';
+} from "../types";
 
 // ─── Keyword → tag mapping for the rule-based chatbot ─────────────────────────
 const KEYWORD_TAG_MAP: Record<string, string[]> = {
-  birthday: ['birthday'],
-  anniversary: ['anniversary'],
-  wedding: ['wedding'],
-  corporate: ['corporate'],
-  love: ['love', 'romantic'],
-  romantic: ['love', 'romantic'],
-  baby: ['baby', 'newborn'],
-  newborn: ['baby', 'newborn'],
-  kids: ['kids', 'children'],
-  mug: ['mug', 'drinkware'],
-  candle: ['candle'],
-  jewel: ['jewellery', 'jewelry'],
-  jewelry: ['jewellery', 'jewelry'],
-  flower: ['floral'],
-  book: ['book'],
-  personaliz: ['personalized', 'custom'],
-  photo: ['photo', 'personalized'],
-  luxury: ['luxury', 'premium'],
-  premium: ['luxury', 'premium'],
-  cheap: ['affordable', 'budget'],
-  affordable: ['affordable', 'budget'],
-  hamper: ['hamper'],
-  perfume: ['perfume'],
+  birthday: ["birthday"],
+  anniversary: ["anniversary"],
+  wedding: ["wedding"],
+  corporate: ["corporate"],
+  love: ["love", "romantic"],
+  romantic: ["love", "romantic"],
+  baby: ["baby", "newborn"],
+  newborn: ["baby", "newborn"],
+  kids: ["kids", "children"],
+  mug: ["mug", "drinkware"],
+  candle: ["candle"],
+  jewel: ["jewellery", "jewelry"],
+  jewelry: ["jewellery", "jewelry"],
+  flower: ["floral"],
+  book: ["book"],
+  personaliz: ["personalized", "custom"],
+  photo: ["photo", "personalized"],
+  luxury: ["luxury", "premium"],
+  premium: ["luxury", "premium"],
+  cheap: ["affordable", "budget"],
+  affordable: ["affordable", "budget"],
+  hamper: ["hamper"],
+  perfume: ["perfume"],
   // Extended keywords
-  diwali: ['festival', 'diwali', 'celebration'],
-  holi: ['festival', 'holi', 'celebration'],
-  christmas: ['christmas', 'celebration', 'festival'],
-  valentine: ['romantic', 'love', 'anniversary'],
-  teacher: ['appreciation', 'thank you', 'corporate'],
-  friend: ['birthday', 'celebration', 'personalized'],
-  mom: ['love', 'personalized', 'floral'],
-  dad: ['premium', 'corporate'],
-  plant: ['plants', 'green', 'decor'],
-  watch: ['luxury', 'premium', 'corporate'],
-  chocolate: ['birthday', 'celebration', 'thank you'],
-  jewellery: ['jewellery', 'jewelry', 'luxury'],
-  decor: ['decor', 'home'],
-  art: ['art', 'decor', 'personalized'],
-  kitchen: ['kitchen', 'hamper', 'corporate'],
-  travel: ['travel', 'luxury', 'premium'],
+  diwali: ["festival", "diwali", "celebration"],
+  holi: ["festival", "holi", "celebration"],
+  christmas: ["christmas", "celebration", "festival"],
+  valentine: ["romantic", "love", "anniversary"],
+  teacher: ["appreciation", "thank you", "corporate"],
+  friend: ["birthday", "celebration", "personalized"],
+  mom: ["love", "personalized", "floral"],
+  dad: ["premium", "corporate"],
+  plant: ["plants", "green", "decor"],
+  watch: ["luxury", "premium", "corporate"],
+  chocolate: ["birthday", "celebration", "thank you"],
+  jewellery: ["jewellery", "jewelry", "luxury"],
+  decor: ["decor", "home"],
+  art: ["art", "decor", "personalized"],
+  kitchen: ["kitchen", "hamper", "corporate"],
+  travel: ["travel", "luxury", "premium"],
 };
 
 // ─── Chatbot quick replies ─────────────────────────────────────────────────────
 const QUICK_REPLIES: string[][] = [
-  ['Birthday gifts', 'Anniversary gifts'],
-  ['Under ₹500', 'Under ₹1000'],
-  ['Personalized gifts', 'Luxury gifts'],
-  ['Corporate gifting', 'Gift hampers'],
+  ["Birthday gifts", "Anniversary gifts"],
+  ["Under ₹500", "Under ₹1000"],
+  ["Personalized gifts", "Luxury gifts"],
+  ["Corporate gifting", "Gift hampers"],
 ];
 
 /**
@@ -75,17 +75,17 @@ const QUICK_REPLIES: string[][] = [
 async function fetchFallbackProducts(limit: number = 6): Promise<Product[]> {
   try {
     const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .gt('stock', 0)
-      .order('created_at', { ascending: false })
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .gt("stock", 0)
+      .order("created_at", { ascending: false })
       .limit(limit);
 
     if (error) throw error;
     return (data ?? []) as Product[];
   } catch (err) {
-    console.error('[AI Service] fetchFallbackProducts failed:', err);
+    console.error("[AI Service] fetchFallbackProducts failed:", err);
     return [];
   }
 }
@@ -94,13 +94,13 @@ async function fetchFallbackProducts(limit: number = 6): Promise<Product[]> {
  */
 export const getRecommendations = async (
   userId: string,
-  limit: number = 12
+  limit: number = 12,
 ): Promise<Product[]> => {
   try {
     const { data: prefs } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId)
+      .from("user_preferences")
+      .select("*")
+      .eq("user_id", userId)
       .single();
 
     let products: Product[] = [];
@@ -112,11 +112,11 @@ export const getRecommendations = async (
       // 1. Tag-based matches
       if (tags.length > 0) {
         const { data: tagProducts } = await supabase
-          .from('products')
-          .select('*')
-          .eq('is_active', true)
-          .overlaps('tags', tags)
-          .order('created_at', { ascending: false })
+          .from("products")
+          .select("*")
+          .eq("is_active", true)
+          .overlaps("tags", tags)
+          .order("created_at", { ascending: false })
           .limit(limit);
 
         products = (tagProducts ?? []) as Product[];
@@ -128,15 +128,15 @@ export const getRecommendations = async (
         const needed = limit - products.length;
 
         let catQuery = supabase
-          .from('products')
-          .select('*')
-          .eq('is_active', true)
-          .in('category', categories)
-          .order('created_at', { ascending: false })
+          .from("products")
+          .select("*")
+          .eq("is_active", true)
+          .in("category", categories)
+          .order("created_at", { ascending: false })
           .limit(needed);
 
         if (existingIds.length > 0) {
-          catQuery = catQuery.not('id', 'in', existingIds);
+          catQuery = catQuery.not("id", "in", existingIds);
         }
 
         const { data: catProducts } = await catQuery;
@@ -150,14 +150,14 @@ export const getRecommendations = async (
       const needed = limit - products.length;
 
       let fallbackQuery = supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
         .limit(needed);
 
       if (existingIds.length > 0) {
-        fallbackQuery = fallbackQuery.not('id', 'in', existingIds);
+        fallbackQuery = fallbackQuery.not("id", "in", existingIds);
       }
 
       const { data: fallback } = await fallbackQuery;
@@ -166,7 +166,9 @@ export const getRecommendations = async (
 
     return products.slice(0, limit);
   } catch (error) {
-    console.error('[AI Service] getRecommendations error, using database fallback');
+    console.error(
+      "[AI Service] getRecommendations error, using database fallback",
+    );
     return fetchFallbackProducts(limit);
   }
 };
@@ -178,28 +180,28 @@ export const getRecommendations = async (
  */
 export const getSimilarProducts = async (
   productId: string,
-  limit: number = 8
+  limit: number = 8,
 ): Promise<Product[]> => {
   try {
     const { data: product, error } = await supabase
-      .from('products')
-      .select('id, tags, category')
-      .eq('id', productId)
+      .from("products")
+      .select("id, tags, category")
+      .eq("id", productId)
       .single();
 
-    if (error || !product) throw new AppError('Product not found', 404);
+    if (error || !product) throw new AppError("Product not found", 404);
 
     let similar: Product[] = [];
 
     // 1. Tag overlap
     if (product.tags && product.tags.length > 0) {
       const { data: tagMatches } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .neq('id', productId)
-        .overlaps('tags', product.tags)
-        .order('created_at', { ascending: false })
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .neq("id", productId)
+        .overlaps("tags", product.tags)
+        .order("created_at", { ascending: false })
         .limit(limit);
 
       similar = (tagMatches ?? []) as Product[];
@@ -211,11 +213,11 @@ export const getSimilarProducts = async (
       const needed = limit - similar.length;
 
       const { data: catProducts } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .eq('category', product.category)
-        .not('id', 'in', existingIds)
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .eq("category", product.category)
+        .not("id", "in", existingIds)
         .limit(needed);
 
       similar = [...similar, ...((catProducts ?? []) as Product[])];
@@ -223,7 +225,9 @@ export const getSimilarProducts = async (
 
     return similar.slice(0, limit);
   } catch (error) {
-    console.error('[AI Service] getSimilarProducts error, using database fallback');
+    console.error(
+      "[AI Service] getSimilarProducts error, using database fallback",
+    );
     return fetchFallbackProducts(limit);
   }
 };
@@ -243,13 +247,13 @@ export const updatePreferences = async (
     viewed_category?: string;
     viewed_tags?: string[];
     last_search?: string;
-  }
+  },
 ): Promise<UserPreferences> => {
   try {
     const { data: existing } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId)
+      .from("user_preferences")
+      .select("*")
+      .eq("user_id", userId)
       .single();
 
     const now = new Date().toISOString();
@@ -264,14 +268,14 @@ export const updatePreferences = async (
         : existing.purchased_tags;
 
       const { data, error } = await supabase
-        .from('user_preferences')
+        .from("user_preferences")
         .update({
           viewed_categories: updatedCategories,
           purchased_tags: updatedTags,
           last_search: last_search ?? existing.last_search,
           updated_at: now,
         })
-        .eq('user_id', userId)
+        .eq("user_id", userId)
         .select()
         .single();
 
@@ -280,7 +284,7 @@ export const updatePreferences = async (
     }
 
     const { data, error } = await supabase
-      .from('user_preferences')
+      .from("user_preferences")
       .insert([
         {
           user_id: userId,
@@ -296,7 +300,7 @@ export const updatePreferences = async (
     if (error) throw new AppError(error.message, 500);
     return data as UserPreferences;
   } catch (error) {
-    console.error('[AI Service] updatePreferences failed (silent fail)');
+    console.error("[AI Service] updatePreferences failed (silent fail)");
     return {} as UserPreferences;
   }
 };
@@ -306,16 +310,34 @@ export const updatePreferences = async (
 /**
  * Detect intent from message for smarter chatbot replies.
  */
-function detectIntent(msg: string): 'greeting' | 'farewell' | 'help' | 'product_search' | 'price_query' | 'order_help' | 'garbage' | 'unknown' {
-  if (/\b(hi|hello|hey|hola|namaste|howdy)\b/i.test(msg)) return 'greeting';
-  if (/\b(bye|goodbye|see you|later|thanks|thank you|thx)\b/i.test(msg)) return 'farewell';
-  if (/\b(help|what can you do|how|guide|support)\b/i.test(msg)) return 'help';
-  if (/\b(order|track|status|cancel|refund|return)\b/i.test(msg)) return 'order_help';
-  if (/\b(price|cost|how much|cheap|expensive|budget)\b/i.test(msg)) return 'price_query';
-  
-  if (/^([a-zA-Z])\1{5,}$/i.test(msg) || !/\w/.test(msg) || (msg.length > 20 && !/\s/.test(msg))) return 'garbage';
+function detectIntent(
+  msg: string,
+):
+  | "greeting"
+  | "farewell"
+  | "help"
+  | "product_search"
+  | "price_query"
+  | "order_help"
+  | "garbage"
+  | "unknown" {
+  if (/\b(hi|hello|hey|hola|namaste|howdy)\b/i.test(msg)) return "greeting";
+  if (/\b(bye|goodbye|see you|later|thanks|thank you|thx)\b/i.test(msg))
+    return "farewell";
+  if (/\b(help|what can you do|how|guide|support)\b/i.test(msg)) return "help";
+  if (/\b(order|track|status|cancel|refund|return)\b/i.test(msg))
+    return "order_help";
+  if (/\b(price|cost|how much|cheap|expensive|budget)\b/i.test(msg))
+    return "price_query";
 
-  return 'product_search';
+  if (
+    /^([a-zA-Z])\1{5,}$/i.test(msg) ||
+    !/\w/.test(msg) ||
+    (msg.length > 20 && !/\s/.test(msg))
+  )
+    return "garbage";
+
+  return "product_search";
 }
 
 /**
@@ -323,13 +345,13 @@ function detectIntent(msg: string): 'greeting' | 'farewell' | 'help' | 'product_
  */
 function getIntentReply(intent: string): string | null {
   switch (intent) {
-    case 'greeting':
-      return "Hi there! 👋 I'm your AI Shopping Assistant. I can help you find the perfect gift! Try asking me things like:\n• \"Birthday gift under ₹1000\"\n• \"Romantic anniversary gift\"\n• \"Corporate gift hamper\"";
-    case 'farewell':
+    case "greeting":
+      return 'Hi there! 👋 I\'m your AI Shopping Assistant. I can help you find the perfect gift! Try asking me things like:\n• "Birthday gift under ₹1000"\n• "Romantic anniversary gift"\n• "Corporate gift hamper"';
+    case "farewell":
       return "Thanks for chatting! 😊 Come back anytime you need help finding the perfect gift. Happy shopping! 🎁";
-    case 'help':
+    case "help":
       return "Here's what I can do for you:\n🎁 Find gifts by occasion (birthday, anniversary, etc.)\n💰 Filter by budget (e.g., \"under ₹500\")\n🤍 Suggest personalized gifts\n🏢 Corporate gifting ideas\n\nJust tell me what you're looking for!";
-    case 'order_help':
+    case "order_help":
       return "For order tracking and support, please visit your **Orders** page in your account. If you need further help, contact our support team. Is there anything else I can help you find?";
     default:
       return null;
@@ -343,7 +365,7 @@ export const chatbotResponse = async (
   message: string,
   userId: string | null,
   history: ChatHistoryItem[] = [],
-  userName?: string
+  userName?: string,
 ): Promise<ChatbotResponse> => {
   try {
     // ── Try Gemini AI first ─────────────────────────────────────────────────
@@ -364,13 +386,20 @@ export const chatbotResponse = async (
       intent = geminiResult.intent;
       searchQuery = geminiResult.searchQuery;
 
-      console.log(`[AI Service] Intent: ${intent}, Query: ${searchQuery}, Tags: ${matchedTags.join(', ')}`);
+      console.log(
+        `[AI Service] Intent: ${intent}, Query: ${searchQuery}, Tags: ${matchedTags.join(", ")}`,
+      );
 
       // For non-product intents, return Gemini's reply directly
-      if (intent !== 'product_search' && intent !== 'price_query' && intent !== 'unknown') {
-        let qrs = QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)];
-        if (intent === 'garbage') {
-          qrs = ['Show me real gifts', 'Surprise me', 'Gift finder'];
+      if (
+        intent !== "product_search" &&
+        intent !== "price_query" &&
+        intent !== "unknown"
+      ) {
+        let qrs =
+          QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)];
+        if (intent === "garbage") {
+          qrs = ["Show me real gifts", "Surprise me", "Gift finder"];
         }
 
         return {
@@ -382,20 +411,26 @@ export const chatbotResponse = async (
     } else {
       // ── Fallback: rule-based intent detection ───────────────────────────
       intent = detectIntent(message);
-      if (intent === 'garbage') {
+      if (intent === "garbage") {
         return {
-          reply: "I didn't quite catch that. Could you try asking for a gift, like 'birthday gift under ₹1000'?",
+          reply:
+            "I didn't quite catch that. Could you try asking for a gift, like 'birthday gift under ₹1000'?",
           products: [],
-          quickReplies: ['Show me real gifts', 'Surprise me', 'Gift finder'],
+          quickReplies: ["Show me real gifts", "Surprise me", "Gift finder"],
         };
       }
 
       const intentReply = getIntentReply(intent);
-      if (intentReply && intent !== 'product_search' && intent !== 'price_query') {
+      if (
+        intentReply &&
+        intent !== "product_search" &&
+        intent !== "price_query"
+      ) {
         return {
           reply: intentReply,
           products: [],
-          quickReplies: QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
+          quickReplies:
+            QUICK_REPLIES[Math.floor(Math.random() * QUICK_REPLIES.length)],
         };
       }
 
@@ -413,12 +448,40 @@ export const chatbotResponse = async (
         message.match(/more than\s*[₹rs.]?\s*(\d+)/i);
       minPrice = minPriceMatch ? parseInt(minPriceMatch[1], 10) : null;
 
-      // Collect matching tags (rule-based)
+      // Extract matching tags (rule-based)
       for (const [keyword, tags] of Object.entries(KEYWORD_TAG_MAP)) {
         if (message.toLowerCase().includes(keyword)) matchedTags.push(...tags);
       }
 
-      reply = ''; // Will be set after product fetch
+      // ── Enhanced fallback: Extract search query from common patterns ──────
+      const searchPatterns = [
+        /find\s+(?:me\s+)?(?:a\s+)?([^,.?!]+)/i,
+        /show\s+(?:me\s+)?(?:some\s+)?([^,.?!]+)/i,
+        /looking\s+for\s+(?:a\s+)?([^,.?!]+)/i,
+        /suggest\s+(?:a\s+)?([^,.?!]+)/i,
+        /search\s+(?:for\s+)?([^,.?!]+)/i,
+      ];
+
+      for (const pattern of searchPatterns) {
+        const match = message.match(pattern);
+        if (match && match[1]) {
+          const candidate = match[1].trim().toLowerCase();
+          // Filter out common filler words
+          const cleanQuery = candidate
+            .replace(
+              /\b(gift|gifts|idea|ideas|under|below|for|someone|something|please|me|a|some|find|show|suggest|search|looking)\b/g,
+              "",
+            )
+            .trim();
+
+          if (cleanQuery.length > 2) {
+            searchQuery = cleanQuery;
+            break;
+          }
+        }
+      }
+
+      reply = ""; // Will be set after product fetch
     }
 
     // ── Fetch products from database ──────────────────────────────────────
@@ -426,23 +489,35 @@ export const chatbotResponse = async (
 
     try {
       let query = supabase
-        .from('products')
-        .select('id, name, price, images, category, tags, stock')
-        .eq('is_active', true)
-        .gt('stock', 0)
-        .order('created_at', { ascending: false })
+        .from("products")
+        .select("id, name, price, images, category, tags, stock")
+        .eq("is_active", true)
+        .gt("stock", 0)
+        .order("created_at", { ascending: false })
         .limit(6);
 
-      if (maxPrice) query = query.lte('price', maxPrice);
-      if (minPrice) query = query.gte('price', minPrice);
+      if (maxPrice) query = query.lte("price", maxPrice);
+      if (minPrice) query = query.gte("price", minPrice);
 
       if (searchQuery) {
-        // Prioritize name match or tag overlap for the search query words
-        const words = searchQuery.replace(/,/g, '').split(/\s+/).filter(w => w.length > 0);
-        const tagsOverlapStr = words.length > 0 ? `,tags.cd.{${words.join(',')}}` : '';
-        query = query.or(`name.ilike.%${searchQuery.replace(/,/g, '')}%${tagsOverlapStr}`);
+        // Split query into individual words for broader matching
+        const words = searchQuery
+          .replace(/,/g, "")
+          .split(/\s+/)
+          .filter((w) => w.length > 2);
+
+        if (words.length > 0) {
+          // Create an OR condition for each word matching name or being in tags
+          const conditions = words.map(
+            (word) => `name.ilike.%${word}%,tags.ov.{${word}}`,
+          );
+          query = query.or(conditions.join(","));
+        } else {
+          // Fallback to simple ILIKE if no significant words extracted
+          query = query.ilike("name", `%${searchQuery}%`);
+        }
       } else if (matchedTags.length > 0) {
-        query = query.overlaps('tags', matchedTags);
+        query = query.overlaps("tags", matchedTags);
       }
 
       const { data } = await query;
@@ -450,16 +525,21 @@ export const chatbotResponse = async (
 
       // If tag-based search returned nothing, don't fall back to random products if there's a specific search query.
       // We only fall back if there's no specific text search, to avoid showing irrelevant products like chocolate for a watch query.
-      if (products.length === 0 && (maxPrice || minPrice) && !searchQuery && matchedTags.length === 0) {
+      if (
+        products.length === 0 &&
+        (maxPrice || minPrice) &&
+        !searchQuery &&
+        matchedTags.length === 0
+      ) {
         let fallback = supabase
-          .from('products')
-          .select('id, name, price, images, category, tags, stock')
-          .eq('is_active', true)
-          .gt('stock', 0)
-          .order('created_at', { ascending: false })
+          .from("products")
+          .select("id, name, price, images, category, tags, stock")
+          .eq("is_active", true)
+          .gt("stock", 0)
+          .order("created_at", { ascending: false })
           .limit(6);
-        if (maxPrice) fallback = fallback.lte('price', maxPrice);
-        if (minPrice) fallback = fallback.gte('price', minPrice);
+        if (maxPrice) fallback = fallback.lte("price", maxPrice);
+        if (minPrice) fallback = fallback.gte("price", minPrice);
         const { data: fallbackData } = await fallback;
         products = (fallbackData ?? []) as Product[];
       }
@@ -473,15 +553,17 @@ export const chatbotResponse = async (
     // ── Build reply if rule-based (Gemini already set reply above) ────────
     if (!reply) {
       if (!products || products.length === 0) {
-        const priceHint = maxPrice ? ` under ₹${maxPrice.toLocaleString('en-IN')}` : '';
+        const priceHint = maxPrice
+          ? ` under ₹${maxPrice.toLocaleString("en-IN")}`
+          : "";
         reply = `I couldn't find gifts${priceHint} matching that. Try browsing our full shop or adjusting your search! 🛍️`;
       } else {
         const topTag = matchedTags.length > 0 ? matchedTags[0] : null;
         const priceRange = maxPrice
-          ? ` under ₹${maxPrice.toLocaleString('en-IN')}`
+          ? ` under ₹${maxPrice.toLocaleString("en-IN")}`
           : minPrice
-          ? ` above ₹${minPrice.toLocaleString('en-IN')}`
-          : '';
+            ? ` above ₹${minPrice.toLocaleString("en-IN")}`
+            : "";
 
         if (topTag) {
           reply = `Great choice! 🎁 Here are some **${topTag}** gift ideas${priceRange}:`;
@@ -501,15 +583,19 @@ export const chatbotResponse = async (
     return {
       reply,
       products: products as Product[],
-      quickReplies: products.length === 0
-        ? ['Browse all gifts', 'Gift finder', 'Under ₹500']
-        : undefined,
+      quickReplies:
+        products.length === 0
+          ? ["Browse all gifts", "Gift finder", "Under ₹500"]
+          : undefined,
     };
   } catch (error) {
-    console.error('[AI Service] chatbotResponse error, fetching featured items');
+    console.error(
+      "[AI Service] chatbotResponse error, fetching featured items",
+    );
     const fallbackProducts = await fetchFallbackProducts(3);
     return {
-      reply: "I'm having a bit of trouble right now. Here are some featured items you might like! 🎁",
+      reply:
+        "I'm having a bit of trouble right now. Here are some featured items you might like! 🎁",
       products: fallbackProducts,
     };
   }
@@ -521,33 +607,41 @@ export const chatbotResponse = async (
  * Persona → tag affinity map.
  */
 const PERSONA_TAG_MAP: Record<GiftFinderPersona, string[]> = {
-  Partner: ['romantic', 'love', 'luxury', 'premium', 'personalized', 'anniversary', 'perfume'],
-  Colleague: ['corporate', 'hamper', 'premium', 'mug', 'book'],
-  Friend: ['birthday', 'celebration', 'mug', 'personalized', 'photo', 'candle'],
-  Parent: ['love', 'personalized', 'photo', 'premium', 'candle', 'floral'],
-  Client: ['corporate', 'premium', 'luxury', 'hamper'],
+  Partner: [
+    "romantic",
+    "love",
+    "luxury",
+    "premium",
+    "personalized",
+    "anniversary",
+    "perfume",
+  ],
+  Colleague: ["corporate", "hamper", "premium", "mug", "book"],
+  Friend: ["birthday", "celebration", "mug", "personalized", "photo", "candle"],
+  Parent: ["love", "personalized", "photo", "premium", "candle", "floral"],
+  Client: ["corporate", "premium", "luxury", "hamper"],
 };
 
 /**
  * Occasion → tag affinity map.
  */
 const OCCASION_TAG_MAP: Record<GiftFinderOccasion, string[]> = {
-  Birthday: ['birthday', 'celebration', 'surprise', 'personalized'],
-  Anniversary: ['anniversary', 'romantic', 'love', 'luxury', 'premium'],
-  'Thank You': ['personalized', 'candle', 'floral', 'photo', 'mug'],
-  Corporate: ['corporate', 'premium', 'hamper', 'luxury'],
-  'Just Because': ['personalized', 'celebration', 'candle', 'photo', 'mug'],
+  Birthday: ["birthday", "celebration", "surprise", "personalized"],
+  Anniversary: ["anniversary", "romantic", "love", "luxury", "premium"],
+  "Thank You": ["personalized", "candle", "floral", "photo", "mug"],
+  Corporate: ["corporate", "premium", "hamper", "luxury"],
+  "Just Because": ["personalized", "celebration", "candle", "photo", "mug"],
 };
 
 /**
  * Persona × occasion → category affinity map (fallback layer).
  */
 const PERSONA_CATEGORY_MAP: Record<GiftFinderPersona, string[]> = {
-  Partner: ['Decor', 'Luxury', 'Bedroom'],
-  Colleague: ['Living Room', 'Decor'],
-  Friend: ['Decor', 'Lighting', 'Living Room'],
-  Parent: ['Living Room', 'Decor', 'Bedroom'],
-  Client: ['Living Room', 'Decor'],
+  Partner: ["Decor", "Luxury", "Bedroom"],
+  Colleague: ["Living Room", "Decor"],
+  Friend: ["Decor", "Lighting", "Living Room"],
+  Parent: ["Living Room", "Decor", "Bedroom"],
+  Client: ["Living Room", "Decor"],
 };
 
 /**
@@ -577,10 +671,10 @@ function generateReason(
   product: Product,
   persona: GiftFinderPersona,
   occasion: GiftFinderOccasion,
-  budget: number
+  budget: number,
 ): string {
-  const budgetFormatted = budget.toLocaleString('en-IN');
-  const priceFormatted = product.price.toLocaleString('en-IN');
+  const budgetFormatted = budget.toLocaleString("en-IN");
+  const priceFormatted = product.price.toLocaleString("en-IN");
 
   const personaLower = persona.toLowerCase();
   const occasionLower = occasion.toLowerCase();
@@ -600,7 +694,7 @@ function generateReason(
  * Gift Finder — rule-based recommendation engine.
  */
 export const giftFinderRecommendations = async (
-  input: GiftFinderInput
+  input: GiftFinderInput,
 ): Promise<GiftFinderResult> => {
   const { persona, occasion, budget } = input;
   const RESULT_LIMIT = 6;
@@ -615,13 +709,13 @@ export const giftFinderRecommendations = async (
     // 2. Tag-based query
     if (targetTags.length > 0) {
       const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .gt('stock', 0)
-        .lte('price', budget)
-        .overlaps('tags', targetTags)
-        .order('price', { ascending: false })
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .gt("stock", 0)
+        .lte("price", budget)
+        .overlaps("tags", targetTags)
+        .order("price", { ascending: false })
         .limit(RESULT_LIMIT * 2);
 
       if (!error) allProducts = (data ?? []) as Product[];
@@ -631,20 +725,21 @@ export const giftFinderRecommendations = async (
     if (allProducts.length < RESULT_LIMIT) {
       const existingIds = allProducts.map((p) => p.id);
       const categories = PERSONA_CATEGORY_MAP[persona] ?? [];
-      const needed = (RESULT_LIMIT * 2) - allProducts.length;
+      const needed = RESULT_LIMIT * 2 - allProducts.length;
 
       if (categories.length > 0) {
         let catQuery = supabase
-          .from('products')
-          .select('*')
-          .eq('is_active', true)
-          .gt('stock', 0)
-          .lte('price', budget)
-          .in('category', categories)
-          .order('price', { ascending: false })
+          .from("products")
+          .select("*")
+          .eq("is_active", true)
+          .gt("stock", 0)
+          .lte("price", budget)
+          .in("category", categories)
+          .order("price", { ascending: false })
           .limit(needed);
 
-        if (existingIds.length > 0) catQuery = catQuery.not('id', 'in', existingIds);
+        if (existingIds.length > 0)
+          catQuery = catQuery.not("id", "in", existingIds);
 
         const { data } = await catQuery;
         allProducts = [...allProducts, ...((data ?? []) as Product[])];
@@ -657,21 +752,22 @@ export const giftFinderRecommendations = async (
       const needed = RESULT_LIMIT - allProducts.length;
 
       let fallbackQuery = supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .gt('stock', 0)
-        .lte('price', budget)
-        .order('price', { ascending: false })
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .gt("stock", 0)
+        .lte("price", budget)
+        .order("price", { ascending: false })
         .limit(needed);
 
-      if (existingIds.length > 0) fallbackQuery = fallbackQuery.not('id', 'in', existingIds);
+      if (existingIds.length > 0)
+        fallbackQuery = fallbackQuery.not("id", "in", existingIds);
 
       const { data } = await fallbackQuery;
       allProducts = [...allProducts, ...((data ?? []) as Product[])];
     }
   } catch {
-    console.error('[AI Service] GiftFinder error, using database fallback');
+    console.error("[AI Service] GiftFinder error, using database fallback");
     allProducts = await fetchFallbackProducts(RESULT_LIMIT);
   }
 
@@ -686,12 +782,12 @@ export const giftFinderRecommendations = async (
     try {
       const geminiReason = await geminiGiftReason(
         product.name,
-        product.category ?? 'Gifts',
+        product.category ?? "Gifts",
         product.tags ?? [],
         product.price,
         persona,
         occasion,
-        budget
+        budget,
       );
       if (geminiReason) {
         reason = geminiReason.reason;
@@ -713,7 +809,7 @@ export const giftFinderRecommendations = async (
 
   const message =
     finalProducts.length > 0
-      ? `Found ${finalProducts.length} perfect gift${finalProducts.length > 1 ? 's' : ''} for your ${persona.toLowerCase()}'s ${occasion.toLowerCase()}!`
+      ? `Found ${finalProducts.length} perfect gift${finalProducts.length > 1 ? "s" : ""} for your ${persona.toLowerCase()}'s ${occasion.toLowerCase()}!`
       : `We couldn't find products matching your criteria right now. Try adjusting your budget or browsing our full catalog.`;
 
   return {
