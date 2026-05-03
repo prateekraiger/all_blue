@@ -5,12 +5,12 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   User, Package, Heart, LogOut, ChevronRight,
-  ShoppingBag, ShieldCheck, Clock,
-  Gift, UserCheck, Bookmark
+  ShoppingBag, Clock, Home, ArrowRight
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { ordersApi, type Order } from "@/lib/api"
 import { toast } from "sonner"
+import { motion } from "framer-motion"
 
 export default function ProfilePage() {
   const { user, signOut, loading, token } = useAuth()
@@ -49,18 +49,21 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12 animate-pulse">
-        <div className="flex items-center gap-6 mb-12">
-          <div className="h-20 w-20 bg-slate-100 rounded-[2rem]" />
-          <div className="space-y-3 flex-1">
-            <div className="h-10 bg-slate-100 w-1/4 rounded-xl" />
-            <div className="h-4 bg-slate-100 w-1/3 rounded-lg" />
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 animate-pulse">
+          <div className="h-5 bg-[#F5F5F5] w-32 mb-6" />
+          <div className="flex items-center gap-6 mb-12">
+            <div className="w-20 h-20 bg-[#F5F5F5]" />
+            <div className="space-y-3 flex-1">
+              <div className="h-8 bg-[#F5F5F5] w-48" />
+              <div className="h-4 bg-[#F5F5F5] w-32" />
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="h-64 bg-slate-50 rounded-[2.5rem]" />
-          <div className="h-64 bg-slate-50 rounded-[2.5rem]" />
-          <div className="h-64 bg-slate-50 rounded-[2.5rem]" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-48 bg-[#F5F5F5]" />
+            <div className="h-48 bg-[#F5F5F5]" />
+            <div className="h-48 bg-[#F5F5F5]" />
+          </div>
         </div>
       </div>
     )
@@ -71,158 +74,216 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-12 py-12">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-8 md:py-12">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-[12px] text-[#707072] mb-6" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+          <Link href="/" className="hover:text-[#111111] transition-colors flex items-center gap-1">
+            <Home className="w-3.5 h-3.5" /> Home
+          </Link>
+          <ChevronRight className="w-3 h-3 text-[#CACACB]" />
+          <span className="text-[#111111] font-medium">Profile</span>
+        </nav>
 
         {/* Profile Header */}
-        <div className="relative mb-16">
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-8 relative z-10">
-            <div className="w-32 h-32 md:w-40 md:h-40 bg-slate-900 text-white flex items-center justify-center text-5xl font-black rounded-[3rem] shadow-2xl shadow-slate-900/20 uppercase ring-8 ring-white">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pb-8" style={{ borderBottom: '1px solid #E5E5E5' }}>
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-[#111111] text-white flex items-center justify-center text-[32px] md:text-[40px] font-medium uppercase shrink-0" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
               {name.charAt(0)}
             </div>
-
-            <div className="flex-1 text-center md:text-left pb-2">
-              <div className="flex flex-col md:flex-row md:items-center gap-4 mb-3">
-                <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">{name}</h1>
-                <div className="flex items-center justify-center md:justify-start gap-1.5 px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest ring-1 ring-blue-100">
-                  <UserCheck className="w-3.5 h-3.5" /> Premium Member
-                </div>
+            <div>
+              <h1 className="nike-heading text-[24px] md:text-[32px] text-[#111111] mb-1">
+                {name}
+              </h1>
+              <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                {user.email}
+              </p>
+              <div className="flex items-center gap-2 mt-2 text-[12px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <Clock className="w-3.5 h-3.5" />
+                <span>Member since {memberSince}</span>
               </div>
-              <div className="flex flex-wrap justify-center md:justify-start items-center gap-6 text-slate-500 font-medium text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 opacity-50" /> Joined {memberSince}
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-green-500" /> Account Verified
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 px-6 py-3 rounded-2xl text-xs font-black transition-all border border-slate-100 hover:border-red-100 uppercase tracking-widest"
-              >
-                <LogOut className="w-4 h-4" /> Sign Out
-              </button>
             </div>
           </div>
-
-          {/* Background Highlight */}
-          <div className="absolute -top-12 -left-12 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -z-0" />
+          
+          <button
+            onClick={handleSignOut}
+            className="nike-btn-secondary text-[14px] px-6 py-2.5 text-[#D30005] border-[#D30005]/30 hover:bg-[#D30005]/5 hover:border-[#D30005] self-start md:self-center"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Main Content Area */}
-          <div className="lg:col-span-8 space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Main Content */}
+          <div className="lg:col-span-8 space-y-10">
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Quick Links */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: "Orders", value: recentOrders.length || 0, icon: ShoppingBag, color: "bg-blue-50 text-blue-600" },
-                { label: "Rewards", value: "240", icon: Gift, color: "bg-amber-50 text-amber-600" },
-                { label: "Wishlist", value: "12", icon: Heart, color: "bg-rose-50 text-rose-600" },
-                { label: "Saved", value: "3", icon: Bookmark, color: "bg-emerald-50 text-emerald-600" },
-              ].map((stat, i) => (
-                <div key={i} className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100 hover:border-blue-100 transition-colors">
-                  <div className={`w-10 h-10 ${stat.color} rounded-2xl flex items-center justify-center mb-4`}>
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                  <div className="text-2xl font-black text-slate-900 leading-none mb-1">{stat.value}</div>
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
-                </div>
+                { label: "Orders", icon: Package, href: "/orders" },
+                { label: "Wishlist", icon: Heart, href: "/wishlist" },
+                { label: "Shop", icon: ShoppingBag, href: "/shop" },
+                { label: "Account", icon: User, href: "/profile" },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="group bg-[#F5F5F5] p-5 flex flex-col items-center text-center gap-3 hover:bg-[#E5E5E5] transition-colors no-underline"
+                >
+                  <item.icon className="w-6 h-6 text-[#111111]" />
+                  <span className="text-[14px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    {item.label}
+                  </span>
+                </Link>
               ))}
             </div>
 
-            {/* Recent Orders Section */}
+            {/* Recent Orders */}
             <section>
-              <div className="flex items-center justify-between mb-8 px-2">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Recent Activity</h2>
-                <Link href="/orders" className="text-[10px] font-black text-slate-900 hover:text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2 group transition-colors">
-                  Full History <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="nike-heading text-[20px] md:text-[24px] text-[#111111]">
+                  Recent Orders
+                </h2>
+                <Link
+                  href="/orders"
+                  className="text-[14px] font-medium text-[#111111] hover:text-[#707072] transition-colors flex items-center gap-1"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                >
+                  View All <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
 
               {fetchingOrders ? (
                 <div className="space-y-4">
-                  {[1, 2].map(i => <div key={i} className="h-28 bg-slate-50 rounded-[2rem] border border-slate-100 animate-pulse" />)}
+                  {[1, 2].map(i => (
+                    <div key={i} className="h-24 bg-[#F5F5F5] animate-pulse" />
+                  ))}
                 </div>
               ) : recentOrders.length > 0 ? (
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <Link
+                <div className="space-y-0">
+                  {recentOrders.map((order, idx) => (
+                    <motion.div
                       key={order.id}
-                      href={`/orders/${order.id}`}
-                      className="group block bg-white rounded-[2rem] p-6 border border-slate-100 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-900/5 transition-all"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.08 }}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
-                            <Package className="w-8 h-8" />
+                      <Link
+                        href={`/orders/${order.id}`}
+                        className="group flex items-center justify-between gap-4 py-5 no-underline hover:bg-[#FAFAFA] -mx-4 px-4 transition-colors"
+                        style={{ borderBottom: '1px solid #E5E5E5' }}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 bg-[#F5F5F5] flex items-center justify-center shrink-0">
+                            <Package className="w-6 h-6 text-[#707072] group-hover:text-[#111111] transition-colors" />
                           </div>
                           <div>
-                            <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">
-                              #{order.id.slice(0, 8).toUpperCase()}
-                            </p>
-                            <h3 className="text-lg font-black text-slate-900 leading-tight">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[12px] font-medium text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                                #{order.id.slice(0, 8).toUpperCase()}
+                              </span>
+                              <span className={`text-[11px] font-medium uppercase px-2 py-0.5 ${
+                                order.status === 'delivered' ? 'bg-[#007D48]/10 text-[#007D48]' :
+                                order.status === 'cancelled' ? 'bg-[#D30005]/10 text-[#D30005]' :
+                                'bg-[#F5F5F5] text-[#707072]'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </div>
+                            <h3 className="text-[16px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               ₹{order.total_amount.toLocaleString("en-IN")}
                             </h3>
-                            <p className="text-xs text-slate-500 font-medium mt-1">
-                              {new Date(order.created_at).toLocaleDateString("en-IN", { month: "long", day: "numeric" })} · {order.status}
+                            <p className="text-[12px] text-[#707072] mt-0.5" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                              {new Date(order.created_at).toLocaleDateString("en-IN", { month: "long", day: "numeric" })}
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            order.status === 'delivered' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'
-                          }`}>
-                            {order.status}
-                          </div>
-                          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest group-hover:text-slate-900 transition-colors">
-                            Manage Order
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
+                        <ChevronRight className="w-5 h-5 text-[#CACACB] group-hover:text-[#111111] group-hover:translate-x-1 transition-all shrink-0" />
+                      </Link>
+                    </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="bg-slate-50/50 rounded-[3rem] p-16 text-center border border-dashed border-slate-200">
-                  <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-200 shadow-sm">
-                    <ShoppingBag className="w-10 h-10" />
+                <div className="bg-[#F5F5F5] p-12 text-center">
+                  <div className="w-16 h-16 bg-white flex items-center justify-center mx-auto mb-5">
+                    <ShoppingBag className="w-7 h-7 text-[#CACACB]" />
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-2">No orders yet</h3>
-                  <p className="text-slate-500 text-sm mb-8 max-w-xs mx-auto font-medium">Your collection starts with your first purchase. Explore our latest drops.</p>
-                  <Link href="/shop" className="inline-flex items-center justify-center px-10 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-95">
-                    Start Shopping
+                  <h3 className="text-[18px] font-medium text-[#111111] mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    No orders yet
+                  </h3>
+                  <p className="text-[14px] text-[#707072] mb-6" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    Your order history will appear here once you make your first purchase.
+                  </p>
+                  <Link href="/shop" className="nike-btn-primary text-[14px]">
+                    Start Shopping <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               )}
             </section>
           </div>
 
-          {/* Sidebar / Settings Area */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-              <div className="p-8 border-b border-slate-50">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Account Settings</h3>
+          {/* Sidebar */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Account Info */}
+            <div className="bg-[#F5F5F5] p-6 md:p-8">
+              <h3 className="text-[14px] font-medium text-[#111111] mb-6 uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Account Information
+              </h3>
+              <div className="space-y-4" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                <div>
+                  <p className="text-[12px] text-[#707072] mb-1 uppercase">Name</p>
+                  <p className="text-[14px] font-medium text-[#111111]">{name}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] text-[#707072] mb-1 uppercase">Email</p>
+                  <p className="text-[14px] font-medium text-[#111111]">{user.email}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] text-[#707072] mb-1 uppercase">Member Since</p>
+                  <p className="text-[14px] font-medium text-[#111111]">{memberSince}</p>
+                </div>
               </div>
-              <div className="p-4 space-y-2">
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-[#F5F5F5] p-6 md:p-8">
+              <h3 className="text-[14px] font-medium text-[#111111] mb-4 uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Quick Actions
+              </h3>
+              <div className="space-y-1">
                 {[
-                  { label: "Profile Information", icon: User, href: "/profile", color: "bg-blue-50 text-blue-600" },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl transition-all hover:bg-slate-50 cursor-pointer group">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2.5 ${item.color} rounded-xl group-hover:scale-110 transition-transform`}>
-                        <item.icon className="w-5 h-5" />
-                      </div>
-                      <span className="text-sm font-bold text-slate-700">{item.label}</span>
+                  { label: "My Orders", icon: Package, href: "/orders" },
+                  { label: "Wishlist", icon: Heart, href: "/wishlist" },
+                ].map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="group flex items-center justify-between py-3 px-2 -mx-2 hover:bg-white transition-colors no-underline"
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-5 h-5 text-[#707072]" />
+                      <span className="text-[14px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                        {item.label}
+                      </span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 transition-colors" />
-                  </div>
+                    <ChevronRight className="w-4 h-4 text-[#CACACB] group-hover:text-[#111111] transition-colors" />
+                  </Link>
                 ))}
               </div>
             </div>
 
+            {/* Need Help */}
+            <div className="bg-[#111111] p-6 md:p-8 text-center">
+              <h3 className="text-[16px] font-medium text-white mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Need Help?
+              </h3>
+              <p className="text-[14px] text-white/60 mb-6 leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Our concierge team is ready to assist you with any questions.
+              </p>
+              <Link href="/contact" className="nike-btn-primary-inverted w-full text-[14px]">
+                Contact Us
+              </Link>
+            </div>
           </div>
         </div>
       </div>

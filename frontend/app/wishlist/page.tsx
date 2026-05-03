@@ -74,12 +74,14 @@ export default function WishlistPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-10 md:py-14">
-        <div className="flex items-center gap-3 mb-8">
-          <Heart className="w-7 h-7 text-[#D30005] fill-current" />
-          <div>
-            <h1 className="nike-display text-[30px] md:text-[42px] text-[#111111]">My Wishlist</h1>
-            <p className="text-[14px] text-[#707072] mt-1">{likedProducts.length} saved items</p>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-2">
+            MY WISHLIST
+          </h1>
+          <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            {likedProducts.length} {likedProducts.length === 1 ? 'saved item' : 'saved items'}
+          </p>
         </div>
 
         {loading ? (
@@ -94,12 +96,12 @@ export default function WishlistPage() {
           </div>
         ) : likedProducts.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-16 h-16 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-5 rounded-full">
+            <div className="w-16 h-16 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-5">
               <Heart className="w-7 h-7 text-[#CACACB]" />
             </div>
-            <h2 className="text-[24px] font-medium mb-2 text-[#111111]">No liked items yet</h2>
-            <p className="text-[16px] text-[#707072] mb-6 max-w-md mx-auto">
-              Click the heart button on any product to save it here.
+            <h2 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-4">NO SAVED ITEMS</h2>
+            <p className="text-[16px] text-[#707072] mb-8 max-w-md mx-auto leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              Click the heart icon on any product to save it to your wishlist.
             </p>
             <Link href="/shop" className="nike-btn-primary text-[14px] inline-flex">
               <Search className="w-4 h-4" />

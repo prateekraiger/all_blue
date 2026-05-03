@@ -1,18 +1,29 @@
-import Image from "next/image"
-import { Mail, Phone } from "lucide-react"
-import type { Metadata } from "next"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Contact Us",
-  description:
-    "Get in touch with ALL BLUE. Reach our concierge team for personalized gifting assistance, corporate inquiries, or support.",
-  openGraph: {
-    title: "Contact Us | ALL BLUE",
-    description: "Reach our concierge team for personalized gifting assistance.",
-  },
-}
+import Image from "next/image"
+import { Mail, Phone, MapPin, Clock, Send } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" })
+  const [sending, setSending] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all fields")
+      return
+    }
+    setSending(true)
+    // Simulate sending
+    setTimeout(() => {
+      toast.success("Message sent successfully! We'll get back to you soon.")
+      setFormData({ name: "", email: "", message: "" })
+      setSending(false)
+    }, 1500)
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-20">
@@ -36,7 +47,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Call Us</h3>
                 <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>1-800-ALL-BLUE</p>
-                <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mon-Fri, 9am - 6pm EST</p>
+                <p className="text-[12px] text-[#CACACB]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Mon-Fri, 9am - 6pm EST</p>
               </div>
               <div className="flex flex-col gap-3">
                 <div className="w-10 h-10 bg-[#F5F5F5] flex items-center justify-center">
@@ -44,17 +55,19 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Email</h3>
                 <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>concierge@allbluegifts.com</p>
-                <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>24/7 Support</p>
+                <p className="text-[12px] text-[#CACACB]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>24/7 Support</p>
               </div>
             </div>
 
-            <form className="flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="name" className="text-[12px] font-medium text-[#707072] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>First Name</label>
+                  <label htmlFor="name" className="text-[12px] font-medium text-[#707072] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Full Name</label>
                   <input
                     type="text"
                     id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     className="nike-input"
                     placeholder="Your name"
                   />
@@ -64,6 +77,8 @@ export default function ContactPage() {
                   <input
                     type="email"
                     id="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     className="nike-input"
                     placeholder="Your email"
                   />
@@ -74,12 +89,28 @@ export default function ContactPage() {
                 <textarea
                   id="message"
                   rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                   className="nike-input resize-y"
                   placeholder="Tell us about your inquiry..."
                 />
               </div>
-              <button type="button" className="nike-btn-primary text-[16px] px-8 py-3.5 w-full sm:w-auto mt-2">
-                Send Message
+              <button
+                type="submit"
+                disabled={sending}
+                className="nike-btn-primary text-[16px] px-8 py-3.5 w-full sm:w-auto mt-2"
+              >
+                {sending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Message
+                  </>
+                )}
               </button>
             </form>
           </div>
