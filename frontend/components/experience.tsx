@@ -77,9 +77,9 @@ export function ExperienceSection() {
               viewport={{ once: true, margin: "-100px" }}
               className="flex items-center gap-6 pt-4"
             >
-              <button className="px-8 py-4 bg-[#111111] text-white font-sans font-medium tracking-wide uppercase text-sm hover:bg-black transition-colors shadow-lg shadow-black/5">
+              <a href="/about" className="px-8 py-4 bg-[#111111] text-white font-sans font-medium tracking-wide uppercase text-sm hover:bg-[#707072] transition-colors shadow-lg shadow-black/5 inline-block no-underline">
                 Discover Our Story
-              </button>
+              </a>
             </motion.div>
           </div>
 

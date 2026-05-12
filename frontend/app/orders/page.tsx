@@ -5,19 +5,20 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { 
   Package, ChevronRight, Clock, CheckCircle, 
-  Truck, XCircle, CreditCard, Search, Filter,
-  ArrowLeft, ShoppingBag
+  Truck, XCircle, CreditCard, ShoppingBag,
+  Home, ArrowRight
 } from "lucide-react"
 import { ordersApi, type Order } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { toast } from "sonner"
+import { motion } from "framer-motion"
 
-const STATUS_CONFIG: Record<string, { label: string, color: string, icon: any, bg: string }> = {
-  pending: { label: "Pending", color: "text-amber-600", bg: "bg-amber-50", icon: Clock },
-  paid: { label: "Paid", color: "text-blue-600", bg: "bg-blue-50", icon: CreditCard },
-  shipped: { label: "Shipped", color: "text-purple-600", bg: "bg-purple-50", icon: Truck },
-  delivered: { label: "Delivered", color: "text-green-600", bg: "bg-green-50", icon: CheckCircle },
-  cancelled: { label: "Cancelled", color: "text-red-600", bg: "bg-red-50", icon: XCircle },
+const STATUS_CONFIG: Record<string, { label: string, color: string, bg: string, icon: any }> = {
+  pending: { label: "Pending", color: "text-[#FF5000]", bg: "bg-[#FF5000]/10", icon: Clock },
+  paid: { label: "Paid", color: "text-[#1151FF]", bg: "bg-[#1151FF]/10", icon: CreditCard },
+  shipped: { label: "Shipped", color: "text-[#707072]", bg: "bg-[#F5F5F5]", icon: Truck },
+  delivered: { label: "Delivered", color: "text-[#007D48]", bg: "bg-[#007D48]/10", icon: CheckCircle },
+  cancelled: { label: "Cancelled", color: "text-[#D30005]", bg: "bg-[#D30005]/10", icon: XCircle },
 }
 
 export default function OrdersPage() {
@@ -55,18 +56,17 @@ export default function OrdersPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12">
-        <div className="flex items-center gap-4 mb-12 animate-pulse">
-          <div className="w-12 h-12 bg-slate-100 rounded-2xl" />
-          <div className="space-y-2">
-            <div className="h-8 bg-slate-100 w-48 rounded-lg" />
-            <div className="h-4 bg-slate-100 w-32 rounded-md" />
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12">
+          <div className="animate-pulse">
+            <div className="h-5 bg-[#F5F5F5] w-32 mb-6" />
+            <div className="h-12 bg-[#F5F5F5] w-64 mb-8" />
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-28 bg-[#F5F5F5]" />
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="space-y-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 bg-slate-50 rounded-[2.5rem] border border-slate-100 animate-pulse" />
-          ))}
         </div>
       </div>
     )
@@ -74,90 +74,101 @@ export default function OrdersPage() {
 
   if (orders.length === 0) {
     return (
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-24 flex flex-col items-center justify-center text-center">
-        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mb-8 text-slate-200">
-          <ShoppingBag className="w-12 h-12" />
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-lg mx-auto"
+          >
+            <div className="w-20 h-20 bg-[#F5F5F5] flex items-center justify-center mx-auto mb-8">
+              <ShoppingBag className="w-8 h-8 text-[#CACACB]" />
+            </div>
+            <h1 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-4">
+              NO ORDERS YET
+            </h1>
+            <p className="text-[16px] text-[#707072] mb-10 leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              When you place an order, it will appear here for you to track and manage.
+            </p>
+            <Link href="/shop" className="nike-btn-primary text-[16px] px-10 py-3.5">
+              Start Shopping <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
         </div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-4">No orders yet</h1>
-        <p className="text-slate-500 font-medium mb-10 max-w-sm">When you place an order, it will appear here for you to track and manage.</p>
-        <Link
-          href="/shop"
-          className="bg-slate-900 text-white px-12 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-95"
-        >
-          Explore the Shop
-        </Link>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-12 py-12">
-        
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="flex items-center gap-4 mb-4">
-              <Link href="/profile" className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">My Orders</h1>
-            </div>
-            <p className="text-slate-500 font-medium ml-14">You have placed <span className="text-slate-900 font-black">{total} orders</span> in total.</p>
-          </div>
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-8 md:py-12">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-[12px] text-[#707072] mb-6" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+          <Link href="/" className="hover:text-[#111111] transition-colors flex items-center gap-1">
+            <Home className="w-3.5 h-3.5" /> Home
+          </Link>
+          <ChevronRight className="w-3 h-3 text-[#CACACB]" />
+          <Link href="/profile" className="hover:text-[#111111] transition-colors">Profile</Link>
+          <ChevronRight className="w-3 h-3 text-[#CACACB]" />
+          <span className="text-[#111111] font-medium">Orders</span>
+        </nav>
 
-          <div className="flex gap-3 ml-14 md:ml-0">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-50 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-colors border border-slate-100">
-              <Filter className="w-3.5 h-3.5" /> Filter
-            </button>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-50 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-colors border border-slate-100">
-              <Search className="w-3.5 h-3.5" /> Search
-            </button>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <h1 className="nike-display text-[32px] md:text-[48px] text-[#111111]">
+              MY ORDERS
+            </h1>
+            <p className="text-[14px] text-[#707072] mt-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              {total} {total === 1 ? 'order' : 'orders'} placed
+            </p>
           </div>
         </div>
 
         {/* Orders List */}
-        <div className="space-y-6">
-          {orders.map((order) => {
+        <div className="space-y-0">
+          {orders.map((order, idx) => {
             const statusConf = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending
             const StatusIcon = statusConf.icon
             const itemCount = order.items.reduce((sum, item) => sum + item.qty, 0)
 
             return (
-              <Link
+              <motion.div
                 key={order.id}
-                href={`/orders/${order.id}`}
-                className="group block bg-white rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-900/5 transition-all relative overflow-hidden"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.06 }}
               >
-                {/* Visual accent */}
-                <div className={`absolute top-0 left-0 w-2 h-full ${statusConf.bg.replace('bg-', 'bg-')}`} />
-                
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
-                      <Package className="w-8 h-8" />
+                <Link
+                  href={`/orders/${order.id}`}
+                  className="group flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 no-underline transition-colors hover:bg-[#FAFAFA] -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-12 lg:px-12"
+                  style={{ borderBottom: '1px solid #E5E5E5' }}
+                >
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 bg-[#F5F5F5] flex items-center justify-center shrink-0">
+                      <Package className="w-6 h-6 text-[#707072] group-hover:text-[#111111] transition-colors" />
                     </div>
                     
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-slate-500">
+                    <div>
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="text-[12px] font-medium text-[#707072] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                           #{order.id.slice(0, 8).toUpperCase()}
                         </span>
-                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusConf.bg} ${statusConf.color}`}>
+                        <div className={`flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-medium uppercase ${statusConf.bg} ${statusConf.color}`}>
                           <StatusIcon className="w-3 h-3" />
                           {statusConf.label}
                         </div>
                       </div>
                       
-                      <h3 className="text-xl font-black text-slate-900 tracking-tight">
-                        {itemCount} {itemCount === 1 ? "Item" : "Items"} · ₹{order.total_amount.toLocaleString("en-IN")}
+                      <h3 className="text-[16px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                        {itemCount} {itemCount === 1 ? "Item" : "Items"} &middot; ₹{order.total_amount.toLocaleString("en-IN")}
                       </h3>
                       
-                      <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
+                      <div className="flex items-center gap-3 text-[12px] text-[#707072] mt-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                         <span>{new Date(order.created_at).toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}</span>
                         {order.address && (
                           <>
-                            <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                            <span className="text-[#CACACB]">&middot;</span>
                             <span>{order.address.city}, {order.address.state}</span>
                           </>
                         )}
@@ -165,55 +176,48 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between md:justify-end gap-6 pt-6 md:pt-0 border-t md:border-t-0 border-slate-50">
-                    <div className="text-left md:text-right hidden sm:block">
-                      <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-1">Payment</p>
-                      <p className="text-xs font-bold text-slate-700">Credit Card</p>
-                    </div>
-                    <div className="flex items-center gap-3 bg-slate-50 group-hover:bg-slate-900 px-6 py-3 rounded-2xl transition-all duration-300">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white">View Details</span>
-                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                    </div>
+                  <div className="flex items-center gap-2 text-[14px] font-medium text-[#707072] group-hover:text-[#111111] transition-colors ml-[76px] md:ml-0" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    View Details
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </motion.div>
             )
           })}
         </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-8 mt-16">
+          <div className="flex justify-center items-center gap-2 mt-12 mb-4">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+              className="nike-btn-secondary text-[14px] px-5 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Prev
+              Previous
             </button>
-            
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <div className="flex gap-1.5">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all ${
-                    page === p 
-                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' 
-                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                  className={`w-10 h-10 rounded-full text-[14px] font-medium transition-all ${
+                    page === p
+                    ? "bg-[#111111] text-white"
+                    : "border border-[#CACACB] text-[#111111] hover:border-[#111111]"
                   }`}
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                 >
                   {p}
                 </button>
               ))}
             </div>
-
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+              className="nike-btn-secondary text-[14px] px-5 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Next <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              Next
             </button>
           </div>
         )}

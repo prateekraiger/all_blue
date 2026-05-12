@@ -5,13 +5,13 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { 
   Package, Clock, CheckCircle, Truck, 
-  XCircle, CreditCard, MapPin, ArrowLeft,
-  ChevronRight, Printer, HelpCircle,
-  Calendar, Hash, Receipt
+  XCircle, CreditCard, MapPin, Home,
+  ChevronRight, HelpCircle, Hash
 } from "lucide-react"
 import { ordersApi, type Order } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { toast } from "sonner"
+import { motion } from "framer-motion"
 
 const STATUS_STEPS = [
   { key: "pending", label: "Ordered", description: "Order received", icon: Package },
@@ -83,23 +83,19 @@ export default function OrderDetailPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12 animate-pulse">
-        <div className="h-4 bg-slate-100 w-32 mb-8 rounded" />
-        <div className="flex justify-between items-end mb-12">
-          <div className="space-y-3">
-            <div className="h-10 bg-slate-100 w-64 rounded-xl" />
-            <div className="h-4 bg-slate-100 w-48 rounded" />
-          </div>
-          <div className="h-12 bg-slate-100 w-32 rounded-2xl" />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="h-40 bg-slate-50 rounded-[2.5rem]" />
-            <div className="h-80 bg-slate-50 rounded-[2.5rem]" />
-          </div>
-          <div className="space-y-6">
-            <div className="h-64 bg-slate-50 rounded-[2rem]" />
-            <div className="h-40 bg-slate-50 rounded-[2rem]" />
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-12 animate-pulse">
+          <div className="h-5 bg-[#F5F5F5] w-48 mb-6" />
+          <div className="h-12 bg-[#F5F5F5] w-80 mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="h-32 bg-[#F5F5F5]" />
+              <div className="h-64 bg-[#F5F5F5]" />
+            </div>
+            <div className="space-y-6">
+              <div className="h-48 bg-[#F5F5F5]" />
+              <div className="h-40 bg-[#F5F5F5]" />
+            </div>
           </div>
         </div>
       </div>
@@ -113,52 +109,28 @@ export default function OrderDetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-12 py-12">
-        
-        {/* Navigation & Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
-          <Link 
-            href="/orders" 
-            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-            Back to Orders
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-8 md:py-12">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-[12px] text-[#707072] mb-6" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+          <Link href="/" className="hover:text-[#111111] transition-colors flex items-center gap-1">
+            <Home className="w-3.5 h-3.5" /> Home
           </Link>
-          
-          <div className="flex items-center gap-3">
-            <button className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all">
-              <Printer className="w-4 h-4" />
-            </button>
-            <button className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all">
-              <HelpCircle className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+          <ChevronRight className="w-3 h-3 text-[#CACACB]" />
+          <Link href="/orders" className="hover:text-[#111111] transition-colors">Orders</Link>
+          <ChevronRight className="w-3 h-3 text-[#CACACB]" />
+          <span className="text-[#111111] font-medium">#{order.id.slice(0, 8).toUpperCase()}</span>
+        </nav>
 
-        {/* Hero Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-4">
-              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight uppercase">
-                Order <span className="text-slate-300">#{order.id.slice(0, 8).toUpperCase()}</span>
-              </h1>
-              <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                isCancelled ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
-              }`}>
-                {order.status}
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-6 text-slate-500 font-medium text-sm">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-300" />
-                <span>{new Date(order.created_at).toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}</span>
-              </div>
-              <div className="w-1.5 h-1.5 bg-slate-100 rounded-full hidden sm:block" />
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-slate-300" />
-                <span>{new Date(order.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
-              </div>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 md:mb-12">
+          <div>
+            <h1 className="nike-display text-[32px] md:text-[48px] text-[#111111] mb-2">
+              ORDER #{order.id.slice(0, 8).toUpperCase()}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              <span>{new Date(order.created_at).toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}</span>
+              <span className="text-[#CACACB]">&middot;</span>
+              <span>{new Date(order.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
             </div>
           </div>
 
@@ -166,53 +138,53 @@ export default function OrderDetailPage() {
             <button
               onClick={handleCancel}
               disabled={cancelling}
-              className="bg-white text-red-600 border-2 border-red-50 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-50 transition-all active:scale-95 disabled:opacity-50"
+              className="nike-btn-secondary text-[14px] px-6 py-2.5 text-[#D30005] border-[#D30005]/30 hover:bg-[#D30005]/5 hover:border-[#D30005] disabled:opacity-50"
             >
-              {cancelling ? "Processing..." : "Request Cancellation"}
+              {cancelling ? "Processing..." : "Cancel Order"}
             </button>
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             
             {/* Status Timeline */}
             {!isCancelled ? (
-              <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] -mr-32 -mt-32" />
-                
-                <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 mb-10">Delivery Progress</h2>
+              <div className="bg-[#111111] p-6 md:p-10">
+                <h2 className="text-[12px] font-medium text-white/50 mb-8 uppercase tracking-wider" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  Delivery Progress
+                </h2>
                 
                 <div className="relative">
                   {/* Connection Line */}
-                  <div className="absolute top-[1.375rem] left-0 w-full h-0.5 bg-slate-800">
-                    <div 
-                      className="h-full bg-blue-500 transition-all duration-1000 ease-out"
-                      style={{ width: `${(currentStepIdx / (STATUS_STEPS.length - 1)) * 100}%` }}
+                  <div className="absolute top-5 left-0 w-full h-[2px] bg-white/10">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(currentStepIdx / (STATUS_STEPS.length - 1)) * 100}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full bg-white"
                     />
                   </div>
                   
                   {/* Steps */}
-                  <div className="relative flex justify-between gap-4">
+                  <div className="relative flex justify-between">
                     {STATUS_STEPS.map((step, idx) => {
                       const StepIcon = step.icon
                       const isActive = idx <= currentStepIdx
-                      const isUpcoming = idx > currentStepIdx
                       
                       return (
-                        <div key={step.key} className="flex flex-col items-center group">
-                          <div className={`
-                            w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 z-10
-                            ${isActive ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-800 text-slate-500'}
-                          `}>
+                        <div key={step.key} className="flex flex-col items-center">
+                          <div className={`w-10 h-10 flex items-center justify-center z-10 transition-all ${
+                            isActive ? 'bg-white text-[#111111]' : 'bg-[#39393B] text-[#707072]'
+                          }`}>
                             <StepIcon className="w-5 h-5" />
                           </div>
-                          <div className="mt-6 text-center">
-                            <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isActive ? 'text-white' : 'text-slate-600'}`}>
+                          <div className="mt-4 text-center">
+                            <p className={`text-[12px] font-medium uppercase mb-0.5 ${isActive ? 'text-white' : 'text-white/30'}`} style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {step.label}
                             </p>
-                            <p className="text-[9px] font-medium text-slate-500 hidden sm:block whitespace-nowrap">
+                            <p className="text-[11px] text-white/30 hidden sm:block" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                               {step.description}
                             </p>
                           </div>
@@ -223,135 +195,143 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-red-50 rounded-[2.5rem] p-8 border border-red-100 flex items-center gap-6">
-                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 shadow-sm">
-                  <XCircle className="w-8 h-8" />
+              <div className="bg-[#D30005]/5 p-6 md:p-8 flex items-center gap-5" style={{ border: '1px solid rgba(211, 0, 5, 0.15)' }}>
+                <div className="w-14 h-14 bg-[#D30005]/10 flex items-center justify-center shrink-0">
+                  <XCircle className="w-7 h-7 text-[#D30005]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-red-900 tracking-tight mb-1">Order Cancelled</h3>
-                  <p className="text-red-600/70 text-sm font-medium">This order was cancelled on {new Date().toLocaleDateString()}. Refunds are usually processed within 5-7 days.</p>
+                  <h3 className="text-[18px] font-medium text-[#111111] mb-1" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    Order Cancelled
+                  </h3>
+                  <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    This order was cancelled. Refunds are usually processed within 5-7 business days.
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Order Items */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden">
-              <div className="p-8 md:p-10 border-b border-slate-50 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Receipt className="w-5 h-5 text-slate-300" />
-                  <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Order Summary</h2>
-                </div>
-                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{order.items.length} items</span>
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  Order Summary
+                </h2>
+                <span className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                </span>
               </div>
               
-              <div className="p-8 md:p-10 space-y-8">
+              <div className="space-y-0">
                 {order.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-6">
-                      <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:bg-slate-100 transition-colors">
-                        <Package className="w-10 h-10" />
+                  <div key={idx} className="flex items-center justify-between gap-4 py-5" style={{ borderBottom: '1px solid #E5E5E5' }}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-[#F5F5F5] flex items-center justify-center shrink-0">
+                        <Package className="w-7 h-7 text-[#CACACB]" />
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">#{item.product_id.slice(0, 8).toUpperCase()}</p>
-                        <h4 className="text-lg font-black text-slate-900 tracking-tight">Product Item</h4>
-                        <p className="text-xs text-slate-500 font-medium">Quantity: <span className="text-slate-900 font-bold">{item.qty}</span></p>
+                      <div>
+                        <p className="text-[12px] text-[#707072] mb-0.5 font-mono" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          #{item.product_id.slice(0, 8).toUpperCase()}
+                        </p>
+                        <h4 className="text-[16px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          Product Item
+                        </h4>
+                        <p className="text-[14px] text-[#707072]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                          Qty: {item.qty} &middot; ₹{item.price.toLocaleString("en-IN")} each
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-black text-slate-900">₹{(item.price * item.qty).toLocaleString("en-IN")}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">₹{item.price.toLocaleString("en-IN")} ea.</p>
+                    <div className="text-right shrink-0">
+                      <p className="text-[16px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                        ₹{(item.price * item.qty).toLocaleString("en-IN")}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-slate-50 p-8 md:p-10 space-y-4">
-                <div className="flex justify-between text-sm font-medium text-slate-500">
-                  <span>Subtotal</span>
-                  <span className="text-slate-900">₹{order.total_amount.toLocaleString("en-IN")}</span>
-                </div>
-                <div className="flex justify-between text-sm font-medium text-slate-500">
-                  <span>Shipping</span>
-                  <span className="text-green-600 font-black uppercase tracking-widest text-[10px]">Free</span>
-                </div>
-                <div className="h-px bg-slate-200 my-4" />
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-black text-slate-900 uppercase tracking-tight">Total Amount</span>
-                  <span className="text-3xl font-black text-slate-900 tracking-tight">₹{order.total_amount.toLocaleString("en-IN")}</span>
+              {/* Totals */}
+              <div className="bg-[#F5F5F5] p-6 mt-0">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-[14px]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <span className="text-[#707072]">Subtotal</span>
+                    <span className="font-medium text-[#111111]">₹{order.total_amount.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-[14px]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    <span className="text-[#707072]">Shipping</span>
+                    <span className="font-medium text-[#007D48]">Free</span>
+                  </div>
+                  <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: '1px solid #E5E5E5' }}>
+                    <span className="text-[16px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Total</span>
+                    <span className="text-[24px] font-medium text-[#111111]" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                      ₹{order.total_amount.toLocaleString("en-IN")}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             
-            {/* Delivery Info */}
+            {/* Delivery Address */}
             {order.address && (
-              <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Shipping Details</h3>
+              <div className="bg-[#F5F5F5] p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <MapPin className="w-5 h-5 text-[#111111]" />
+                  <h3 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                    Shipping Details
+                  </h3>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-4" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                   <div>
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Customer</p>
-                    <p className="text-sm font-bold text-slate-900">{order.address.name}</p>
+                    <p className="text-[12px] text-[#707072] mb-1 uppercase">Customer</p>
+                    <p className="text-[14px] font-medium text-[#111111]">{order.address.name}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Contact</p>
-                    <p className="text-sm font-bold text-slate-700">{order.address.phone}</p>
+                    <p className="text-[12px] text-[#707072] mb-1 uppercase">Contact</p>
+                    <p className="text-[14px] font-medium text-[#111111]">{order.address.phone}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Address</p>
-                    <div className="text-sm font-bold text-slate-700 space-y-0.5">
+                    <p className="text-[12px] text-[#707072] mb-1 uppercase">Address</p>
+                    <div className="text-[14px] text-[#111111] space-y-0.5">
                       <p>{order.address.line1}</p>
                       {order.address.line2 && <p>{order.address.line2}</p>}
                       <p>{order.address.city}, {order.address.state}</p>
-                      <p className="text-slate-400">{order.address.country} · {order.address.pincode}</p>
+                      <p className="text-[#707072]">{order.address.country} &middot; {order.address.pincode}</p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Payment Details */}
-            <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-3xl rounded-full -mr-12 -mt-12" />
-              
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                  <CreditCard className="w-4 h-4" />
-                </div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Payment Info</h3>
+            {/* Payment Info */}
+            <div className="bg-[#F5F5F5] p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <CreditCard className="w-5 h-5 text-[#111111]" />
+                <h3 className="text-[14px] font-medium text-[#111111] uppercase" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                  Payment Info
+                </h3>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                 <div>
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Method</p>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <p className="text-sm font-bold text-slate-900">Online Payment</p>
-                  </div>
+                  <p className="text-[12px] text-[#707072] mb-1 uppercase">Method</p>
+                  <p className="text-[14px] font-medium text-[#111111]">Online Payment</p>
                 </div>
                 
                 {order.payment_id && (
                   <div>
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Transaction ID</p>
-                    <div className="flex items-center gap-2 group cursor-pointer">
-                      <Hash className="w-3.5 h-3.5 text-slate-200" />
-                      <p className="text-xs font-bold text-slate-500 font-mono break-all">{order.payment_id}</p>
-                    </div>
+                    <p className="text-[12px] text-[#707072] mb-1 uppercase">Transaction ID</p>
+                    <p className="text-[12px] font-medium text-[#707072] font-mono break-all">{order.payment_id}</p>
                   </div>
                 )}
                 
-                <div className="pt-6 border-t border-slate-50">
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Status</p>
-                  <p className={`text-sm font-black uppercase tracking-tight ${
-                    order.status === "pending" ? "text-amber-500" : "text-green-600"
+                <div className="pt-4" style={{ borderTop: '1px solid #E5E5E5' }}>
+                  <p className="text-[12px] text-[#707072] mb-1 uppercase">Status</p>
+                  <p className={`text-[14px] font-medium ${
+                    order.status === "pending" ? "text-[#FF5000]" : "text-[#007D48]"
                   }`}>
                     {order.status === "pending" ? "Payment Awaiting" : "Payment Successful"}
                   </p>
@@ -360,15 +340,19 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Help Card */}
-            <div className="bg-slate-50 rounded-[2rem] p-8 text-center border border-slate-100">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 mx-auto mb-4 shadow-sm">
-                <HelpCircle className="w-6 h-6" />
+            <div className="bg-[#F5F5F5] p-6 md:p-8 text-center">
+              <div className="w-12 h-12 bg-white flex items-center justify-center mx-auto mb-4">
+                <HelpCircle className="w-5 h-5 text-[#707072]" />
               </div>
-              <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-2">Need help with this order?</h4>
-              <p className="text-xs text-slate-500 font-medium mb-6 leading-relaxed">Our support team is available 24/7 to assist with tracking or issues.</p>
-              <button className="w-full py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all">
+              <h4 className="text-[16px] font-medium text-[#111111] mb-2" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Need help?
+              </h4>
+              <p className="text-[14px] text-[#707072] mb-6 leading-relaxed" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                Our support team is available 24/7 to assist you.
+              </p>
+              <Link href="/contact" className="nike-btn-secondary w-full text-[14px]">
                 Contact Concierge
-              </button>
+              </Link>
             </div>
           </div>
         </div>
